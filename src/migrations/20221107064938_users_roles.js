@@ -7,7 +7,7 @@ exports.up = function (knex) {
     table.increments('id');
     table.integer('user_id');
     table.integer('role_id');
-    table.timestamps();
+    table.timestamps(true, true);
   });
 };
 

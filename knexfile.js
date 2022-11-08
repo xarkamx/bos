@@ -4,6 +4,18 @@
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 module.exports = {
+  test: {
+    client: 'mysql',
+    connection: {
+      host: 'localhost',
+      user: 'root',
+      password: '',
+      database: 'users',
+    },
+    migrations: {
+      directory: './src/migrations',
+    },
+  },
   development: {
     client: 'mysql',
     connection: {
