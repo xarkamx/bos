@@ -13,7 +13,7 @@ exports.up = function (knex) {
     table.integer('country_id');
     table.point('location').nullable();
     table.string('zip').nullable();
-    table.timestamps();
+    table.timestamps(true, true);
   });
 };
 

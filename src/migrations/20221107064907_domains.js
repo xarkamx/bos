@@ -6,7 +6,7 @@ exports.up = function (knex) {
   return knex.schema.createTable('domains', (table) => {
     table.increments('id');
     table.string('domain');
-    table.timestamps();
+    table.timestamps(true, true);
   });
 };
 

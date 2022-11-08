@@ -9,7 +9,7 @@ exports.up = function (knex) {
     table.string('phone_number');
     table.enum('type', ['home', 'work', 'mobile', 'other']);
     table.integer('user_id');
-    table.timestamps();
+    table.timestamps(true, true);
   });
 };
 

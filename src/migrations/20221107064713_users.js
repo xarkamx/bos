@@ -9,7 +9,7 @@ exports.up = function (knex) {
     table.string('email');
     table.string('password');
     table.integer('address_id').nullable();
-    table.timestamps();
+    table.timestamps(true, true);
   });
 };
 

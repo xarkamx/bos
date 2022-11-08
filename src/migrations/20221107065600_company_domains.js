@@ -7,7 +7,7 @@ exports.up = function (knex) {
     table.increments('id');
     table.integer('company_id');
     table.integer('domain_id');
-    table.timestamps();
+    table.timestamps(true, true);
   });
 };
 
