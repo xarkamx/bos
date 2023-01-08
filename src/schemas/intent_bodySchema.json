@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "properties": {
+    "payment_method": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "confirmation_method": {
+      "type": "string"
+    },
+    "confirm": {
+      "type": "boolean"
+    },
+    "setup_future_usage": {
+      "type": "string"
+    },
+    "capture_method": {
+      "type": "string"
+    },
+    "customer": {
+      "type": "string"
+    },
+    "payment_method_types": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "amount",
+    "currency"
+  ]
+}

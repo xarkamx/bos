@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "amount": {
+      "type": "number"
+    },
+    "currency": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "amount",
+    "currency",
+    "source"
+  ]
+}
