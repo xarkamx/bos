@@ -53,7 +53,7 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
           return {message:'Invalid credentials'};
         }
 
-        const token = fastify.jwt.sign({email:userExist.email}, {expiresIn: '1h'});
+        const token = fastify.jwt.sign({email:userExist.email,id:userExist.id}, {expiresIn: '1h'});
         
         reply.code(200).send({token,ttl:3600});
       }});

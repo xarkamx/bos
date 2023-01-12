@@ -15,10 +15,23 @@ export class UsersService {
   async getUser(query: queryUser) {
     return this.model.getUser(query);
   }
+  
+  async addRoleToUser(userId: number, roleId: number) {
+    return this.model.addRoleToUser(userId, roleId);
+  }
+  
+  async userHasRole(userId: number, roleId: number) {
+    return this.model.userHasRole(userId, roleId);
+  }
+
 
   async singUp(user:IUser) {
     const userExist = await this.getUser({email:user.email, name:user.name});
     return validatePassword(user.password, userExist.password);
+  }
+
+  async userBelogsToCompany(userId: number, companyId: number) {
+    return this.model.userBelogsToCompany(userId, companyId);
   }
   
 }
