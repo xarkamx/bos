@@ -1,4 +1,3 @@
-import knex from 'knex';
 import { snakeCaseReplacer } from '../utils/objectFormat';
 import { db } from '../config/db';
 import { passwordEncrypt } from '../utils/passwordUtils';
@@ -28,6 +27,27 @@ export class UserModel {
       table.orWhere(key, element[key]);
     });
     return table.first();
+  }
+
+  async addRoleToUser(userId: number, roleId: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.insert({user_id:userId, role_id:roleId}).into('users_roles')
+        );
+  }
+
+  async userBelogsToCompany(userId: number, companyId: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.select('id').from('company_users').where({user_id:userId, company_id:companyId}).first()
+        );
+  }
+
+  async userHasRole(userId: number, roleId: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.select('id').from('users_roles').where({user_id:userId, role_id:roleId}).first()
+        );
   }
 }
 

@@ -13,6 +13,7 @@
 		"@typescript-eslint/restrict-template-expressions": "warn",
 		"@typescript-eslint/no-require-imports": "off",
 		"@typescript-eslint/no-var-requires": "off",
+		"@typescript-eslint/no-throw-literal": "off",
 		"new-cap": "off",
 		"no-console": "warn",
 		"max-lines": [
