@@ -2,7 +2,6 @@ import type { FastifyPluginAsync } from "fastify";
 import { CompanyService } from '../../services/companies/companyService';
 
  const companies: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
-  
   fastify.route({
     method: "POST",
     url: "/",
@@ -14,6 +13,13 @@ import { CompanyService } from '../../services/companies/companyService';
       reply.code(201);
     }
   });
+  fastify.route({
+    method: "GET",
+    url: "/",
+    async handler (_request, reply) {
+      reply.code(200);
+    }
+  })
 
 };
 

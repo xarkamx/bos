@@ -27,6 +27,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // define your routes in one of these
   void fastify.register(AutoLoad, {
     dir: join(__dirname, "routes"),
+    routeParams: true,
     options: opts,
   });
 };

@@ -19,4 +19,18 @@ export class DomainModel {
     const res = await this.db(this.table).where({id}).first();
     return res;
   }
+
+  async addDomainToCompany(domainId: number, companyId: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.insert({domain_id:domainId, company_id:companyId}).into('company_domains')
+        );
+  }
+
+  async addDomainToUser(domainId: number, userId: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+        trx.insert({domain_id:domainId, user_id:userId}).into('users_domains')
+        );
+  }
 }

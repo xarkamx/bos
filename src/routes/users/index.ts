@@ -18,14 +18,7 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
         reply.code(409);
         return {message:'User already exist'};
       }
-
-      const logged = fastify.jwt.verify(request.headers.authorization);
-
-      if(logged) {
-        reply.code(202);
-        return {message:'cannot create generic user when logged'};
-      }
-
+    
       await userService.addUser({name:username,email, password});
       reply.code(201);
     }});
@@ -37,7 +30,6 @@ const user: FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
         public: true,
       },
       async handler (request:any, reply:any)  {
-        
         const {username,email,password}:any = request.body;
         const userService = new UsersService();
         const userExist = await userService.getUser({email,name:username});

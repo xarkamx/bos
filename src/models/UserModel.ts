@@ -37,10 +37,9 @@ export class UserModel {
   }
 
   async userBelogsToCompany(userId: number, companyId: number) {
-    return this.db
-      .transaction(async (trx: any) => 
-        trx.select('id').from('company_users').where({user_id:userId, company_id:companyId}).first()
-        );
+    return this.db.select('id').from('company_users')
+      .where({user_id:userId, company_id:companyId})
+      .first();
   }
 
   async userHasRole(userId: number, roleId: number) {

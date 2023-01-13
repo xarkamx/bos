@@ -6,10 +6,11 @@ export async function up(knex: Knex): Promise<void> {
         table.increments('id');
         table.integer('user_id').unsigned().notNullable();
         table.integer('domain_id').unsigned().notNullable();
-        table.json('roles').nullable();
+        table.integer('role_id').nullable();
         table.timestamps(true, true);
-        table.foreign('user_id').references('users.id');
-        table.foreign('domain_id').references('domains.id');
+        table.foreign('user_id').references('users');
+        table.foreign('domain_id').references('domains');
+        table.foreign('role_id').references('roles');
     });
 }
 
