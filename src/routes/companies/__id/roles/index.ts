@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
-import { RolesServices } from '../../services/roles/rolesServices';
-import { UsersService } from '../../services/users/users.service';
+import { RolesServices } from '../../../../services/roles/rolesServices';
+import { UsersService } from '../../../../services/users/users.service';
 
  const Roles: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   
@@ -8,7 +8,8 @@ import { UsersService } from '../../services/users/users.service';
     method: "POST",
     url: "/",
     async handler (_request, reply) {
-      const {name,companyId}:any = _request.body;
+      const {name}:any = _request.body;
+      const {id:companyId}:any = _request.params;
       const {id}:any = _request.user;
       const roles = new RolesServices();
       const userService = new UsersService();
@@ -23,7 +24,6 @@ import { UsersService } from '../../services/users/users.service';
         await roles.addRole({name,companyId});
         reply.code(201);
       }catch(err: any){
-        console.log(err);
         reply.code(err.status).send({message:err.message});
       }
       

@@ -29,12 +29,6 @@ void app.register<{ secret: any,sign:any,verify:any }>(jwt, {
 });
 // Register your application as a normal plugin.
 void app.register(import("../src/index"));
-
-// Init graphql
-
-// Init Swagger
-
-// Delay is the number of milliseconds for the graceful close to finish
 const closeListeners = closeWithGrace({ delay: 500 }, async (opts: any) => {
   if (opts.err) {
     app.log.error(opts.err);
