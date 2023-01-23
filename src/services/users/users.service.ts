@@ -21,9 +21,10 @@ export class UsersService {
   }
   
   async userHasRole(userId: number, roleId: number) {
-    return this.model.userHasRole(userId, roleId);
+    return Boolean(await (this.model.userHasRole(userId, roleId)));
   }
 
+  
 
   async singUp(user:IUser) {
     const userExist = await this.getUser({email:user.email, name:user.name});
@@ -31,7 +32,7 @@ export class UsersService {
   }
 
   async userBelogsToCompany(userId: number, companyId: number) {
-    return this.model.userBelogsToCompany(userId, companyId);
+    return Boolean(await this.model.userBelogsToCompany(userId, companyId));
   }
   
 }

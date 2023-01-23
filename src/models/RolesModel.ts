@@ -26,6 +26,13 @@ export class RolesModel {
     }).first();
   }
 
+  async getRolesByUserId(userId: number, companyId: number) {
+    return this.db('users_roles')
+    .select('roles.name')
+    .rightJoin('roles', 'roles.id', 'users_roles.role_id')
+    .where({'users_roles.user_id':userId, 'roles.company_id': companyId});
+  }
+
 }
 export type roleType = {
   name: string;
