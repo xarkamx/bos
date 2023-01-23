@@ -13,7 +13,6 @@ describe('User Model', () => {
       password: 'myCustomPassword',
       addressId: 1,
     });
-    console.log(user);
     expect(user).toBeDefined();
   });
 });

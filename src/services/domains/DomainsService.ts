@@ -11,7 +11,6 @@ export class DomainsService {
       }
   
       if(userId){
-        console.log(domainId, userId);
         await domain.addDomainToUser(domainId, userId);
       }
     }catch(e:any){

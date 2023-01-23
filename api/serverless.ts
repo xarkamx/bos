@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import Fastify from "fastify";
 
 import Db from "../src/db";
+import { CompanyAuth } from '../src/services/companies/companyAuth';
 
 // Read the .env file.
 dotenv.config();
@@ -54,11 +55,25 @@ app.addHook("onRequest", async (request: any, reply) => {
   }
 });
 
-// // Start listening.
-// void app.listen({
-//   port: Number(process.env.PORT ?? 3000),
-//   host: process.env.SERVER_HOSTNAME ?? "127.0.0.1",
-// });
+// why this hook is not working?
+
+app.addHook("preValidation", async (request: any, reply) => {
+  try {
+    console.log(request,"aui");
+    if(request.accessLevel.level === 'company'){
+      return;
+    }
+
+    const {id}:any = request.user;
+    const {id:companyId}:any = request.params;
+    const auth = new CompanyAuth();
+    await auth.validUser(id,companyId,request.accessLevel.roles);
+
+  }catch(err:any){
+    reply.code(err.code || 500).send({message:err.message});
+  }
+});
+
 
 export default async (req: any, res: any) => {
   await app.ready();
