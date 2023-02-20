@@ -1,5 +1,4 @@
 // Require library to exit fastify process, gracefully (if possible)
-import jwt from "@fastify/jwt";
 import closeWithGrace from "close-with-grace";
 import * as dotenv from "dotenv";
 // Require the framework
@@ -18,9 +17,7 @@ const app = Fastify({
 });
 
 // Register JWT
-void app.register<{ secret: any }>(jwt, {
-  secret: process.env.JWT_SECRET,
-});
+
 // Register your application as a normal plugin.
 void app.register(import("."));
 
@@ -42,17 +39,6 @@ app.addHook("onClose", async (_instance, done) => {
   done();
 });
 
-app.addHook("onRequest", async (request: any, reply) => {
-  try {
-    if (request.routeSchema?.public) {
-      return;
-    }
-
-    await request.jwtVerify();
-  } catch (err) {
-    reply.send(err);
-  }
-});
 
 // Start listening.
 void app.listen({
