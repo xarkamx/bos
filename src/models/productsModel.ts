@@ -9,7 +9,11 @@ export class ProductsModel {
   }
 
   getProductsByIds(ids: number[]) {
-    return this.db.select('name','price','id').from(this.tableName).whereIn('id', ids);
+    return this.getAllProducts().whereIn('id', ids);
+  }
+
+  getAllProducts() {
+    return this.db.select('name','price','id').from(this.tableName);
   }
 }
 export type iProduct = {
