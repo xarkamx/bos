@@ -9,7 +9,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       querystring: {
         type: "object",
         properties: {
-          rfc: { type: "string" },  // RFC of the customer
+          clientId: { type: "string" },  // Id of the customer
           status: { type: "string" },  // Status of the order
           total: { type: "number" },
           id: {type: "number"},
@@ -42,15 +42,19 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     schema: {
       body: {
         type: "object",
+        required: ["payment"],
         properties: {
           payment: { type: "number" },  // Partial payment amount of the order
+          paymentMethod: { type: "number", default: 1},
+          clientId: { type: "number"},  // Id of the customer
         },
       },
     },
     async handler (_request:any, reply) {
       // Update partial payment of the order
+      const {payment,paymentMethod,clientId} = _request.body;
       const orderService = new OrderService();
-      return orderService.pay(_request.params.id, _request.body.payment)
+      return orderService.pay(_request.params.id,clientId, payment, paymentMethod);
     }
   })
   fastify.route({
@@ -60,7 +64,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       body: {
         type: "object",
         properties: {
-          rfc: { type: "string", default:'XAXX010101000'},  // RFC of the customer
+          clientId: { type: "number"},  // Id of the customer
           discount: { type: "number" },  // Discount amount of the order
           partialPayment: { type: "number" },  // Partial payment amount of the order
           paymentType: { type: "number", default: 1},

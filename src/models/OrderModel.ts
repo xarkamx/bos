@@ -28,7 +28,7 @@ export class OrderModel {
     const res =  this.db
       .select(
         'id',
-        'rfc',
+        'client_id as clientId',
         'total',
         'discount',
         'subtotal',
@@ -54,7 +54,7 @@ export class OrderModel {
     const res = await this.db
       .select(
         'id',
-        'rfc',
+        'client_id as clientId',
         'total',
         'discount',
         'subtotal',
@@ -76,12 +76,11 @@ export class OrderModel {
 }
 
 export type IOrder ={
-  rfc: string;
+  clientId: number;
   total: number;
   discount: number;
   subtotal: number;
   partialPayment: number;
-  paymentType: number;
 };
 
 export type IOrderResponse = IOrder & {
