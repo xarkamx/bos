@@ -5,7 +5,9 @@ export async function up(knex: Knex): Promise<void> {
   return knex.schema.createTable('payments', table => {
     table.increments('id').primary();
     table.integer('client_id').notNullable();
-    table.integer('order_id').notNullable();
+    table.integer('external_id');
+    table.string('payment_type').notNullable().defaultTo('orderPayment');
+    table.text('description');
     table.integer('amount').notNullable();
     table.integer('payment_method').notNullable();
     table.enum('flow',['inflow','outflow']).notNullable().defaultTo('inflow');

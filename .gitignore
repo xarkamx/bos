@@ -72,4 +72,3 @@ dist
 .eslintcache
 stripe.exe
 .vercel
-.env

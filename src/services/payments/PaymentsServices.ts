@@ -5,5 +5,10 @@ export class PaymentsServices {
     const paymentModel = new PaymentsModel();
     return paymentModel.getAllPayments(searchObject,page, limit);
   }
+  
+  async addPayment (payment: IPayment): Promise<IPayment> {
+    const paymentModel = new PaymentsModel();
+    return paymentModel.addPayment(payment);
+  }
 }
 

@@ -22,8 +22,11 @@ export class PaymentsModel{
     const res =  this.db
       .select(
         'id',
-        'order_id as orderId',
+        'external_id as externalId',
         'payment_method as paymentMethod',
+        'payment_type as paymentType',
+        'flow',
+        'description',
         'amount',
         'created_at as createdAt'
       )
@@ -43,14 +46,20 @@ export class PaymentsModel{
 }
 
 export type IPayment = {
-  orderId: number;
+  externalId?: number;
+  paymentType?: string;
   paymentMethod: number;
+  flow?: string;
+  description?: string;
   amount: number;
   clientId?: number;
 }
 type IPaymentResponse = {
   id: number;
-  orderId: number;
+  externalId: number;
+  paymentType?: string;
+  flow: string;
+  description: string;
   paymentMethod: number;
   amount: number;
   createdAt: Date;

@@ -23,10 +23,12 @@ export class OrderService {
       const [orderId] = await om.addOrder(order);
       const products = await itemsModel.addItems(items.map((item) => ({ product_id: item.id, order_id:orderId, quantity: item.quantity, price: item.total })));
       paymentModel.addPayment(
-          { orderId,
-             paymentMethod: purchase.paymentType,
-              amount: purchase.partialPayment,
-              clientId:purchase.clientId });
+          { externalId: orderId,
+            paymentType: 'order',
+            paymentMethod: purchase.paymentType,
+            amount: purchase.partialPayment,
+            clientId:purchase.clientId
+           });
       return {message: 'Order created', data: {orderId, items:products}}
     }catch(e:any){
       return {message: e.message}
