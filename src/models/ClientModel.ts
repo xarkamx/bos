@@ -17,6 +17,10 @@ export class ClientModel {
   async getClients(): Promise<any> {
     return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal');
   }
+  
+  async countClients(): Promise<any> {
+    return this.db(this.tableName).count('client_id as count');
+  }
 
 }
 export type iClient = {

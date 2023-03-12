@@ -5,6 +5,16 @@ export class ProductsService {
     const productModel = new ProductsModel();
     return productModel.getAllProducts();
   }
+
+  async addProduct (product: iProduct): Promise<iProduct> {
+    const productModel = new ProductsModel();
+    return productModel.addProduct(product);
+  }
+
+  async deleteProduct (id: number): Promise<iProduct> {
+    const productModel = new ProductsModel();
+    return productModel.deleteProduct(id);
+  }
 }
 
 type iProduct = {

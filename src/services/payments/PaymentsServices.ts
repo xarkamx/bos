@@ -10,5 +10,10 @@ export class PaymentsServices {
     const paymentModel = new PaymentsModel();
     return paymentModel.addPayment(payment);
   }
+
+  async deletePayment (id: number) {
+    const paymentModel = new PaymentsModel();
+    return paymentModel.deletePayment(id);
+  }
 }
 

@@ -43,6 +43,17 @@ export class PaymentsModel{
 
     return res;
   }
+
+  async getAll(columns: string[] = []):Promise<any> {
+    return this.db.select(columns).from(this.tableName);
+  }
+
+  async deletePayment(id: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+      trx(this.tableName).where('id', id).del()
+      );
+  }
 }
 
 export type IPayment = {

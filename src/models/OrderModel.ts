@@ -73,6 +73,14 @@ export class OrderModel {
     const res = await this.db(this.tableName).where({ id }).update(order);
     return res;
   }
+
+  async deleteOrder(id: number) {
+    // ToDo: Delete order and all related data
+  }
+
+  async countOrders() {
+    return this.db(this.tableName).count('id as count');
+  }
 }
 
 export type IOrder ={

@@ -39,6 +39,14 @@ const payments:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return products;
     }
   });
+  fastify.route({
+    method: 'DELETE',
+    url: '/:id',
+    async handler (_request:any, reply) {
+      const paymentService = new PaymentsServices();
+      return paymentService.deletePayment(_request.params.id);
+    }
+  });
 };
 
 export default payments;
