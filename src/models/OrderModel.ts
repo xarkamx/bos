@@ -11,6 +11,10 @@ export class OrderModel {
     this.db = db;
   }
 
+  get request() {
+    return this.db.from(this.tableName);
+  }
+
   async addOrder(order: IOrder) {
     order = snakeCaseReplacer(order);
     const status = order.total === order.partialPayment ? 'paid' : 'pending';
@@ -21,14 +25,13 @@ export class OrderModel {
     return res;
   }
 
-  async getAllOrders(searchObject:any,page: number, limit:number):Promise<IOrderResponse[]> {
+  getAllOrders(searchObject:any,page: number, limit:number) {
     searchObject = snakeCaseReplacer(searchObject);
     delete searchObject.page;
     delete searchObject.limit;
     const res =  this.db
       .select(
         'id',
-        'client_id as clientId',
         'total',
         'discount',
         'subtotal',
@@ -50,11 +53,10 @@ export class OrderModel {
     return res;
   }
 
-  async getOrderById(id: number): Promise<IOrderResponse> {
-    const res = await this.db
+   getOrderById(id: number) {
+    const res =  this.db
       .select(
         'id',
-        'client_id as clientId',
         'total',
         'discount',
         'subtotal',
@@ -65,7 +67,7 @@ export class OrderModel {
       )
       .from(this.tableName)
       .where({ id });
-    return res[0];
+    return res;
   }
 
   async updateOrder(id: number, order: any) {

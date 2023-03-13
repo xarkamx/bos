@@ -1,6 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { ItemsModel, type tItem } from '../../models/itemsModel';
-import { type IOrder, OrderModel } from '../../models/OrderModel';
+import { type IOrderResponse, type IOrder, OrderModel } from '../../models/OrderModel';
 import { PaymentsModel } from '../../models/PaymentsModel';
 import { type iProduct, ProductsModel } from '../../models/productsModel';
 
@@ -37,26 +37,35 @@ export class OrderService {
 
   async getAllOrders(searchObject:any,page: number, limit: number) {
     const orderModel = new OrderModel();
-    return orderModel.getAllOrders(searchObject,page, limit);
+    return orderModel.getAllOrders(searchObject,page, limit)
+      .leftJoin('clients', 'orders.client_id', 'clients.client_id')
+      .select('clients.name as clientName', 'rfc', 'clients.client_id as clientId')
+    ;
   }
 
   async getOrderById(id: number) {
     const orderModel = new OrderModel();
     const itemModel = new ItemsModel();
-    const order =  orderModel.getOrderById(id);
+    const order =  orderModel.getOrderById(id)
+      .leftJoin('clients', 'orders.client_id', 'clients.client_id')
+      .select('clients.name as clientName', 'rfc', 'clients.client_id as clientId','clients.phones','clients.email')
+    ;
     const items =  itemModel.getItemsByOrderId(id);
+
     const [orderData, itemsData] = await Promise.all([order, items]);
-    return {order: orderData, items: itemsData};
+    orderData[0].phones = JSON.parse(orderData[0].phones);
+    return {order: orderData[0], items: itemsData};
   }
 
   async pay(id: number,clientId:number, payment: number, paymentMethod=1) {
     const orderModel = new OrderModel();
     const paymentModel = new PaymentsModel();
-    const order = await orderModel.getOrderById(id);
+    const order:IOrderResponse = (await orderModel.getOrderById(id))[0];
     if (order.status === 'paid') {
       return { message: 'Order already paid' };
     }
 
+    
     const addedPayment = order.partialPayment + payment;
     const total = order.total - addedPayment;
     if (total < 0) {
@@ -67,7 +76,7 @@ export class OrderService {
     const status = total === 0 ? 'paid' : 'pending';
     
     const response =await orderModel.updateOrder(id, { partialPayment:addedPayment, status });
-    await paymentModel.addPayment({ orderId: id, paymentMethod, amount: payment, clientId });
+    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId });
     return { message: 'Payment added', data: { ...response, status, total,paid:addedPayment,payment  }};
   }
 

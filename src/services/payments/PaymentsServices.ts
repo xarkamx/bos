@@ -5,6 +5,11 @@ export class PaymentsServices {
     const paymentModel = new PaymentsModel();
     return paymentModel.getAllPayments(searchObject,page, limit);
   }
+
+  async getPaymentsByOrderId (orderId: number): Promise<IPayment[]> {
+    const paymentModel = new PaymentsModel();
+    return paymentModel.getPaymentsByOrderId(orderId);
+  }
   
   async addPayment (payment: IPayment): Promise<IPayment> {
     const paymentModel = new PaymentsModel();

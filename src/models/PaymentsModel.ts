@@ -17,7 +17,7 @@ export class PaymentsModel{
       );
   }
 
-  async getAllPayments(searchObject:any,page: number, limit:number):Promise<IPaymentResponse[]> {
+  getAllPayments(searchObject:any,page: number, limit:number){
     searchObject = snakeCaseReplacer(searchObject);
     const res =  this.db
       .select(
@@ -42,6 +42,26 @@ export class PaymentsModel{
     }
 
     return res;
+  }
+
+  getPaymentsByOrderId(orderId: number) {
+    return this.db
+      .select(
+        'id',
+        'external_id as externalId',
+        'client_id as clientId',
+        'payment_method as paymentMethod',
+        'payment_type as paymentType',
+        'flow',
+        'description',
+        'amount',
+        'created_at as createdAt'
+      )
+      .from(this.tableName)
+      .where('external_id', orderId)
+      .andWhere('flow', 'inflow')
+      .andWhere('payment_type', 'order')
+      .orderBy('id', 'desc');
   }
 
   async getAll(columns: string[] = []):Promise<any> {

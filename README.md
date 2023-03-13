@@ -1,7 +1,7 @@
 ### TODO
 
 1. [ ] Ordenes especiales
-2. [ ] Capacidad de eliminar pagos
+2. [X] Capacidad de eliminar pagos
 3. [ ] Precios deberian ser en enteros (complicado)?
 4. [X] Registro de clientes
 5. [ ] Capacidad para registrar inventario
