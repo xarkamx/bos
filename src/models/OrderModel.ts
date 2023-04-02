@@ -76,9 +76,7 @@ export class OrderModel {
     return res;
   }
 
-  async deleteOrder(id: number) {
-    // ToDo: Delete order and all related data
-  }
+  
 
   async countOrders() {
     return this.db(this.tableName).count('id as count');

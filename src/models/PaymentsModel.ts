@@ -85,7 +85,7 @@ export type IPayment = {
   amount: number;
   clientId?: number;
 }
-type IPaymentResponse = {
+export type IPaymentResponse = {
   id: number;
   externalId: number;
   paymentType?: string;
