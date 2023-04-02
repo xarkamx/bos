@@ -27,6 +27,20 @@ export class ProductsModel {
   deleteProduct(id: number) {
     return this.db(this.tableName).where('id', id).del();
   }
+
+  updateProduct(id: number, product: optionalProduct) {
+    return this.db(this.tableName).where('id', id).update(product);
+  }
+
+  updateAllPricesIn(increment: number,type='percent') {
+    let operation = '+';
+    if(type === 'percent') {
+      operation = `* ${increment/100 + 1}`;
+    }
+
+    return this.db(this.tableName)
+      .update('price', this.db.raw(`price ${operation} ${increment}`));
+  }
 }
 export type iProduct = {
   id: number
@@ -36,3 +50,8 @@ export type IAddProduct = {
   name: string;
   price: number;
 };
+
+export type optionalProduct = {
+  name?: string;
+  price?: number;
+}

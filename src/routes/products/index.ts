@@ -41,7 +41,24 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return products;
     }
   });
-
+  fastify.route({
+    method: 'PUT',
+    url: '/:id',
+    schema:{
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          price: { type: 'number' }
+        }
+      },
+    },
+    async handler (_request:any, reply) {
+      const productService = new ProductsService();
+      const products = await productService.updateProduct(_request.params.id, _request.body);
+      return products;
+    }
+  })
 };
 
 export default products;
