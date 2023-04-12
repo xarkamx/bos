@@ -5,7 +5,7 @@ export class ClientModel {
   db: any;
   constructor() {
     this.tableName = 'clients';
-    this.db = db;
+    this.db = db; 
   }
 
   async addClient(client: iClient): Promise<any> {

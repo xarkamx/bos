@@ -1,4 +1,7 @@
+import { HttpError } from '../../errors/HttpError';
+import { InventoryModel } from '../../models/InventoryModel';
 import { type optionalProduct, ProductsModel } from '../../models/productsModel';
+import products from '../../routes/products';
 
 export class ProductsService {
   async getAllProducts (): Promise<iProduct[]> {
@@ -25,7 +28,20 @@ export class ProductsService {
   async updateAllPricesIn (increment: number): Promise<iProduct> {
     const productModel = new ProductsModel();
     return productModel.updateAllPricesIn(increment);
-  } 
+  }
+
+
+  async addProductToInventory (id: number, quantity: number): Promise<any> {
+    const productModel = new ProductsModel();
+    const inventoryModel = new InventoryModel();
+    const product= await productModel.getProductsByIds([id]).first();
+    if(!product) throw new HttpError('Product not found', 404);
+    await inventoryModel.addToInventory(id,'product', quantity);
+    const qty = await inventoryModel.getTotalQty(id);
+    product.quantity = qty;
+    product.price *=  qty;
+    return product;
+  }
 }
 
 

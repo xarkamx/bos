@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import { InventoryModel } from '../../models/InventoryModel';
 import { ItemsModel, type tItem } from '../../models/itemsModel';
 import { type IOrderResponse, type IOrder, OrderModel } from '../../models/OrderModel';
 import { PaymentsModel } from '../../models/PaymentsModel';
@@ -10,6 +11,7 @@ export class OrderService {
     const om = new OrderModel();
     const itemsModel = new ItemsModel();
     const paymentModel = new PaymentsModel();
+    const inventoryModel = new InventoryModel();
     try{
       const items = await this.getItemsPrices(purchase.items);
       const subtotal = this.getSubtotal(items);
@@ -21,7 +23,14 @@ export class OrderService {
         partialPayment: purchase.partialPayment
       }
       const [orderId] = await om.addOrder(order);
-      const products = await itemsModel.addItems(items.map((item) => ({ product_id: item.id, order_id:orderId, quantity: item.quantity, price: item.total })));
+      const orderItems = items.map((item) => (
+        { 
+          product_id: item.id,
+           order_id:orderId,
+            quantity: item.quantity,
+             price: item.total 
+            }))
+      const products = await itemsModel.addItems(orderItems);
       paymentModel.addPayment(
           { externalId: orderId,
             paymentType: 'order',
@@ -29,6 +38,9 @@ export class OrderService {
             amount: purchase.partialPayment,
             clientId:purchase.clientId
            });
+      // Move this to products service
+      const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity* -1, type:'product' }))
+      await inventoryModel.addInBulkToInventory(inventoryItems);
       return {message: 'Order created', data: {orderId, items:products}}
     }catch(e:any){
       return {message: e.message}
