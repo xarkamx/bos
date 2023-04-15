@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import Fastify from "fastify";
 
 import Db from "../src/db";
+import { ErrorModel } from '../src/models/ErrorsModel';
 
 
 // Read the .env file.
@@ -44,6 +45,9 @@ app.addHook("onClose", async (_instance, done) => {
   done();
 });
 
+
+const model = new ErrorModel();
+app.addHook('onError', model.addError.bind(model));
 // Aapp.addHook("onRequest", async (request: any, reply) => {
 //   try {
 //     if (request.routeSchema?.public) {

@@ -10,10 +10,11 @@ import Db from "./db";
 dotenv.config();
 Db.getInstance();
 
+import { ErrorModel } from './models/ErrorsModel';
 const isProduction = process.env.NODE_ENV === "production";
 // Instantiate Fastify with some config
 const app = Fastify({
-  logger: !isProduction,
+  logger: false,
 });
 
 // Register JWT
@@ -33,6 +34,11 @@ const closeListeners = closeWithGrace({ delay: 500 }, async (opts: any) => {
 
   await app.close();
 });
+
+
+const model = new ErrorModel();
+app.addHook('onError', model.addError.bind(model));
+
 
 app.addHook("onClose", async (_instance, done) => {
   closeListeners.uninstall();

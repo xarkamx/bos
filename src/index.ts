@@ -30,6 +30,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
     routeParams: true,
     options: opts,
   });
+
 };
 
 export default app;
