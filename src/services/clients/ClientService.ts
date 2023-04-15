@@ -26,7 +26,7 @@ export class ClientService {
       .orderBy('created_at', 'desc')
       ;
 
-    
+    if(!orders.length) return {orders: 0, pending: 0, totalPaid: 0, totalDebt: 0, latestPurchase: null}
     const totalPaid = orders.reduce((acc: number, order: any) => {
       const payments:number = order.partialPayment
       return acc + payments
