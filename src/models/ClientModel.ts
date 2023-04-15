@@ -15,14 +15,24 @@ export class ClientModel {
   }
 
   async getClients(): Promise<any> {
-    return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal');
+    return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal', 'postal_code as postal_code');
   }
   
   async countClients(): Promise<any> {
     return this.db(this.tableName).count('client_id as count');
   }
 
+  async updateClient(id: number, client: any): Promise<any> {
+    if(client.name)
+      client.name = client.name.toUpperCase();
+    if(client.rfc)
+      client.rfc = client.rfc.toUpperCase();
+    return this.db(this.tableName).where('client_id', id).update(client);
+  }
+
 }
+
+
 export type iClient = {
   rfc: string;
   name: string;

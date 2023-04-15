@@ -47,4 +47,9 @@ export class ClientService {
       latestPurchase: latestOrder[0]?.created_at,
     };
   }
+
+  async updateClient(clientId: number, client: iClient): Promise<any> {
+    const clientModel = new ClientModel();
+    return clientModel.updateClient(clientId, client);
+  }
 }

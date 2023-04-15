@@ -15,6 +15,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           email: { type: 'string' },
           phones: { type: 'array', items: { type: 'string' } },
           legal: { type: 'boolean', default: false },
+          postal_code: { type: 'string' },
         }
       }
     },
@@ -29,6 +30,27 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     async handler (_request:any, reply) {
       const clientService = new ClientService();
       return  clientService.getClients();
+    }
+  });
+  fastify.route({
+    method: 'PUT',
+    url: '/:id',
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          rfc: { type: 'string' },
+          name: { type: 'string' },
+          email: { type: 'string' },
+          phones: { type: 'array', items: { type: 'string' } },
+          legal: { type: 'boolean' },
+          postal_code: { type: 'string' },
+        },
+      },
+    },
+    async handler (_request:any, reply) {
+      const clientService = new ClientService();
+      return  clientService.updateClient(_request.params.id, _request.body);
     }
   });
 };
