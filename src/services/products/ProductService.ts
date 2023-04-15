@@ -1,7 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { InventoryModel } from '../../models/InventoryModel';
 import { type optionalProduct, ProductsModel } from '../../models/productsModel';
-import products from '../../routes/products';
 
 export class ProductsService {
   async getAllProducts (): Promise<iProduct[]> {
