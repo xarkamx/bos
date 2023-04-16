@@ -9,3 +9,4 @@
 7. [ ] Capacidad para registrar materiales
 8. [ ] Api Docs endpoint (JSON)
 9. [ ] Pruebas de integracion con Cucumber
+    1. [ ] Instalar docker

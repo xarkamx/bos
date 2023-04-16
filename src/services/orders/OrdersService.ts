@@ -26,9 +26,9 @@ export class OrderService {
       const orderItems = items.map((item) => (
         { 
           product_id: item.id,
-           order_id:orderId,
-            quantity: item.quantity,
-             price: item.total 
+          order_id:orderId,
+          quantity: item.quantity,
+          price: item.total 
             }))
       const products = await itemsModel.addItems(orderItems);
       paymentModel.addPayment(
@@ -73,6 +73,11 @@ export class OrderService {
     const orderModel = new OrderModel();
     const paymentModel = new PaymentsModel();
     const order:IOrderResponse = (await orderModel.getOrderById(id))[0];
+    
+    if (!order) {
+      throw new HttpError('Order not found', 404);
+    }
+
     if (order.status === 'paid') {
       return { message: 'Order already paid' };
     }
@@ -85,7 +90,7 @@ export class OrderService {
       and is paying ${payment}`, 400);
     }
 
-    const status = total === 0 ? 'paid' : 'pending';
+    const status = total < 1  ? 'paid' : 'pending';
     
     const response =await orderModel.updateOrder(id, { partialPayment:addedPayment, status });
     await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId });

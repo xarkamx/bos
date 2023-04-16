@@ -6,6 +6,7 @@ import Fastify from "fastify";
 
 import Db from "../src/db";
 import { ErrorModel } from '../src/models/ErrorsModel';
+import RouterSingleton from '../src/config/routes';
 
 
 // Read the .env file.
@@ -62,6 +63,10 @@ app.addHook('onError', model.addError.bind(model));
 
 
 
+
+app.addHook("onRoute", (routeOptions) => {
+  RouterSingleton.getInstance().addRoute(routeOptions);
+});
 
 
 

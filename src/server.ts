@@ -11,16 +11,18 @@ dotenv.config();
 Db.getInstance();
 
 import { ErrorModel } from './models/ErrorsModel';
+import RouterSingleton from './config/routes';
 const isProduction = process.env.NODE_ENV === "production";
 // Instantiate Fastify with some config
 const app = Fastify({
-  logger: false,
+  logger: !isProduction,
 });
 
 // Register JWT
 
 // Register your application as a normal plugin.
 void app.register(import("."));
+
 
 // Init graphql
 
@@ -36,15 +38,21 @@ const closeListeners = closeWithGrace({ delay: 500 }, async (opts: any) => {
 });
 
 
+
+app.addHook("onRoute", (routeOptions) => {
+  RouterSingleton.getInstance().addRoute(routeOptions);
+});
+
+
 const model = new ErrorModel();
 app.addHook('onError', model.addError.bind(model));
+
 
 
 app.addHook("onClose", async (_instance, done) => {
   closeListeners.uninstall();
   done();
 });
-
 
 // Start listening.
 void app.listen({
@@ -59,6 +67,7 @@ app.ready((err: Error) => {
   }
 
   app.log.info(`Server listening on port ${Number(process.env.PORT ?? 3000)}`);
+
 });
 
 export { app };

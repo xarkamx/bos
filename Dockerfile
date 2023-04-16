@@ -19,4 +19,4 @@ WORKDIR /app
 COPY --from=builder /app .
 
 EXPOSE 8080
-CMD ["yarn", "start:prod"]
+CMD ["yarn", "dev"]
