@@ -41,6 +41,14 @@ export class ProductsService {
     product.price *=  qty;
     return product;
   }
+
+  async getInventory (): Promise<any> {
+    const inventoryModel = new InventoryModel();
+    return inventoryModel.getAllItemsByType('product')
+      .leftJoin('products', 'products.id', 'inventory.external_id')
+      .select('products.id','products.name', 'products.price' )
+      ;
+  }
 }
 
 

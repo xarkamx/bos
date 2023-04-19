@@ -37,6 +37,13 @@ export class InventoryModel {
     return this.db(this.tableName).del();
   }
 
+  getAllItemsByType(type:string) {
+    return this.db(this.tableName)
+      .sum('quantity as quantity')
+      .where('type', type)
+      .groupBy('external_id','type');
+  }
+
 }
 
 type InventoryItem ={

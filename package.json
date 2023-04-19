@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "local": "sh dev.sh",
     "dev": "yarn dev:watch",
     "dev:watch": "tsx watch src/server.ts",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

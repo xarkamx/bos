@@ -72,3 +72,5 @@ dist
 .eslintcache
 stripe.exe
 .vercel
+
+/db

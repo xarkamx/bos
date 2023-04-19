@@ -11,7 +11,15 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return products;
     },
   });
-
+  fastify.route({
+    method: 'GET',
+    url: '/inventory',
+    async handler (_request:any, reply) {
+      const productService = new ProductsService();
+      const products = await productService.getInventory();
+      return products;
+    }
+  });
   fastify.route({
     method: 'POST',
     url: '/',
