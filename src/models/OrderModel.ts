@@ -30,6 +30,12 @@ export class OrderModel {
     searchObject = snakeCaseReplacer(searchObject);
     delete searchObject.page;
     delete searchObject.limit;
+    const obj:any = {}
+    Object.keys(searchObject).forEach((key) => {
+      const okey = `${this.tableName}.${key}`
+      obj[okey] = searchObject[key]
+    });
+
     const res =  this.db
       .select(
         'id',
@@ -44,7 +50,7 @@ export class OrderModel {
       )
       .from(this.tableName)
     if (searchObject) {
-      res.where(searchObject);
+      res.where(obj);
     }
     
     if (page && limit) {
