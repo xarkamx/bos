@@ -33,6 +33,14 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     }
   });
   fastify.route({
+    method: 'GET',
+    url: '/:id',
+    async handler (_request:any, reply) {
+      const clientService = new ClientService();
+      return  clientService.getClient(_request.params.id);
+    }
+  });
+  fastify.route({
     method: 'PUT',
     url: '/:id',
     schema: {

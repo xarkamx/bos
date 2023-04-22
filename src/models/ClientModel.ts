@@ -14,7 +14,7 @@ export class ClientModel {
     return this.db(this.tableName).insert(client);
   }
 
-  async getClients(): Promise<any> {
+  getClients() {
     return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal', 'postal_code as postal_code');
   }
   
