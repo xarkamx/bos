@@ -74,6 +74,13 @@ export class PaymentsModel{
       trx(this.tableName).where('id', id).del()
       );
   }
+
+  async deletePaymentsByExternalId(id: number) {
+    return this.db
+      .transaction(async (trx: any) => 
+      trx(this.tableName).where('external_id', id).del()
+      );
+  }
 }
 
 export type IPayment = {

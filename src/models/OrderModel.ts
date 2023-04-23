@@ -88,6 +88,10 @@ export class OrderModel {
   async countOrders() {
     return this.db(this.tableName).count('id as count');
   }
+
+  async deleteOrder(id: number) {
+    return this.db(this.tableName).where({ id }).del();
+  }
 }
 
 export type IOrder ={

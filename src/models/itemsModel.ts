@@ -29,6 +29,10 @@ export class ItemsModel {
       .leftJoin('products', 'items.product_id', 'products.id')
       .where({ order_id: id });
   }
+
+  deleteItemsByOrderId(id: number) {
+    return this.db(this.tableName).where({ order_id: id }).del();
+  }
 } 
 
 export type tItem = {

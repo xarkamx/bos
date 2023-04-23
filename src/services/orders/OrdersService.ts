@@ -52,6 +52,7 @@ export class OrderService {
     return orderModel.getAllOrders(searchObject,page, limit)
       .leftJoin('clients', 'orders.client_id', 'clients.client_id')
       .select('clients.name as clientName', 'rfc', 'clients.client_id as clientId')
+      .orderBy('orders.id', 'desc');
     ;
   }
 
@@ -95,6 +96,26 @@ export class OrderService {
     const response =await orderModel.updateOrder(id, { partialPayment:addedPayment, status });
     await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId });
     return { message: 'Payment added', data: { ...response, status, total,paid:addedPayment,payment  }};
+  }
+
+  async cancelOrder(id: number) {
+    const om = new OrderModel();
+    const itemsModel = new ItemsModel();
+    const paymentModel = new PaymentsModel();
+    const inventoryModel = new InventoryModel();
+
+    const items = await itemsModel.getItemsByOrderId(id);
+    await inventoryModel.addInBulkToInventory(items.map((item:any) => 
+      ({ external_id: item.productId,  quantity: (item.quantity*-1), type:'product' })))
+    await itemsModel.deleteItemsByOrderId(id);
+    await paymentModel.deletePaymentsByExternalId(id);
+    return om.deleteOrder(id);
+  }
+
+
+  async updateOrder(id: number, order: any) {
+    const om = new OrderModel();
+    return om.updateOrder(id, order);
   }
 
   private async getItemsPrices(items: any[]): Promise<any[]> {

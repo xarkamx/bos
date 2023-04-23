@@ -9,7 +9,7 @@ export class ClientService {
 
   async getClients(): Promise<any> {
     const clientModel = new ClientModel();
-    const resp = await clientModel.getClients();
+    const resp = await clientModel.getClients().orderBy('id', 'desc');
    
     return  resp.map((client:any) => {
       client.phones = JSON.parse(client.phones)

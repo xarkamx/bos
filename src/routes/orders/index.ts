@@ -82,10 +82,29 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "DELETE",
     url: "/:id",
-    async handler (_request, reply) {
-      // Delete one order
+    async handler (_request:any, reply) {
+      const orderService = new OrderService();
+      return reply.code(200).send(await orderService.cancelOrder(_request.params.id));
     }
   })
+  fastify.route({
+    method: "PUT",
+    url: "/:id",
+    schema: {
+      body: {
+        type: "object",
+        properties: {
+          clientId: { type: "number"},
+          status: { type: "string" },
+          createdAt: { type: "string" },
+        },
+      },
+    },
+    async handler (_request:any, reply) {
+      const orderService = new OrderService();
+      return orderService.updateOrder(_request.params.id,_request.body);
+    }
+  });  
 };
 
 export default orders;
