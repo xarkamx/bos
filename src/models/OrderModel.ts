@@ -77,7 +77,7 @@ export class OrderModel {
     return res;
   }
 
-  async updateOrder(id: number, order: any) {
+  async updateOrder(id: number, order: Partial<IOrder>) {
     order = snakeCaseReplacer(order);
     const res = await this.db(this.tableName).where({ id }).update(order);
     return res;
@@ -100,6 +100,7 @@ export type IOrder ={
   discount: number;
   subtotal: number;
   partialPayment: number;
+  status?: string;
 };
 
 export type IOrderResponse = IOrder & {

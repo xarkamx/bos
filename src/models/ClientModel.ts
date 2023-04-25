@@ -27,6 +27,8 @@ export class ClientModel {
       client.name = client.name.toUpperCase();
     if(client.rfc)
       client.rfc = client.rfc.toUpperCase();
+    if(client.phones)
+      client.phones = JSON.stringify(client.phones);
     return this.db(this.tableName).where('client_id', id).update(client);
   }
 

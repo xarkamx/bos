@@ -84,7 +84,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: "/:id",
     async handler (_request:any, reply) {
       const orderService = new OrderService();
-      return reply.code(200).send(await orderService.cancelOrder(_request.params.id));
+      return orderService.cancelOrder(_request.params.id);
     }
   })
   fastify.route({

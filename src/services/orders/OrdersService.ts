@@ -99,21 +99,28 @@ export class OrderService {
   }
 
   async cancelOrder(id: number) {
-    const om = new OrderModel();
+    
+      const om = new OrderModel();
     const itemsModel = new ItemsModel();
     const paymentModel = new PaymentsModel();
     const inventoryModel = new InventoryModel();
+    const order = await om.getOrderById(id);
+    if (order.length === 0) {
+      throw new HttpError('Order not found', 404);
+    }
 
     const items = await itemsModel.getItemsByOrderId(id);
     await inventoryModel.addInBulkToInventory(items.map((item:any) => 
       ({ external_id: item.productId,  quantity: (item.quantity*-1), type:'product' })))
     await itemsModel.deleteItemsByOrderId(id);
     await paymentModel.deletePaymentsByExternalId(id);
-    return om.deleteOrder(id);
+    return  om.deleteOrder(id);
+    
+    
   }
 
 
-  async updateOrder(id: number, order: any) {
+  async updateOrder(id: number, order: Partial<IOrder>) {
     const om = new OrderModel();
     return om.updateOrder(id, order);
   }
