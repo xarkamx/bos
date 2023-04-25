@@ -12,7 +12,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "prepare": "husky install",
-    "test": "cucumber-js --require-module ts-node/register --require features/**/*.ts",
+    "test": "sh test.sh",
     "typecheck": "tsc -b",
     "vercel": "vercel dev"
   },
