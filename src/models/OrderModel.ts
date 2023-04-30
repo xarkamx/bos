@@ -17,8 +17,7 @@ export class OrderModel {
 
   async addOrder(order: any) {
     order = snakeCaseReplacer(order);
-    const isPaid = order.total && !order.partial_payment;
-    const status = isPaid || order.total - order.partial_payment < .1? 'paid' : 'pending';
+    const status = order.total - order.partial_payment < .1? 'paid' : 'pending';
     const res = await this.db
       .transaction(async (trx: any) => 
       trx.insert({...order,status}).into(this.tableName)
