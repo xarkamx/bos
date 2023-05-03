@@ -12,6 +12,8 @@ Db.getInstance();
 
 import { ErrorModel } from './models/ErrorsModel';
 import RouterSingleton from './config/routes';
+import { MeService } from './services/users/meService';
+import { HttpError } from './errors/HttpError';
 const isProduction = process.env.NODE_ENV === "production";
 // Instantiate Fastify with some config
 const app = Fastify({
@@ -24,9 +26,38 @@ const app = Fastify({
 void app.register(import("."));
 
 
-// Init graphql
+app.addHook("onRequest", async (request: any, reply) => {
+    
+    const user = new MeService(request.headers.authorization.replace('Bearer ', ''));
+    if(user.isExpired()){
+      throw new HttpError('Token is expired', 401);
+    }
+    
+    const details = await user.getDetails();
+    request.user = details;
+    validate(request);
+  
+});
 
-// Init Swagger
+function validate(request:any) {
+  const {auth} = request.context.config;
+  if(!auth){
+    return;
+  }
+
+  const {roles} = request.user;
+  if(roles.includes('admin')){
+    return;
+  }
+
+  // User has any of the roles
+  const hasRoles = auth.roles.some((role:string)=>roles.includes(role));
+  if(!hasRoles){
+    throw new HttpError(`Invalid User Role, expecting ${auth.roles.join(',')}`, 403);
+  }
+}
+
+
 
 // Delay is the number of milliseconds for the graceful close to finish
 const closeListeners = closeWithGrace({ delay: 500 }, async (opts: any) => {
@@ -54,17 +85,6 @@ app.addHook("onClose", async (_instance, done) => {
   done();
 });
 
-app.addHook("onRequest", async (request: any, reply) => {
-  try {
-    if (request.routeSchema?.public) {
-      return;
-    }
-
-    await request.jwtVerify();
-  } catch (err) {
-    reply.send(err);
-  }
-});
 
 
 

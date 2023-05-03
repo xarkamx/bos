@@ -5,6 +5,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'POST',
     url: '/',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: 'object',
@@ -27,6 +32,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const clientService = new ClientService();
       return  clientService.getClients();
@@ -35,6 +45,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/:id',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const clientService = new ClientService();
       return  clientService.getClient(_request.params.id);
@@ -43,6 +58,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'PUT',
     url: '/:id',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: 'object',

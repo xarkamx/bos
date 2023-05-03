@@ -1,6 +1,5 @@
 ### Commands
 
-
 | Command | Description                                          |
 | ------- | ---------------------------------------------------- |
 | local   | run a docker container and the nodejs process of BOS |
@@ -21,12 +20,12 @@
 1. [X] Pruebas de integracion con Cucumber
      1. [X] Instalar docker
      2. [ ] Reiniciar DB entre pruebas
-     3. [ ] Generar seed con valores  iniciales.
+     3. [X] Generar seed con valores  iniciales.
      4. [ ] clonador de db
      5. [ ] Generador de pruebas en base a errores 500 registrados.
      6. [ ] Desactivar sistemas de usuarios en pruebas (?)
 1. [ ] Agregar testing step en github actions (?)
-1. [ ] Vincular con sistema de usuarios
+1. [X] Vincular con sistema de usuarios
      1. [ ] Como testear un sistema externo de usuarios?
      2. [ ] Crea interfaz en caso de que tengas que cambiar de manejador de usuarios.
 1. [ ] Vincular con sistema de facturas
