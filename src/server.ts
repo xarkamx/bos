@@ -27,7 +27,15 @@ void app.register(import("."));
 
 
 app.addHook("onRequest", async (request: any, reply) => {
-    
+  const {auth} = request.context.config;
+  if(auth?.public){
+    return;
+  }
+
+  if(!request.headers.authorization){
+    throw new HttpError('Missing Authorization Header', 401);
+  }
+
     const user = new MeService(request.headers.authorization.replace('Bearer ', ''));
     if(user.isExpired()){
       throw new HttpError('Token is expired', 401);

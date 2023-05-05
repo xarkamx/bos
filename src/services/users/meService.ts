@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { decode } from 'jsonwebtoken';
 import { HttpError } from '../../errors/HttpError';
+import { BasService } from './basService';
 
 export class MeService{
     private readonly jwt:jwtType;
@@ -17,23 +18,8 @@ export class MeService{
     }
 
     async getDetails(){
-        const url:any= process.env.BAS_URL;
-        const company = process.env.BAS_COMPANY?.split('-')[0];
-        const fetch = await axios.get(`${url}/me`,{
-            headers:{
-                Authorization:`Bearer ${this.jwt.token}`
-            }
-        })
-        const validCompany = fetch.data.data.companies.find((c:any)=>c.name===company);
-
-        if(!validCompany){
-            throw new HttpError('Invalid User',403)
-        }
-
-        return {
-            user:fetch.data.data.user,
-            roles:validCompany.roles
-        };
+        const bas = new BasService();
+       return bas.getDetails(this.jwt.token);
     }
 
 
