@@ -2,6 +2,7 @@ import axios from 'axios';
 import { HttpError } from '../../errors/HttpError';
 
 export class BasService {
+  
   async auth({email,password}:CredentialType){
     const basUrl = process.env.BAS_URL;
     const company = process.env.BAS_COMPANY;
@@ -18,6 +19,25 @@ export class BasService {
     }
 
    
+  }
+
+
+  // Not sure if this is in the right place
+
+  async getUsers(jwt:string){
+    const url:any= process.env.BAS_URL;
+    const company:any = process.env.BAS_COMPANY;
+    const validUrl = encodeURI(`${url}/companies/${company}/users`);
+    try{
+      const users= await axios.get(validUrl,{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
   }
 
   async getDetails(jwt:string){
