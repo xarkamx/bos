@@ -59,10 +59,56 @@ export class BasService {
         roles:validCompany.roles
     };
   }
+
+   async addUser(jwt:string, user:UserType){
+    const url:any= process.env.BAS_URL;
+    const company = process.env.BAS_COMPANY;
+    const validUrl = encodeURI(`${url}/companies/${company}/users`);
+    try{
+      const users= await axios.post(validUrl,{
+        name:user.name,
+        email:user.email,
+        password:user.password,
+      },{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+   }
+
+   async addRole(jwt:string, userId:number, role:string){
+    const url:any= process.env.BAS_URL;
+    const company = process.env.BAS_COMPANY;
+    const validUrl = encodeURI(`${url}/companies/${company}/users/${userId}/roles`);
+    try{
+      const users= await axios.post(validUrl,{
+        roleName:role
+      },{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+
+   }
 }
 
 
 type CredentialType = {
   email: string;
   password: string;
+}
+
+type UserType = {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
 }
