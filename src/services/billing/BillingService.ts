@@ -43,7 +43,7 @@ export class BillingService{
     try{
        billing = await this.billing.cancelInvoice(billingId,motive);
     }catch(e:any){
-      console.log(e);
+      throw new HttpError(e.message, 400);
     }
 
     service.updateByBillId(billingId, {billed: null, billed_at: null});

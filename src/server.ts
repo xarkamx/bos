@@ -61,7 +61,8 @@ function validate(request:any) {
   // User has any of the roles
   const hasRoles = auth.roles.some((role:string)=>roles.includes(role));
   if(!hasRoles){
-    throw new HttpError(`Invalid User Role, expecting ${auth.roles.join(',')}`, 403);
+    const roles:string= auth.roles.join(',');
+    throw new HttpError(`Invalid User Role, expecting ${roles}`, 403);
   }
 }
 
