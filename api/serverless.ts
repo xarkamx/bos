@@ -88,3 +88,13 @@ app.addHook("onClose", async (_instance, done) => {
   closeListeners.uninstall();
   done();
 });
+
+
+
+
+
+
+export default async (req: any, res: any) => {
+  await app.ready();
+  app.server.emit("request", req, res);
+};
