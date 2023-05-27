@@ -44,8 +44,10 @@ export class OrderModel {
         'partial_payment as partialPayment',
         'payment_type as paymentType',
         'status',
+        'billed',
         'created_at as createdAt',
-        'updated_at as updatedAt'
+        'updated_at as updatedAt',
+        'payment_type as paymentType'
       )
       .from(this.tableName)
     if (searchObject) {
@@ -68,6 +70,7 @@ export class OrderModel {
         'subtotal',
         'partial_payment as partialPayment',
         'status',
+        'billed',
         'created_at as createdAt',
         'updated_at as updatedAt'
       )
@@ -100,6 +103,8 @@ export type IOrder ={
   subtotal: number;
   partialPayment: number;
   status?: string;
+  billed: string;
+  billedAt: any;
 };
 
 export type IOrderResponse = IOrder & {

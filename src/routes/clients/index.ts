@@ -5,10 +5,15 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'POST',
     url: '/',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: 'object',
-        required: ['name', 'phones'],
+        required: ['name', 'phones', 'postal_code','tax_system'],
         properties: {
           rfc: { type: 'string',default: 'XAXX010101000' },
           name: { type: 'string' },
@@ -16,6 +21,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           phones: { type: 'array', items: { type: 'string' } },
           legal: { type: 'boolean', default: false },
           postal_code: { type: 'string' },
+          tax_system: { type: 'string', default: '601' },
         }
       }
     },
@@ -27,6 +33,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const clientService = new ClientService();
       return  clientService.getClients();
@@ -35,6 +46,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/:id',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const clientService = new ClientService();
       return  clientService.getClient(_request.params.id);
@@ -43,6 +59,11 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'PUT',
     url: '/:id',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: 'object',

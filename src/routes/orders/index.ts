@@ -5,15 +5,20 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "GET",
     url: "/",
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       querystring: {
         type: "object",
         properties: {
-          clientId: { type: "string" },  // Id of the customer
-          status: { type: "string" },  // Status of the order
+          clientId: { type: "string" },  
+          status: { type: "string" },  
           total: { type: "number" },
           id: {type: "number"},
-          discount: { type: "number" },  // Discount amount of the order
+          discount: { type: "number" },  
           partialPayment: { type: "number" },
           page: { type: "number" },
           limit: { type: "number" },
@@ -30,6 +35,11 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "GET",
     url: "/:id",
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const orderService = new OrderService();
       const order = await orderService.getOrderById(_request.params.id);
@@ -39,6 +49,11 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "PUT",
     url: "/:id/payment",
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: "object",
@@ -60,6 +75,11 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "POST",
     url: "/",
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: "object",
@@ -82,6 +102,11 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "DELETE",
     url: "/:id",
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const orderService = new OrderService();
       return orderService.cancelOrder(_request.params.id);
@@ -90,6 +115,11 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "PUT",
     url: "/:id",
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: "object",

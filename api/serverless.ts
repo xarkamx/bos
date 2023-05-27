@@ -49,17 +49,17 @@ app.addHook("onClose", async (_instance, done) => {
 
 const model = new ErrorModel();
 app.addHook('onError', model.addError.bind(model));
-// Aapp.addHook("onRequest", async (request: any, reply) => {
-//   try {
-//     if (request.routeSchema?.public) {
-//       return;
-//     }
+app.addHook("onRequest", async (request: any, reply) => {
+  try {
+    if (request.routeSchema?.public) {
+      return;
+    }
 
-//     await request.jwtVerify();
-//   } catch (err) {
-//     reply.send(err);
-//   }
-// });
+    await request.jwtVerify();
+  } catch (err) {
+    reply.send(err);
+  }
+});
 
 
 

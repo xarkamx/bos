@@ -7,6 +7,11 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'POST',
     url: '/inventory',
+    config:{
+      auth:{
+        roles:['storer','cashier']
+      }
+    },
     schema:{
       body: {
         type: 'object',

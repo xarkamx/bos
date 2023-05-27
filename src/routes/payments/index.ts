@@ -5,6 +5,11 @@ const payments:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     async handler (_request:any, reply) {
       const paymentService = new PaymentsServices();
       const products = await paymentService.getAllPayments(
@@ -18,6 +23,11 @@ const payments:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'POST',
     url: '/',
+    config:{
+      auth:{
+        roles:['cashier']
+      }
+    },
     schema: {
       body: {
         type: 'object',
@@ -42,6 +52,11 @@ const payments:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'DELETE',
     url: '/:id',
+    config:{
+      auth:{
+        roles:['admin']
+      }
+    },
     async handler (_request:any, reply) {
       const paymentService = new PaymentsServices();
       return paymentService.deletePayment(_request.params.id);
