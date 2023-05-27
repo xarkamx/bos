@@ -1,6 +1,5 @@
 
 import { decode } from 'jsonwebtoken';
-import { HttpError } from '../../errors/HttpError';
 import { BasService } from './basService';
 
 export class MeService{
