@@ -9,8 +9,6 @@ import Db from "../src/db";
 // Read the .env file.
 dotenv.config();
 Db.getInstance();
-
-import { ErrorModel } from '../src/models/ErrorsModel';
 import RouterSingleton from '../src/config/routes';
 import { MeService } from '../src/services/users/meService';
 import { HttpError } from '../src/errors/HttpError';
@@ -83,9 +81,6 @@ app.addHook("onRoute", (routeOptions) => {
   RouterSingleton.getInstance().addRoute(routeOptions);
 });
 
-
-const model = new ErrorModel();
-app.addHook('onError', model.addError.bind(model));
 
 
 
