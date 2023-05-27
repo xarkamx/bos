@@ -2,7 +2,7 @@ import Facturapi from 'facturapi';
 import type {  BillingCustomer, BillingInvoice, BillingProduct } from './BillingService';
 
 export class FacturaApiService {
-  private readonly  api: Facturapi;
+  api: any;
   constructor() {
     this.api = new Facturapi(process.env.FACTURAPI_KEY);
   }
