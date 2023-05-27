@@ -1,4 +1,4 @@
-import axios from 'axios';
+
 import { decode } from 'jsonwebtoken';
 import { HttpError } from '../../errors/HttpError';
 import { BasService } from './basService';
@@ -19,7 +19,7 @@ export class MeService{
 
     async getDetails(){
         const bas = new BasService();
-       return bas.getDetails(this.jwt.token);
+        return bas.getDetails(this.jwt.token);
     }
 
 
