@@ -13,7 +13,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     schema: {
       body: {
         type: 'object',
-        required: ['name', 'phones'],
+        required: ['name', 'phones', 'postal_code','tax_system'],
         properties: {
           rfc: { type: 'string',default: 'XAXX010101000' },
           name: { type: 'string' },
@@ -21,6 +21,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           phones: { type: 'array', items: { type: 'string' } },
           legal: { type: 'boolean', default: false },
           postal_code: { type: 'string' },
+          tax_system: { type: 'string', default: '601' },
         }
       }
     },

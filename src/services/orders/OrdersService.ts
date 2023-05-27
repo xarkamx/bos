@@ -20,7 +20,8 @@ export class OrderService {
         total: subtotal - purchase.discount,
         discount: purchase.discount,
         subtotal,
-        partialPayment: purchase.partialPayment
+        partialPayment: purchase.partialPayment,
+        paymentType: purchase.paymentType,
       }
       const [orderId] = await om.addOrder(order);
       const orderItems = items.map((item) => (
@@ -51,7 +52,7 @@ export class OrderService {
     const orderModel = new OrderModel();
     return orderModel.getAllOrders(searchObject,page, limit)
       .leftJoin('clients', 'orders.client_id', 'clients.client_id')
-      .select('clients.name as clientName', 'rfc', 'clients.client_id as clientId')
+      .select('clients.name as clientName', 'rfc', 'clients.client_id as clientId','clients.email','clients.postal_code as postalCode')
       .orderBy('orders.id', 'desc');
     ;
   }
@@ -125,6 +126,11 @@ export class OrderService {
   async updateOrder(id: number, order: Partial<IOrder>) {
     const om = new OrderModel();
     return om.updateOrder(id, order);
+  }
+
+  async updateByBillId(billId: string, order: any) {
+    const om = new OrderModel();
+    return om.db('orders').where({ billed: billId }).update(order);
   }
 
   private async getItemsPrices(items: any[]): Promise<any[]> {

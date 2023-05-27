@@ -18,4 +18,18 @@ export class FacturaApiService {
   addInvoice(invoice: BillingInvoice) {
     return this.api.invoices.create(invoice);
   }
+
+  cancelInvoice(id:string,motive:string){
+    return this.api.invoices.cancel(id,{motive});
+  }
+
+  list(query:QueryType){
+    return this.api.invoices.list(query);
+  }
+}
+
+export type QueryType={
+  q:string,
+  limit:number,
+  page:number,
 }
