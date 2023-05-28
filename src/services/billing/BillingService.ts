@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import { numberPadStart } from '../../utils/helpers';
 import { ClientService } from '../clients/ClientService';
 import { OrderService } from '../orders/OrdersService';
 
@@ -12,9 +13,7 @@ export class BillingService{
   async addInvoice(orderIds:number[], taxType:string) {
     
     const {orders, customer} = await loadOrders(orderIds);
-   
     const items = formatInvoice(orders);
-   
     const invoice = {
       customer: {
         legal_name: customer.name,
@@ -27,7 +26,7 @@ export class BillingService{
       },
       folio_number: orders[0].order.id,
       items,
-      payment_form: orders[0].order, // Hardcoded for now
+      payment_form: numberPadStart(2,orders[0].order.paymentType),
       payment_method: orders.every((order:any) => order.order.status === 'paid') ? 'PUE' : 'PPD',
     };
 
@@ -52,6 +51,14 @@ export class BillingService{
 
   async getAllInvoices(query:any){
     return this.billing.list(query);
+  }
+
+  async downloadInvoice(billingId:string){
+    return this.billing.downloadInvoice(billingId);
+  }
+
+  async sendInvoice(billingId:string){
+    return this.billing.sendInvoice(billingId);
   }
 } 
 

@@ -26,6 +26,14 @@ export class FacturaApiService {
   list(query:QueryType){
     return this.api.invoices.list(query);
   }
+
+  downloadInvoice(id:string){
+    return this.api.invoices.downloadZip(id);
+  }
+
+  sendInvoice(id:string){
+    return this.api.invoices.sendByEmail(id);
+  }
 }
 
 export type QueryType={

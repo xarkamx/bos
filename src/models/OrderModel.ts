@@ -72,7 +72,8 @@ export class OrderModel {
         'status',
         'billed',
         'created_at as createdAt',
-        'updated_at as updatedAt'
+        'updated_at as updatedAt',
+        'payment_type as paymentType'
       )
       .from(this.tableName)
       .where({ id });

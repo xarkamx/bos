@@ -24,6 +24,38 @@ const info:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           }
         }
     })
+
+    fastify.route({
+      method:'GET',
+      url:'/debtors',
+      config:{
+        auth:{
+          roles:['admin','cashier']
+        }
+      },
+      async handler(_request,reply){
+        const stats = new StatsService();
+        const debtors = await stats.getDebtors();
+        return debtors;
+      },
+    });
+
+    fastify.route({
+      method:'GET',
+      url:'/products',
+      config:{
+        auth:{
+          roles:['admin','cashier']
+        }
+      },
+      async handler(_request,reply){
+        const stats = new StatsService();
+        const debtors = await stats.getSalesPerProduct();
+        return debtors;
+      },
+    });
+
+
 }
 
 export default info;

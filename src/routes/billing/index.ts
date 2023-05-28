@@ -30,7 +30,9 @@ export default async function Billing(fastify:any){
     async handler(request:any, reply:any) {
       const { orderIds,taxType} = request.body;
       const service = new BillingService(new FacturaApiService());
-      return service.addInvoice(orderIds,taxType);
+      const invoice =await service.addInvoice(orderIds,taxType);
+      service.sendInvoice(invoice.id);
+      return invoice;
     }
   })
 
@@ -72,6 +74,39 @@ export default async function Billing(fastify:any){
       const {query} = request;
       const service = new BillingService(new FacturaApiService());
       return service.getAllInvoices(query);
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/:facturaApiId/download',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    async handler(request:any, reply:any) {
+      const { facturaApiId } = request.params;
+      const service = new BillingService(new FacturaApiService());
+      const file= service.downloadInvoice(facturaApiId);
+      reply.header('Content-Disposition', `attachment; filename=${facturaApiId}.zip`);
+      reply.header('Content-Type', 'application/zip');
+      return file;
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/:facturaApiId/send',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    async handler(request:any, reply:any) {
+      const { facturaApiId } = request.params;
+      const service = new BillingService(new FacturaApiService());
+      return service.sendInvoice(facturaApiId);
     }
   });
 }
