@@ -43,6 +43,34 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return inventoryService.getAllItems(_request.query.type);
     }
   });
+
+  fastify.route({
+    method: 'GET',
+    url: '/items',
+    config:{
+      auth:{ 
+        roles:['cashier','admin','storer']
+      }
+    },
+    async handler (_request:any, reply) {
+      const inventoryService = new InventoryService();
+      return inventoryService.getAllSoldItems();
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/items/:product_id',
+    config:{
+      auth:{ 
+        roles:['cashier','admin','storer']
+      }
+    },
+    async handler (_request:any, reply) {
+      const inventoryService = new InventoryService();
+      return inventoryService.getItemsByProductId(_request.params.product_id);
+    }
+  });
 };
 
 export default inventory;

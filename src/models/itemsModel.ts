@@ -16,6 +16,20 @@ export class ItemsModel {
     });
   }
 
+  getAllItems() {
+    return this.db
+      .select(
+        'product_id as productId',
+        'quantity',
+        'items.price as total',
+        'products.price as unitPrice',
+        'name',
+        'items.created_at as createdAt'
+      )
+      .leftJoin('products', 'items.product_id', 'products.id')
+      .from(this.tableName);
+  }
+
   getItemsByOrderId(id: number) {
     return this.db
       .select(

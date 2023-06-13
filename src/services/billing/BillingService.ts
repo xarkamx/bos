@@ -27,7 +27,7 @@ export class BillingService{
       folio_number: orders[0].order.id,
       items,
       payment_form: numberPadStart(2,orders[0].order.paymentType),
-      payment_method: orders.every((order:any) => order.order.status === 'paid') ? 'PUE' : 'PPD',
+      payment_method: 'PUE',
     };
 
     const resp = await this.billing.addInvoice(invoice)
