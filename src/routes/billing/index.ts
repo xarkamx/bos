@@ -19,6 +19,9 @@ export default async function Billing(fastify:any){
             type: 'string',
             default: '601',
           },
+          paymentType:{
+            type: 'string',
+          }
         },
       },
     },
@@ -28,9 +31,9 @@ export default async function Billing(fastify:any){
       },
     },
     async handler(request:any, reply:any) {
-      const { orderIds,taxType} = request.body;
+      const { orderIds,taxType,paymentType} = request.body;
       const service = new BillingService(new FacturaApiService());
-      const invoice =await service.addInvoice(orderIds,taxType);
+      const invoice =await service.addInvoice(orderIds,taxType,paymentType);
       service.sendInvoice(invoice.id);
       return invoice;
     }

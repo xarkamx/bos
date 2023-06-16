@@ -10,7 +10,7 @@ export class BillingService{
     this.billing = billing;
   }
 
-  async addInvoice(orderIds:number[], taxType:string) {
+  async addInvoice(orderIds:number[], taxType:string, paymentType:string) {
     
     const {orders, customer} = await loadOrders(orderIds);
     const items = formatInvoice(orders);
@@ -26,7 +26,7 @@ export class BillingService{
       },
       folio_number: orders[0].order.id,
       items,
-      payment_form: numberPadStart(2,orders[0].order.paymentType),
+      payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
       payment_method: 'PUE',
     };
 
