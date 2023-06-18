@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import type { iClient } from '../../models/ClientModel';
 import { numberPadStart } from '../../utils/helpers';
 import { ClientService } from '../clients/ClientService';
 import { OrderService } from '../orders/OrdersService';
@@ -29,11 +30,15 @@ export class BillingService{
       payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
       payment_method: 'PUE',
     };
+    try{
+      const resp = await this.billing.addInvoice(invoice)
+      await storeBillId(orderIds, resp.id);
+      return resp;
+    }catch(e:any){
+      throw new HttpError(e.message, 400);
+    }
 
-    const resp = await this.billing.addInvoice(invoice)
-    if(resp.error) throw new HttpError(resp.error, 400);
-    await storeBillId(orderIds, resp.id);
-    return resp;
+   
   }
 
   async cancelInvoice(billingId:string,motive:string){
@@ -45,7 +50,7 @@ export class BillingService{
       throw new HttpError(e.message, 400);
     }
 
-    service.updateByBillId(billingId, {billed: null, billed_at: null});
+    await service.updateByBillId(billingId, {billed: null, billed_at: null});
     return billing;
   }
 
@@ -60,6 +65,27 @@ export class BillingService{
   async sendInvoice(billingId:string){
     return this.billing.sendInvoice(billingId);
   }
+
+  validateClient(legal:string){
+    return this.billing.validateClient(legal);
+  }
+  
+  createClient(client:any){
+    return this.billing.createClient(client);
+  }
+
+  updateClient(id:string,client:iClient){
+    return this.billing.updateClient(id,{
+      legal_name: client.name,
+      tax_id: client.rfc,
+      tax_system: client.tax_system ?? '601',
+      email: client.email,
+      address: {
+        zip: client.postal_code,
+      },
+    });
+  }
+
 } 
 
 async function loadOrders(orderIds:number[]){

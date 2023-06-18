@@ -40,7 +40,7 @@ export type iClient = {
   name: string;
   email: string;
   phones: string[];
-  legal: boolean;
+  legal: string;
   postal_code: string;
   tax_system: string;
 };

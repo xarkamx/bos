@@ -1,5 +1,8 @@
 import { type FastifyPluginAsync } from 'fastify';
 import { ClientService } from '../../services/clients/ClientService';
+import { HttpError } from '../../errors/HttpError';
+import { FacturaApiService } from '../../services/billing/FacturaApiService';
+import { BillingService } from '../../services/billing/BillingService';
 
 const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
@@ -79,7 +82,20 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     },
     async handler (_request:any, reply) {
       const clientService = new ClientService();
-      return  clientService.updateClient(_request.params.id, _request.body);
+      
+      await clientService.updateClient(_request.params.id, _request.body);
+      const client = await clientService.getClient(_request.params.id);
+      if(!client) throw new HttpError('Client not found', 404);
+      if(client.legal) {
+        const billingService = new BillingService(new FacturaApiService());
+        try{
+          await billingService.updateClient(client.legal, client);
+        }catch(e:any){
+          throw new HttpError(e.message, 400);
+        }
+      }
+
+      return client 
     }
   });
 };

@@ -57,7 +57,7 @@ export class ClientService {
     };
   }
 
-  async updateClient(clientId: number, client: iClient): Promise<any> {
+  async updateClient(clientId: number, client: Partial<iClient>): Promise<any> {
     const clientModel = new ClientModel();
     return clientModel.updateClient(clientId, client);
   }
