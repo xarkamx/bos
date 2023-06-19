@@ -2,6 +2,7 @@
 
 import {type FastifyPluginAsync } from 'fastify';
 import { PaymentsServices } from '../../../services/payments/PaymentsServices';
+import { OrderService } from '../../../services/orders/OrdersService';
 
 
 const orderPayments:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
@@ -18,6 +19,22 @@ const orderPayments:FastifyPluginAsync = async (fastify, _opts): Promise<void> =
           return paymentService.getPaymentsByOrderId(_request.params.orderId);
         }
     })
+
+    fastify.route({
+        method:'DELETE',
+        url:'/payments',
+        config:{
+          auth:{
+            roles:['cashier','admin']
+          }
+        },
+        async handler(_request:any,reply){
+          const paymentService = new PaymentsServices();
+          const ordersService = new OrderService();
+          await ordersService.updateOrder(_request.params.orderId,{status:'pending'})
+          return paymentService.cancelPaymentByOrderId(_request.params.orderId);
+        }
+    });
 }
 
 export default orderPayments;
