@@ -36,7 +36,7 @@ const payments:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           clientId: { type: 'number' ,default: 0},
           externalId: { type: 'number' },
           flow: { type: 'string', enum: ['inflow', 'outflow'] },
-          paymentType: { type: 'string', enum: ['sale','tax', 'service','refund','rent'] },
+          paymentType: { type: 'string', enum: ['sale','tax', 'service','refund','rent','order'], default: 'order' },
           description: { type: 'string' },
           paymentMethod: { type: 'number' },
           amount: { type: 'number' },
