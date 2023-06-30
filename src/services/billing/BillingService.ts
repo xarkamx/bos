@@ -29,6 +29,7 @@ export class BillingService{
       items,
       payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
       payment_method: 'PUE',
+      use: 'G01', // Hardcoded for now
     };
     try{
       const resp = await this.billing.addInvoice(invoice)
