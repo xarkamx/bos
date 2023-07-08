@@ -27,10 +27,10 @@
 1. [ ] Agregar testing step en github actions (?)
 1. [X] Vincular con sistema de usuarios
      1. [ ] Como testear un sistema externo de usuarios?
-     2. [ ] Crea interfaz en caso de que tengas que cambiar de manejador de usuarios.
-1. [ ] Vincular con sistema de facturas
+     2. [X] Crea interfaz en caso de que tengas que cambiar de manejador de usuarios.
+1. [X] Vincular con sistema de facturas
      1. [ ] Como testear un sistema externo de facturas?
-     2. [ ] Crea interfaz en caso de que tengas que cambiar de API
+     2. [X] Crea interfaz en caso de que tengas que cambiar de API
 1. [ ] Vincular con sistema de archivos
      1. [ ] Debera ser capaz de manejar multiples tipos de archivos al mismo tiempo.
      2. [ ] Crea interfaz en caso de que tengas que cambiar de manejador de archivos.

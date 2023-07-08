@@ -11,7 +11,10 @@ export class BillingService{
     this.billing = billing;
   }
 
-  async addInvoice(orderIds:number[], taxType:string, paymentType:string) {
+  async addInvoice(orderIds:number[], taxType:string, paymentType:string, paymentMethod ='') {
+    if(paymentMethod === 'PPD') {
+      paymentType = '99';
+    }
     
     const {orders, customer} = await loadOrders(orderIds);
     const items = formatInvoice(orders);
@@ -28,7 +31,7 @@ export class BillingService{
       folio_number: orders[0].order.id,
       items,
       payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
-      payment_method: 'PUE',
+      payment_method:  paymentMethod || 'PUE',
       use: 'G01', // Hardcoded for now
     };
     try{

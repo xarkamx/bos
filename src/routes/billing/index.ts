@@ -21,7 +21,11 @@ export default async function Billing(fastify:any){
           },
           paymentType:{
             type: 'string',
-          }
+          },
+         paymentMethod:{
+            type: 'string',
+            default: 'PUE',
+         },
         },
       },
     },
@@ -31,9 +35,9 @@ export default async function Billing(fastify:any){
       },
     },
     async handler(request:any, reply:any) {
-      const { orderIds,taxType,paymentType} = request.body;
+      const { orderIds,taxType,paymentType,paymentMethod} = request.body;
       const service = new BillingService(new FacturaApiService());
-      const invoice =await service.addInvoice(orderIds,taxType,paymentType);
+      const invoice =await service.addInvoice(orderIds,taxType,paymentType,paymentMethod);
       service.sendInvoice(invoice.id);
       return invoice;
     }

@@ -8,6 +8,7 @@ export class BasService {
     const company = process.env.BAS_COMPANY;
     try{
       const fetch = await axios.post(`${basUrl}/users/signup`,{email,password,company});
+      
       const details = await this.getDetails(fetch.data.token);
       return {
         jwt:fetch.data.token,
@@ -80,6 +81,22 @@ export class BasService {
     }
    }
 
+   async addDevice(jwt:string,device:DeviceType){
+    const url:any= process.env.BAS_URL;
+    const company = process.env.BAS_COMPANY;
+    const validUrl = encodeURI(`${url}/companies/${company}/devices`);
+    try{
+      const users= await axios.post(validUrl,device,{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+   }
+
    async addRole(jwt:string, userId:number, role:string){
     const url:any= process.env.BAS_URL;
     const company = process.env.BAS_COMPANY;
@@ -98,6 +115,21 @@ export class BasService {
     }
 
    }
+
+   async sendNotification(jwt:string,  notification:any){
+    const url:any= process.env.BAS_URL;
+    const validUrl = encodeURI(`${url}/notifications`);
+    try{
+      const users= await axios.post(validUrl,notification,{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+   }
 }
 
 
@@ -111,4 +143,14 @@ type UserType = {
   email: string;
   password: string;
   role: string;
+}
+
+type DeviceType = {
+  name: string;
+  type: string;
+  token: string;
+  os: string;
+  osVersion: string;
+  browser: string;
+  brand: string;
 }
