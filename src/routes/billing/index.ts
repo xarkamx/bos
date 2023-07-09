@@ -41,7 +41,7 @@ export default async function Billing(fastify:any){
       const { orderIds,taxType,paymentType,paymentMethod} = request.body;
       const service = new BillingService(new FacturaApiService());
       const invoice =await service.addInvoice(orderIds,taxType,paymentType,paymentMethod);
-      service.sendInvoice(invoice.id);
+      service.sendInvoice(invoice.id,'');
       return invoice;
     }
   })
@@ -121,7 +121,7 @@ export default async function Billing(fastify:any){
       if(!order[0]) {
         throw new HttpError('No se encontro la factura',404);
       }
-      
+
       return service.sendInvoice(order[0].billed,order[0].email);
     }
   });

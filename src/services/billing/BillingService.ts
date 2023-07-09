@@ -64,6 +64,7 @@ export class BillingService{
   }
 
   async sendInvoice(billingId:string, email:string){
+    if(email === '') return this.billing.sendInvoice(billingId);
     return this.billing.sendInvoice(billingId,{email});
   }
 
