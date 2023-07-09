@@ -1,7 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
-import { ClientService } from '../../services/clients/ClientService';
 import { OrderService } from '../../services/orders/OrdersService';
 
 export default async function Billing(fastify:any){
