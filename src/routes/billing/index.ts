@@ -1,5 +1,8 @@
+import { HttpError } from '../../errors/HttpError';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
+import { ClientService } from '../../services/clients/ClientService';
+import { OrderService } from '../../services/orders/OrdersService';
 
 export default async function Billing(fastify:any){
   fastify.route({
@@ -104,16 +107,22 @@ export default async function Billing(fastify:any){
 
   fastify.route({
     method: 'GET',
-    url: '/:facturaApiId/send',
+    url: '/:billingId/send',
     config: {
       auth: {
         roles: ['admin','cashier'],
       }
     },
     async handler(request:any, reply:any) {
-      const { facturaApiId } = request.params;
+      const { billingId } = request.params;
+      const orderService = new OrderService();
+      const order = await orderService.getAllOrders({billed:billingId},1,1);
       const service = new BillingService(new FacturaApiService());
-      return service.sendInvoice(facturaApiId);
+      if(!order[0]) {
+        throw new HttpError('No se encontro la factura',404);
+      }
+      
+      return service.sendInvoice(order[0].billed,order[0].email);
     }
   });
 }

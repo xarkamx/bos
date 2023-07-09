@@ -28,7 +28,6 @@ export class BillingService{
           zip: customer.postal_code,
         },
       },
-      folio_number: orders[0].order.id,
       items,
       payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
       payment_method:  paymentMethod || 'PUE',
@@ -41,8 +40,6 @@ export class BillingService{
     }catch(e:any){
       throw new HttpError(e.message, 400);
     }
-
-   
   }
 
   async cancelInvoice(billingId:string,motive:string){
@@ -66,8 +63,8 @@ export class BillingService{
     return this.billing.downloadInvoice(billingId);
   }
 
-  async sendInvoice(billingId:string){
-    return this.billing.sendInvoice(billingId);
+  async sendInvoice(billingId:string, email:string){
+    return this.billing.sendInvoice(billingId,{email});
   }
 
   validateClient(legal:string){

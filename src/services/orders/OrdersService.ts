@@ -57,6 +57,10 @@ export class OrderService {
     ;
   }
 
+  async getOrdersByBillId(billId: string) {
+    const orderModel = new OrderModel();
+    return orderModel.getOrders().where({billed: billId});
+  }
   
 
   async getOrderById(id: number) {
