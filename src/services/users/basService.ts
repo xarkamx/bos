@@ -130,6 +130,21 @@ export class BasService {
       throw new HttpError(err.response.data.message, err.response.status)
     }
    }
+
+   async changeMyPassword(jwt:string, password:string){
+    const url:any= process.env.BAS_URL;
+    const validUrl = encodeURI(`${url}/me/password`);
+    try{
+      const users= await axios.post(validUrl,{newPassword:password},{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+   }
 }
 
 

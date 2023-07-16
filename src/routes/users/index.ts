@@ -44,4 +44,22 @@ export default async function Users(fastify:any, opts:any) {
       };
     }
   });
+
+  fastify.route({
+    method: 'POST',
+    url: '/me/password',
+    schema:{
+      body:{
+        type:'object',
+        required:['password'],
+        properties:{
+          password:{type:'string'},
+        }
+      }
+    },
+    async handler (request:any, reply:any) {
+      const bas = new BasService();
+      return bas.changeMyPassword(request.headers.authorization, request.body.password);
+    }
+  });
 }
