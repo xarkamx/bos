@@ -27,7 +27,7 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     async handler (_request:any, reply) {
       const productService = new ProductsService();
       const products = await productService.getInventory();
-      return products;
+      return products[0];
     }
   });
   fastify.route({

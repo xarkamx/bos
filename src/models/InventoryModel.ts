@@ -38,10 +38,16 @@ export class InventoryModel {
   }
 
   getAllItemsByType(type:string) {
-    return this.db(this.tableName)
-      .sum('quantity as quantity')
-      .where('type', type)
-      .groupBy('external_id','type');
+    return this.db.raw(`
+    with inv as (
+      SELECT sum(quantity) as qty ,external_id as product_id, type FROM inventory where type ='${type}' group by external_id  
+    ), sold as (
+      SELECT product_id,sum(quantity) as qty, sum(price) as amount FROM items group by product_id
+    )
+    SELECT id,name, price as unitPrice, inv.qty as inStock, sold.qty as soldUnits, sold.amount as soldAmount from products
+    left join inv on inv.product_id = products.id
+    left join sold on sold.product_id = products.id;
+    `)
   }
 
 }
@@ -51,3 +57,4 @@ type InventoryItem ={
   quantity: number;
   type: string;
 }
+
