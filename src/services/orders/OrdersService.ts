@@ -118,7 +118,7 @@ export class OrderService {
 
     const items = await itemsModel.getItemsByOrderId(id);
     await inventoryModel.addInBulkToInventory(items.map((item:any) => 
-      ({ external_id: item.productId,  quantity: (item.quantity*-1), type:'product' })))
+      ({ external_id: item.productId,  quantity: (item.quantity), type:'product' })))
     await itemsModel.deleteItemsByOrderId(id);
     await paymentModel.deletePaymentsByExternalId(id);
     return  om.deleteOrder(id);
