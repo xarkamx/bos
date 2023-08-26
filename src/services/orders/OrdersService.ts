@@ -101,7 +101,7 @@ export class OrderService {
     const status = total < 1  ? 'paid' : 'pending';
     
     const response =await orderModel.updateOrder(id, { partialPayment:addedPayment, status });
-    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId });
+    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId, paymentType: 'order' });
     return { message: 'Payment added', data: { ...response, status, total,paid:addedPayment,payment  }};
   }
 

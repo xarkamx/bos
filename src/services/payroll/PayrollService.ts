@@ -36,6 +36,7 @@ export class PayrollService{
                 flow: 'outflow',
                 description: 'Payroll',
                 amount: Math.ceil(payrollEmployee.salaryPerDay * payrollEmployee.days),
+                paymentType: 'payroll',
                 clientId:0
             }))
 

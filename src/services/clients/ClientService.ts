@@ -57,6 +57,18 @@ export class ClientService {
     };
   }
 
+  async getClientPayments(clientId: string) {
+    const ordersModel = new OrderModel();
+    const orders = await ordersModel.request
+      .rightJoin('clients', 'clients.client_id', 'orders.client_id')
+      .where('orders.client_id', clientId)
+      .andWhere('status', '!=', 'canceled')
+      .select('partial_payment as partialPayment', 'total', 'status', 'created_at','clients.rfc','orders.id as orderId')
+      .orderBy('created_at', 'desc')
+      ;
+    return orders;
+  }
+
   async updateClient(clientId: number, client: Partial<iClient>): Promise<any> {
     const clientModel = new ClientModel();
     return clientModel.updateClient(clientId, client);
