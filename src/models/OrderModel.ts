@@ -97,6 +97,7 @@ export class OrderModel {
   async deleteOrder(id: number) {
     return this.db(this.tableName).where({ id }).del();
   }
+
 }
 
 export type IOrder ={

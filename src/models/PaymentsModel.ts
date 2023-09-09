@@ -64,7 +64,7 @@ export class PaymentsModel{
       .orderBy('id', 'desc');
   }
 
-  async getAll(columns: string[] = []):Promise<any> {
+  getAll(columns: string[] = []) {
     return this.db.select(columns).from(this.tableName);
   }
 

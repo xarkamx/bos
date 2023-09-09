@@ -1,5 +1,6 @@
 import { ClientModel, type iClient } from '../../models/ClientModel';
 import { OrderModel } from '../../models/OrderModel';
+import { PaymentsModel } from '../../models/PaymentsModel';
 
 export class ClientService {
   async createClient(client: iClient): Promise<any> {
@@ -58,15 +59,13 @@ export class ClientService {
   }
 
   async getClientPayments(clientId: string) {
-    const ordersModel = new OrderModel();
-    const orders = await ordersModel.request
-      .rightJoin('clients', 'clients.client_id', 'orders.client_id')
+    const payments = new PaymentsModel();
+    return payments.getAll()
+      .select('orders.id as orderId', 'payments.id as paymentId', 'payments.amount', 'payments.created_at as createdAt', 'payments.payment_method as paymentMethod', 'payments.payment_type as paymentType', 'payments.flow')
+      .leftJoin('orders', 'orders.id', 'payments.external_id')
       .where('orders.client_id', clientId)
-      .andWhere('status', '!=', 'canceled')
-      .select('partial_payment as partialPayment', 'total', 'status', 'created_at','clients.rfc','orders.id as orderId')
-      .orderBy('created_at', 'desc')
+      .andWhere('payments.payment_type', 'order')
       ;
-    return orders;
   }
 
   async updateClient(clientId: number, client: Partial<iClient>): Promise<any> {
