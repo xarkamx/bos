@@ -21,7 +21,7 @@ export class ClientService {
   async getClient(clientId: string): Promise<any> {
     const clientModel = new ClientModel();
     const resp = await clientModel.getClients().where('client_id', clientId).first();
-    resp.phones = JSON.parse(resp.phones)
+    resp.phones = JSON.parse(resp?.phones || [])
     return resp;
   }
 

@@ -63,6 +63,30 @@ export class BillingService{
     return this.billing.downloadInvoice(billingId);
   }
 
+  async customInvoice(customerId:string,products:any[],paymentDetails:any){
+    const service = new ClientService();
+    const customer = await service.getClient(customerId);
+
+    if(!customer) throw new HttpError('Customer not found', 404);
+
+    const invoice = {
+      customer: {
+        legal_name: customer.name,
+        tax_id: customer.rfc,
+        tax_system: customer.tax_system, // Hardcoded for now
+        email: customer.email,
+        address: {
+          zip: customer.postal_code,
+        },
+      },
+      items: products,
+      payment_form: numberPadStart(2,paymentDetails.paymentForm),
+      payment_method: paymentDetails.paymentMethod || 'PUE',
+      use: paymentDetails.use, // Hardcoded for now
+    };
+    return this.billing.addInvoice(invoice);
+  }
+
   async sendInvoice(billingId:string, email:string){
     if(email === '') return this.billing.sendInvoice(billingId);
     return this.billing.sendInvoice(billingId,{email});
@@ -86,6 +110,10 @@ export class BillingService{
         zip: client.postal_code,
       },
     });
+  }
+
+  getExternalProducts(query:string){
+    return this.billing.searchProducts(query);
   }
 
 } 

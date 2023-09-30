@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import { ApiKeyModel } from '../../models/ApiKeyModel';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
 import { OrderService } from '../../services/orders/OrdersService';
@@ -122,6 +123,83 @@ export default async function Billing(fastify:any){
       }
 
       return service.sendInvoice(order[0].billed,order[0].email);
+    }
+  });
+
+  fastify.route({
+    method:'POST',
+    url:'/custom',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          orderIds: {
+            type: 'array',
+            items: {
+              type: 'number',
+            },
+          },
+          taxType:{
+            type: 'string',
+            default: '601',
+          },
+          paymentType:{
+            type: 'string',
+          },
+         paymentMethod:{
+            type: 'string',
+            default: 'PUE',
+         },
+         email:{
+           type:'string',
+         },
+        },
+      },
+    },
+    async handler(request:any, reply:any) {
+
+      const { customerId, products, paymentForm,paymentMethod} = request.body;
+      const type = request.body.orgTaxSystem || '601';
+      let key = '';
+
+      if(type === '606') {
+        const apiModel = new ApiKeyModel();
+        const api = await apiModel.getApiKeyByName('lease');
+        key = api.key;
+      }
+
+      const service = new BillingService(new FacturaApiService(key));
+      const invoice =await service.customInvoice(customerId,products,{
+        paymentForm,
+        paymentMethod
+
+      });
+      return invoice;
+
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/external/products',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    schema: {
+      
+    },
+    async handler(request:any, reply:any) {
+      const service = new BillingService(new FacturaApiService());
+      return service.getExternalProducts(
+        request.query
+      );
     }
   });
 }
