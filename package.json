@@ -40,6 +40,7 @@
     "graphql": "16.6.0",
     "jsonwebtoken": "^9.0.0",
     "knex": "^2.4.2",
+    "libxmljs": "^1.0.11",
     "mercurius": "11.4.0",
     "mercurius-codegen": "5.0.1",
     "mercurius-integration-testing": "6.0.1",

@@ -57,6 +57,10 @@ export class FacturaApiService {
     return this.api.customers.update(id,client);
   }
 
+  getBilling(id:string){
+    return this.api.invoices.retrieve(id);
+  }
+
   async searchProducts(query:string){
     return this.api.catalogs.searchProducts({
       q: query

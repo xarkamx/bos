@@ -3,6 +3,7 @@ import { ApiKeyModel } from '../../models/ApiKeyModel';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
 import { OrderService } from '../../services/orders/OrdersService';
+import { paymentComplementToXml } from './utils';
 
 export default async function Billing(fastify:any){
   fastify.route({
@@ -200,6 +201,56 @@ export default async function Billing(fastify:any){
       return service.getExternalProducts(
         request.query
       );
+    }
+  });
+
+  fastify.route({
+    method:'POST',
+    url:'/complement',
+    schema:{
+      body:{
+        type:'object',
+        properties:{
+          billId:{
+            type:'string',
+          },
+        },
+      },
+    },
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    async handler(request:any, reply:any) { 
+
+      // Es necesario que se lleve un registro de pagos parciales facturados
+      // para poder calcular cuantos pagos parciales se han hecho
+      reply.code(201);
+      const {billId,paymentForm,amount} = request.body;
+      const service = new BillingService(new FacturaApiService());
+      const ordersService = new OrderService();
+      const resp = await ordersService.getOrdersByBillId(billId);
+      service.customInvoice(resp[0].client_id,[
+        {
+          quantity:1,
+          product:{
+            price:amount,
+            description:'Pago',
+            product_key:'84111506',
+          }
+        },
+      ],{
+        paymentForm,
+        type:"P",
+        complement:[{
+          type:"pago",
+          data:{
+            payment_form:paymentForm,
+            related_documentsl:[billId],
+          },
+        }],
+      });
     }
   });
 }

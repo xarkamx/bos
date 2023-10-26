@@ -42,6 +42,10 @@ export class BillingService{
     }
   }
 
+  async getBillById(billingId:string){
+    return this.billing.getBilling(billingId);
+  }
+
   async cancelInvoice(billingId:string,motive:string){
     const service = new OrderService();
     let billing = {};
@@ -61,6 +65,10 @@ export class BillingService{
 
   async downloadInvoice(billingId:string){
     return this.billing.downloadInvoice(billingId);
+  }
+
+  async downloadXml(billingId:string){
+    return this.billing.downloadXml(billingId);
   }
 
   async customInvoice(customerId:string,products:any[],paymentDetails:any){
@@ -83,6 +91,8 @@ export class BillingService{
       payment_form: numberPadStart(2,paymentDetails.paymentForm),
       payment_method: paymentDetails.paymentMethod || 'PUE',
       use: paymentDetails.use, // Hardcoded for now
+      complements: paymentDetails?.complement,
+      type: paymentDetails.type,
     };
     return this.billing.addInvoice(invoice);
   }
