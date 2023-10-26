@@ -229,26 +229,26 @@ export default async function Billing(fastify:any){
       reply.code(201);
       const {billId,paymentForm,amount} = request.body;
       const service = new BillingService(new FacturaApiService());
+      const {uuid,total} = await service.getBillById(billId);
       const ordersService = new OrderService();
       const resp = await ordersService.getOrdersByBillId(billId);
-      service.customInvoice(resp[0].client_id,[
-        {
-          quantity:1,
-          product:{
-            price:amount,
-            description:'Pago',
-            product_key:'84111506',
-          }
-        },
-      ],{
-        paymentForm,
-        type:"P",
-        complement:[{
+      return  service.paymentComplement(resp[0].client_id,amount,{
+        
           type:"pago",
-          data:{
+          data:[{
             payment_form:paymentForm,
-            related_documentsl:[billId],
-          },
+            related_documents:[{
+              uuid,
+              amount,
+              installment:1,
+              last_balance:total-amount,
+              taxes:[{
+                base:amount/0.16,
+                type:'IVA',
+                rate:0.16,
+              }],
+            }],
+         
         }],
       });
     }

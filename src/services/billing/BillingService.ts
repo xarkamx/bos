@@ -88,11 +88,31 @@ export class BillingService{
         },
       },
       items: products,
-      payment_form: numberPadStart(2,paymentDetails.paymentForm),
+      payment_form: paymentDetails.paymentForm?numberPadStart(2,paymentDetails.paymentForm):undefined,
       payment_method: paymentDetails.paymentMethod || 'PUE',
       use: paymentDetails.use, // Hardcoded for now
-      complements: paymentDetails?.complement,
-      type: paymentDetails.type,
+    };
+    return this.billing.addInvoice(invoice);
+  }
+
+  async paymentComplement(customerId:string,amount:number, complement:any){
+    const service = new ClientService();
+    const customer = await service.getClient(customerId);
+
+    if(!customer) throw new HttpError('Customer not found', 404);
+
+    const invoice = {
+      customer: {
+        legal_name: customer.name,
+        tax_id: customer.rfc,
+        tax_system: customer.tax_system, // Hardcoded for now
+        email: customer.email,
+        address: {
+          zip: customer.postal_code,
+        },
+      },
+      complements: [complement],
+      type: 'P',
     };
     return this.billing.addInvoice(invoice);
   }
