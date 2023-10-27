@@ -229,7 +229,12 @@ export default async function Billing(fastify:any){
       reply.code(201);
       const {billId,paymentForm,amount} = request.body;
       const service = new BillingService(new FacturaApiService());
-      const {uuid,total} = await service.getBillById(billId);
+      const {uuid,total,payment_method} = await service.getBillById(billId);
+
+      if (payment_method !== 'PPD') {
+        throw new HttpError('La factura no es de pagos parciales',400);
+      }
+
       const ordersService = new OrderService();
       const resp = await ordersService.getOrdersByBillId(billId);
       return  service.paymentComplement(resp[0].client_id,amount,{
@@ -241,7 +246,7 @@ export default async function Billing(fastify:any){
               uuid,
               amount,
               installment:1,
-              last_balance:total-amount,
+              last_balance:total,
               taxes:[{
                 base:amount/0.16,
                 type:'IVA',
