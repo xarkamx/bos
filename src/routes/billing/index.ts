@@ -3,7 +3,6 @@ import { ApiKeyModel } from '../../models/ApiKeyModel';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
 import { OrderService } from '../../services/orders/OrdersService';
-import { paymentComplementToXml } from './utils';
 
 export default async function Billing(fastify:any){
   fastify.route({
