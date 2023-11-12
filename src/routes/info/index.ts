@@ -1,5 +1,6 @@
 import {type FastifyPluginAsync } from 'fastify';
 import { StatsService } from '../../services/stats/StatsService';
+import { Siapa } from '../../services/billing/Siapa';
 
 const info:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     fastify.route({
@@ -54,6 +55,53 @@ const info:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         return debtors;
       },
     });
+
+    fastify.route({
+      method:'GET',
+      url:'/siapa/:code',
+      config:{
+        auth:{
+          roles:['admin','cashier']
+        }
+      },
+      async handler(request:any,reply){
+        const {code} = request.params;
+        const siapa =  new Siapa();
+        return siapa.get(code);
+      },
+    })
+
+
+    
+    fastify.route({
+      method:'GET',
+      url:'/siapa',
+      config:{
+        auth:{
+          roles:['admin','cashier']
+        }
+      },
+      async handler(request:any,reply){
+        const siapa =  new Siapa();
+        return siapa.getAll();
+      },
+    })
+
+    fastify.route({
+      method:'POST',
+      url:'/siapa/:code',
+      config:{
+        auth:{
+          roles:['admin','cashier']
+        }
+      },
+      async handler(request:any,reply){
+        const {code} = request.params;
+        const siapa =  new Siapa();
+        await siapa.add(code);
+        return siapa.get(code);
+      },
+    })
 
 
 }
