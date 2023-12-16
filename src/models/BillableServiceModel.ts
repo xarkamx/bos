@@ -1,5 +1,4 @@
 import { db } from '../config/db';
-import { snakeCaseReplacer } from '../utils/objectFormat';
 
 export class BillableServicesModel {
   public tableName = 'billableServices';
