@@ -27,7 +27,6 @@ export default async function Billing(fastify:any){
           },
          paymentMethod:{
             type: 'string',
-            default: 'PUE',
          },
         },
       },
@@ -40,6 +39,7 @@ export default async function Billing(fastify:any){
     async handler(request:any, reply:any) {
       const { orderIds,taxType,paymentType,paymentMethod} = request.body;
       const service = new BillingService(new FacturaApiService());
+      console.log(orderIds,taxType,paymentType,paymentMethod,'ep')
       const invoice =await service.addInvoice(orderIds,taxType,paymentType,paymentMethod);
       service.sendInvoice(invoice.id,'');
       return invoice;

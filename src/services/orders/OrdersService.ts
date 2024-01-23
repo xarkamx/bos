@@ -22,6 +22,7 @@ export class OrderService {
         subtotal,
         partialPayment: purchase.partialPayment,
         paymentType: purchase.paymentType,
+        status:purchase.status ?? 'pending',
       }
       const [orderId] = await om.addOrder(order);
       const orderItems = items.map((item) => (
@@ -41,7 +42,10 @@ export class OrderService {
            });
       // Move this to products service
       const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity* -1, type:'product' }))
-      await inventoryModel.addInBulkToInventory(inventoryItems);
+      if(purchase.status !== 'requested') {
+        await inventoryModel.addInBulkToInventory(inventoryItems);
+      }
+
       return {message: 'Order created', data: {orderId, items:products}}
     }catch(e:any){
       return {message: e.message}

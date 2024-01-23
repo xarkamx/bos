@@ -88,6 +88,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           discount: { type: "number" },  // Discount amount of the order
           partialPayment: { type: "number" },  // Partial payment amount of the order
           paymentType: { type: "number", default: 1},
+          status: { type: "string" },  // Status of the order
           items: { type: "array" },  // Items of the order
         },
       },
@@ -99,6 +100,32 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return order;
     }
   })
+
+  
+  fastify.route({
+    method: "POST",
+    url: "/request",
+    schema: {
+      body: {
+        type: "object",
+        properties: {
+          discount: { type: "number" },  // Discount amount of the order
+          items: { type: "array" },  // Items of the order
+        },
+      },
+    },
+    async handler (_request, reply) {
+      const orderService = new OrderService();
+      const purchase:any = _request.body;
+      purchase.clientId = 0;
+      purchase.paymentType = 99;
+      purchase.status = 'requested';
+
+      const order = await orderService.addOrder(purchase);
+      return order;
+    }
+  })
+
   fastify.route({
     method: "DELETE",
     url: "/:id",

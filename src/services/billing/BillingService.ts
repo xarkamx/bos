@@ -15,9 +15,15 @@ export class BillingService{
     if(paymentMethod === 'PPD') {
       paymentType = '99';
     }
-    
+
     const {orders, customer} = await loadOrders(orderIds);
+    const type:number=paymentType||orders[0].order.paymentType
     const items = formatInvoice(orders);
+
+    if(type === 99){
+      paymentMethod = 'PPD'
+    }
+
     const invoice = {
       customer: {
         legal_name: customer.name,
@@ -29,7 +35,7 @@ export class BillingService{
         },
       },
       items,
-      payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
+      payment_form: numberPadStart(2,type),
       payment_method:  paymentMethod || 'PUE',
       use: 'G01', // Hardcoded for now
     };
