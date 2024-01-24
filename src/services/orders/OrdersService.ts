@@ -15,6 +15,12 @@ export class OrderService {
     try{
       const items = await this.getItemsPrices(purchase.items);
       const subtotal = this.getSubtotal(items);
+      const pendingPayment = (subtotal-purchase.discount) - purchase.partialPayment;
+      
+      if(pendingPayment <1){
+        purchase.status = 'paid';
+      }
+
       const order = {
         clientId: purchase.clientId,
         total: subtotal - purchase.discount,
