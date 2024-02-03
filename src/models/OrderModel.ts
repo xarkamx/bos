@@ -99,7 +99,12 @@ export class OrderModel {
   }
 
   async deleteOrder(id: number) {
-    return this.db(this.tableName).where({ id }).del();
+    return this.db(this.tableName)
+    .update({
+      deleted_at: new Date(),
+      status: 'cancelled'
+    })
+    .where({ id })
   }
 
 }
