@@ -1,6 +1,8 @@
+import { HttpError } from '../../errors/HttpError';
 import { ClientModel, type iClient } from '../../models/ClientModel';
 import { OrderModel } from '../../models/OrderModel';
 import { PaymentsModel } from '../../models/PaymentsModel';
+import { OrderService } from '../orders/OrdersService';
 
 export class ClientService {
   async createClient(client: iClient): Promise<any> {
@@ -66,6 +68,39 @@ export class ClientService {
       .where('orders.client_id', clientId)
       .andWhere('payments.payment_type', 'order')
       ;
+  }
+
+  async getDebt(clientId: string) {
+    const ordersModel = new OrderModel();
+    const orders = await ordersModel.request
+      .where('client_id', clientId)
+      .andWhere('status', 'pending')
+      .select('id', 'total', 'partial_payment as partialPayment', 'created_at')
+      .orderBy('created_at', 'desc')
+    
+    const debt = orders.reduce((acc: number, order: any) => 
+       (acc + (order.total - order.partialPayment))
+    , 0);
+    return {orders, debt};
+  }
+
+  async payDebt(clientId:any, amount: number, paymentMethod=1) {
+    const debt = await this.getDebt(clientId);
+    const amountPayed = amount
+    if(debt.debt < amount) throw new HttpError('The amount is greater than the debt', 400);
+    const orderService= new OrderService();
+    const paymentPromise = debt.orders.map((order: any) => {
+      const debt = order.total - order.partialPayment;
+      const payment = amount > debt ? debt : amount;
+      
+      if(payment <= 0) return false;
+      amount -= payment;
+      return orderService.pay(order.id, clientId, payment,paymentMethod);
+    })
+    await Promise.all(paymentPromise);
+    const currentDebt = await this.getDebt(clientId);
+    return {message: 'Debt paid', currentDebt,amount: amountPayed,date: new Date()};
+
   }
 
   async updateClient(clientId: number, client: Partial<iClient>): Promise<any> {
