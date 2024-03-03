@@ -9,7 +9,7 @@ export class MetadataBilling {
     this.db = db;
   }
 
-  async addMetadataBilling(metadataBilling: MetadataBillingType) {
+  async addMetadataBilling(metadataBilling: any) {
     metadataBilling = metadataBilling.map((metadataBilling: any) => snakeCaseReplacer(metadataBilling));
     return this.db(this.tableName).insert(metadataBilling).onConflict('uuid').merge();
   }
