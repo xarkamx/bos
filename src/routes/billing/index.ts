@@ -39,7 +39,6 @@ export default async function Billing(fastify:any){
     async handler(request:any, reply:any) {
       const { orderIds,taxType,paymentType,paymentMethod} = request.body;
       const service = new BillingService(new FacturaApiService());
-      console.log(orderIds,taxType,paymentType,paymentMethod,'ep')
       const invoice =await service.addInvoice(orderIds,taxType,paymentType,paymentMethod);
       service.sendInvoice(invoice.id,'');
       return invoice;
@@ -255,6 +254,50 @@ export default async function Billing(fastify:any){
          
         }],
       });
+    }
+  });
+
+  fastify.route({
+    method:'POST',
+    url:'/request',
+    config: {
+      auth: {
+       public:true,
+      }
+    },
+    schema:{
+      body:{
+        type:'object',
+        properties:{
+          requestId:{
+            type:'string',
+          },
+          status:{
+            type:'string',
+            default:'pending',
+          }
+        },
+      },
+    },
+    async handler(request:any, reply:any) {
+      const {requestId,status} = request.body;
+      const service = new BillingService(new FacturaApiService());
+      return service.addRequestId(requestId,status);
+    }
+  });
+
+  
+  fastify.route({
+    method:'GET',
+    url:'/request',
+    config: {
+      auth: {
+       public:true,
+      }
+    },
+    async handler(request:any, reply:any) {
+      const service = new BillingService(new FacturaApiService());
+      return service.getAcceptedRequests();
     }
   });
 }

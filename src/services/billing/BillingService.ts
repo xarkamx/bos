@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import { BillingModel } from '../../models/BillingModel';
 import type { iClient } from '../../models/ClientModel';
 import { numberPadStart } from '../../utils/helpers';
 import { ClientService } from '../clients/ClientService';
@@ -126,6 +127,26 @@ export class BillingService{
   async sendInvoice(billingId:string, email:string){
     if(email === '') return this.billing.sendInvoice(billingId);
     return this.billing.sendInvoice(billingId,{email});
+  }
+
+  async addRequestId(requestId:string,status:string){
+    const model = new BillingModel();
+    const exists = await model.getBillings({externalId:requestId});
+    if(exists.length) {
+      await model.updateBilling(exists[0].id, {
+        status,
+      });
+      }else {
+        await  model.addBilling({externalId: requestId, status: 'Accepted', orderId: 0, ownerId: 0});
+      } 
+
+    
+    return model.getBillings({});
+  }
+
+  async getAcceptedRequests(){
+    const model = new BillingModel();
+    return model.getBillings({status: 'Accepted'});
   }
 
   validateClient(legal:string){
