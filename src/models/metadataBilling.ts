@@ -19,7 +19,7 @@ export class MetadataBilling {
   }
 
   getMetadataBillings() {
-    return this.db(this.tableName);
+    return this.db(this.tableName).orderBy('sat_certification_date', 'desc');
   }
 
   async updateMetadataBilling(id: number, metadataBilling: Partial<MetadataBillingType>) {
