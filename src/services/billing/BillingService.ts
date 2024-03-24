@@ -18,9 +18,9 @@ export class BillingService{
     }
 
     const {orders, customer} = await loadOrders(orderIds);
-    const type:number=paymentType||orders[0].order.paymentType
+    const type:number=parseInt(paymentType||orders[0].order.paymentType,10)
     const items = formatInvoice(orders);
-
+    
     if(type === 99){
       paymentMethod = 'PPD'
     }
