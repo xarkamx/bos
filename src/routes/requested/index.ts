@@ -1,7 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { OrderService } from '../../services/orders/OrdersService';
-import clients from '../clients';
-import products from '../products';
+
 
 export default async  function (fastify:any) {
   // Create a new requested Order

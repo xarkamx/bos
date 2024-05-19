@@ -256,7 +256,6 @@ export default async function Billing(fastify:any){
       });
     }
   });
-
   fastify.route({
     method:'POST',
     url:'/request',
@@ -285,8 +284,6 @@ export default async function Billing(fastify:any){
       return service.addRequestId(requestId,status);
     }
   });
-
-  
   fastify.route({
     method:'GET',
     url:'/request',
