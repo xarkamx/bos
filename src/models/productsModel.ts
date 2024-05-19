@@ -13,7 +13,7 @@ export class ProductsModel {
   }
 
   getAllProducts() {
-    return this.db.select('name','price','id').from(this.tableName);
+    return this.db.select('name','price','id','category','description','short_description','image').from(this.tableName);
   }
 
   countProducts() {
@@ -34,7 +34,7 @@ export class ProductsModel {
 
   updateAllPricesIn(increment: number,type='percent') {
     let operation = '+';
-    if(type === 'percent') {
+    if(type === 'percent') { 
       operation = `* ${increment/100 + 1}`;
     }
 

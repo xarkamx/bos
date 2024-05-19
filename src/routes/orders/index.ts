@@ -100,7 +100,6 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return order;
     }
   })
-
   
   fastify.route({
     method: "POST",

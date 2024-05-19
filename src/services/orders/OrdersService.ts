@@ -142,6 +142,30 @@ export class OrderService {
     return om.updateOrder(id, order);
   }
 
+  async removeItemsFromOrder(orderId: number) {
+    const itemsModel = new ItemsModel();
+    return itemsModel.deleteItemsByOrderId(orderId);
+  }
+
+  async addItemsToOrder(orderId:number,items: tItem[]) {
+    const itemsWithPrice = await this.getItemsPrices(items);
+    const itemsModel = new ItemsModel();
+    const orderItems = itemsWithPrice.map((item) => (
+      { 
+        product_id: item.id,
+        order_id:orderId,
+        quantity: item.quantity,
+        price: item.total 
+          }))
+    return itemsModel.addItems(orderItems);
+  }
+
+  addItemsToInventory(items: tItem[]) {
+    const inventoryModel = new InventoryModel();
+    const inventoryItems = items.map((item) => ({ external_id: item.productId,  quantity: item.quantity, type:'product' }))
+    return inventoryModel.addInBulkToInventory(inventoryItems);
+  }
+
   async updateByBillId(billId: string, order: any) {
     const om = new OrderModel();
     return om.db('orders').where({ billed: billId }).update(order);
