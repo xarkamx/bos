@@ -21,8 +21,6 @@ export class BasService {
 
    
   }
-
-
   // Not sure if this is in the right place
 
   async getUsers(jwt:string){
@@ -136,6 +134,22 @@ export class BasService {
     const validUrl = encodeURI(`${url}/me/password`);
     try{
       const users= await axios.post(validUrl,{newPassword:password},{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+   }
+
+   async removeUserFromCompany(jwt:string, userId:number){
+    const url:string= process.env.BAS_URL ?? '';
+    const company = process.env.BAS_COMPANY ?? '';
+    const validUrl = encodeURI(`${url}/companies/${company}/users/${userId}`);
+    try{
+      const users= await axios.delete(validUrl,{
         headers:{
           Authorization:jwt
         }

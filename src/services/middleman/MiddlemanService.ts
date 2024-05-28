@@ -1,6 +1,8 @@
 import { HttpError } from '../../errors/HttpError';
 import { MiddlemanModel, type MiddlemanType } from '../../models/MiddlemanModel';
+import { type IPayment } from '../../models/PaymentsModel';
 import { ClientService } from '../clients/ClientService';
+import { PaymentsServices } from '../payments/PaymentsServices';
 import { BasService } from '../users/basService';
 
 export class MiddlemanService {
@@ -23,6 +25,19 @@ export class MiddlemanService {
             rfc: middleman.rfc,
             bankName: middleman.bank_name,
             clabe: middleman.clabe
+        }));
+    }
+
+    async getAllMiddlemanWithDebt() {
+        const middlemanModel = new MiddlemanModel();
+        const resp = await middlemanModel.getAllMiddlemanWithDebt();
+        console.log(resp);
+        return resp.map((middleman:any) => ({
+            middlemanId: middleman.middlemanId,
+            name: middleman.middlemanName,
+            earnings: middleman.earnings,
+            paidEarnings: middleman.paid,
+            numberOfClients: middleman.numberOfClients,
         }));
     }
 
@@ -89,4 +104,61 @@ export class MiddlemanService {
             rfc: order.rfc
         }));
     }
-}
+
+
+    async getMiddlemanPayments(id: number) {
+        const middlemanModel = new MiddlemanModel();
+        const paymentsService = new PaymentsServices();
+        const middleman = await middlemanModel.getMiddlemanById(id);
+        if(!middleman) throw new HttpError('Middleman not found', 404);
+        const payments = await paymentsService.getPaymentsPerReference({
+            externalId: id,
+            flow: 'outflow',
+            paymentType: 'middleman'
+        });
+        return payments.map((payment:any) => ({
+            paymentId: payment.id,
+            amount: payment.amount,
+            createdAt: payment.created_at
+        }));
+    }
+
+    async sendPaymentToMiddleman(id: number, amount: number) {
+        const middlemanModel = new MiddlemanModel();
+        const middlemanFee = 0.05;
+        const middleman = await middlemanModel.getMiddlemanById(id);
+        if(!middleman) throw new HttpError('Middleman not found', 404);
+
+        const paymentService = new PaymentsServices();
+        const payments = await paymentService.getPaymentsPerReference({
+            externalId: id,
+            flow: 'outflow',
+            paymentType: 'middleman'
+        });
+        const paid = payments.reduce((acc:number, payment:IPayment) => acc + payment.amount, 0);
+       
+        // Calculate debt
+        const [{debt}] = await middlemanModel.getMiddleOrdersTotal(id);
+        const toBePaid = (debt * middlemanFee) - paid;
+        if(toBePaid < amount) throw new HttpError(`Amount exceeds debt (${toBePaid})`, 400);
+
+        // ToDo send payment using MercadoPago
+        // validate payment
+        // Create localPayment
+
+        await paymentService.addPayment({
+            externalId: id,
+            paymentMethod: 3,
+            clientId: 0,
+            paymentType: 'middleman',
+            flow: 'outflow',
+            description: 'Middleman payment',
+            amount,
+        })
+        return {
+            toBePaid,
+            middlemanFee,
+        }
+    }
+
+    }

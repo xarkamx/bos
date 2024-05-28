@@ -120,7 +120,109 @@ fastify.route({
   },
   async handler(_request: any, reply: any) {
     const middlemanService = new MiddlemanService();
-    return middlemanService.getAllMiddleman();
+    return middlemanService.getAllMiddlemanWithDebt();
   }
 });
+
+fastify.route({
+  method: 'POST',
+  url: '/:id/paid',
+  config:{
+    auth:{
+      roles:['admin']
+    }
+  },
+  schema:{
+    body:{
+      type: 'object',
+      required: ['amount'],
+      properties: {
+        amount: { type: 'number' }
+      }
+    },
+    params:{
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'number' }
+      }
+    },
+  },
+  async handler(_request: any, reply: any) {
+    const middlemanService = new MiddlemanService();
+    return middlemanService.sendPaymentToMiddleman(_request.params.id, _request.body.amount);
+  }
+});
+
+fastify.route({
+  method: 'GET',
+  url: '/:id/payments',
+  config:{
+    auth:{
+      roles:['admin']
+    }
+  },
+  schema:{
+    params:{
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'number' }
+      }
+    },
+  },
+  async handler(_request: any, reply: any) {
+    const middlemanService = new MiddlemanService();
+    return middlemanService.getMiddlemanPayments(_request.params.id);
+  }
+});
+
+fastify.route({
+  method: 'GET',
+  url: '/:id/clients',
+  config:{
+    auth:{
+      roles:['admin','middleman']
+    }
+  },
+  schema:{
+    params:{
+      type: 'object',
+      required: ['id'],
+      properties: {
+        id: { type: 'number' }
+      }
+    },
+  },
+  async handler(_request: any, reply: any) {
+    const middlemanService = new MiddlemanService();
+    return middlemanService.getAllMiddlemanClients(_request.params.id);
+  }
+});
+
+fastify.route({
+  method:'DELETE',
+  url:'/:id',
+  config:{
+    auth:{
+      roles:['admin']
+    }
+  },
+  schema:{
+    params:{
+      type:'object',
+      required:['id'],
+      properties:{
+        id:{type:'number'}
+      }
+    }
+  },
+  async handler(_request:any,reply:any){
+    const middlemanService = new MiddlemanService();
+    const basService = new BasService();
+    await basService.removeUserFromCompany(_request.headers.authorization,_request.params.id);
+    await  middlemanService.deleteMiddleman(_request.params.id);
+    return {success:true}
+  }
+})
 }
