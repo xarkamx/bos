@@ -1,4 +1,3 @@
-import { config } from 'process';
 import { MiddlemanService } from '../../services/middleman/MiddlemanService';
 import { BasService } from '../../services/users/basService';
 
