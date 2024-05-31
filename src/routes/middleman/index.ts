@@ -32,15 +32,18 @@ export default async function middleman(fastify: any) {
       const middlemanUser = await service.addUser(request.headers.authorization, {
         name: request.body.name,
         email: request.body.email,
-        password: request.body.password,
-        role: 'middleman'
+        password: request.body.password
       });
+
+
       
 
       if(!middlemanUser.userId) {
         throw new Error('Unable to create middleman');
       }
 
+      const resp = await service.addRole(request.headers.authorization, middlemanUser.userId, 'middleman');
+      console.log(resp,'response')
       const middlemanService = new MiddlemanService();
   
       await middlemanService.addMiddleman({

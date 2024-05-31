@@ -37,17 +37,18 @@ export class InventoryModel {
     return this.db(this.tableName).del();
   }
 
-  getAllItemsByType(type:string) {
-    return this.db.raw(`
+  async getAllItemsByType(type:string) {
+    const resp = await this.db.raw(`
     with inv as (
-      SELECT sum(quantity) as qty ,external_id as product_id, type FROM inventory where type ='${type}' group by external_id  
+      SELECT sum(quantity) as qty ,external_id as product_id, inventory.type FROM inventory where inventory.type ='${type}' group by external_id  
     ), sold as (
       SELECT product_id,sum(quantity) as qty, sum(price) as amount FROM items group by product_id
     )
-    SELECT id,name, price as unitPrice, inv.qty as inStock, sold.qty as soldUnits, sold.amount as soldAmount from products
+    SELECT image,id,name, price as unitPrice, inv.qty as inStock, sold.qty as soldUnits, sold.amount as soldAmount from products
     left join inv on inv.product_id = products.id
     left join sold on sold.product_id = products.id;
     `)
+    return resp[0];
   }
 
 }

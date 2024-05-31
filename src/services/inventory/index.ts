@@ -14,7 +14,7 @@ export class InventoryService {
 
   async getAllItems(type:string): Promise<any> {
     const inventoryModel = new InventoryModel();
-    return inventoryModel.getAllItemsByType(type);
+    return inventoryModel.getAllItemsByType(type || 'product');
   }
 
   async getAllSoldItems(): Promise<any> {

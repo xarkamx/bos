@@ -3,7 +3,6 @@ import { MiddlemanModel, type MiddlemanType } from '../../models/MiddlemanModel'
 import { type IPayment } from '../../models/PaymentsModel';
 import { ClientService } from '../clients/ClientService';
 import { PaymentsServices } from '../payments/PaymentsServices';
-import { BasService } from '../users/basService';
 
 export class MiddlemanService {
     async addMiddleman(middleman: MiddlemanType) {
@@ -31,7 +30,6 @@ export class MiddlemanService {
     async getAllMiddlemanWithDebt() {
         const middlemanModel = new MiddlemanModel();
         const resp = await middlemanModel.getAllMiddlemanWithDebt();
-        console.log(resp);
         return resp.map((middleman:any) => ({
             middlemanId: middleman.middlemanId,
             name: middleman.middlemanName,
