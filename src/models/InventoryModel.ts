@@ -48,7 +48,7 @@ export class InventoryModel {
     left join inv on inv.product_id = products.id
     left join sold on sold.product_id = products.id;
     `)
-    return resp[0];
+    return resp;
   }
 
 }
