@@ -13,6 +13,7 @@ export class OrderService {
     const paymentModel = new PaymentsModel();
     const inventoryModel = new InventoryModel();
     try{
+      
       const items = await this.getItemsPrices(purchase.items);
       const subtotal = this.getSubtotal(items);
       const pendingPayment = (subtotal-purchase.discount) - purchase.partialPayment;
@@ -48,9 +49,7 @@ export class OrderService {
            });
       // Move this to products service
       const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity* -1, type:'product' }))
-      if(purchase.status !== 'requested') {
         await inventoryModel.addInBulkToInventory(inventoryItems);
-      }
 
       return {message: 'Order created', data: {orderId, items:products}}
     }catch(e:any){

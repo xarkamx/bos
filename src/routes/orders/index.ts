@@ -93,11 +93,10 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         },
       },
     },
-    async handler (_request, reply) {
+    async handler (_request:any, reply) {
       const orderService = new OrderService();
       const purchase:any = _request.body;
-      const order = await orderService.addOrder(purchase);
-      return order;
+      return orderService.addOrder(purchase);
     }
   })
   
@@ -108,17 +107,17 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       body: {
         type: "object",
         properties: {
-          discount: { type: "number" },  // Discount amount of the order
           items: { type: "array" },  // Items of the order
+          clientId: { type: "number"},  // Id of the customer
         },
       },
     },
-    async handler (_request, reply) {
+    async handler (_request:any, reply) {
       const orderService = new OrderService();
       const purchase:any = _request.body;
-      purchase.clientId = 0;
       purchase.paymentType = 99;
       purchase.status = 'requested';
+      purchase.discount = 0;
 
       const order = await orderService.addOrder(purchase);
       return order;

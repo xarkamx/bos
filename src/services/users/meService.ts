@@ -20,9 +20,6 @@ export class MeService{
         const bas = new BasService();
         return bas.getDetails(this.jwt.token);
     }
-
-
-
 }
 
 type jwtType = {
