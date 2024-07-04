@@ -1,5 +1,7 @@
+import { ClientService } from '../../services/clients/ClientService';
 import { MiddlemanService } from '../../services/middleman/MiddlemanService';
 import { BasService } from '../../services/users/basService';
+import { sendNewClientMailToOwner, sendWelcomeMessageToClient } from '../../utils/mailSender';
 
 export default async function middleman(fastify: any) {
   fastify.route({
@@ -82,10 +84,15 @@ fastify.route({
   },
   async handler(_request: any, reply: any) {
     const middlemanService = new MiddlemanService();
-    return middlemanService.addClientToMiddleman(
+    const [clientId] = await middlemanService.addClientToMiddleman(
       _request.params.id,
       _request.params.clientId
     );
+    const clientService = new ClientService();
+    const {user} = _request.user;
+    const client = await clientService.getClient(clientId);
+      sendNewClientMailToOwner(client, user);
+      sendWelcomeMessageToClient(client, user);
   }
 });
 

@@ -3,8 +3,9 @@ import { ClientService } from '../../services/clients/ClientService';
 import { HttpError } from '../../errors/HttpError';
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
 import { BillingService } from '../../services/billing/BillingService';
+import { sendNewClientMailToOwner, sendWelcomeMessageToClient } from '../../utils/mailSender';
 
-const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
+const clients:FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
   fastify.route({
     method: 'POST',
     url: '/',
@@ -28,9 +29,14 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         }
       }
     },
-    async handler (_request:any, reply) {
+    async handler (_request:any) {
       const clientService = new ClientService();
-      return  clientService.createClient(_request.body);
+      const clientId = await  clientService.createClient(_request.body);
+      const {user} = _request.user;
+      const client = await clientService.getClient(clientId[0]);
+      sendNewClientMailToOwner(client, user);
+      sendWelcomeMessageToClient(client, user);
+      return clientId;
     },
   });
   fastify.route({
@@ -41,7 +47,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         roles:['cashier']
       }
     },
-    async handler (_request:any, reply) {
+    async handler (_request:any) {
       const clientService = new ClientService();
       return  clientService.getClients();
     }
@@ -54,7 +60,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         roles:['cashier']
       }
     },
-    async handler (_request:any, reply) {
+    async handler (_request:any) {
       const clientService = new ClientService();
       return  clientService.getClient(_request.params.id);
     }
@@ -80,7 +86,7 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         },
       },
     },
-    async handler (_request:any, reply) {
+    async handler (_request:any) {
       const clientService = new ClientService();
       
       await clientService.updateClient(_request.params.id, _request.body);
@@ -101,3 +107,4 @@ const clients:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
 };
 
 export default clients;
+

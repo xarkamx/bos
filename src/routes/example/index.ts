@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
+import { EmailTemplate } from '../../services/mail/senders/emailTemplate';
 
 const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   /**
@@ -19,7 +20,12 @@ const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
    *         description: hello world
    */
   fastify.get("/", async (_request, reply) => {
-    void reply.send({ hello: "world" });
+    const mail = new EmailTemplate("newClient.html");
+    return mail.setHandlebarsFields({ userName: "John Doe",clientName: "Jane Doe",clientEmail: "xarkamx@gmail.com"})
+      .sendMail(
+        "xarkamx@gmail.com",
+        "New Client"
+      );
   });
 };
 
