@@ -9,7 +9,7 @@ export class MailService {
         const configOptions:CustomTransportOptions = {
             host: smtpConfig.host,
             port: smtpConfig.port,
-            secure: true, // upgrade later with STARTTLS
+            secure: false, // upgrade later with STARTTLS
             auth: {
               user: smtpConfig.user,
               pass: smtpConfig.password,
