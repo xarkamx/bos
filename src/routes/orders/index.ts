@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { OrderService } from '../../services/orders/OrdersService';
+import { sendNewOrderRequested } from '../../utils/mailSender';
 
 const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
@@ -120,7 +121,10 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       purchase.discount = 0;
 
       const order = await orderService.addOrder(purchase);
-      return order;
+      
+      const orderDetails = await orderService.getOrderById(order?.data?.orderId);
+      sendNewOrderRequested(_request.user,_request.headers.authorization,orderDetails);
+      return orderDetails;
     }
   })
 

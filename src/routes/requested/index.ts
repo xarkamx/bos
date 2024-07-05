@@ -1,5 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { OrderService } from '../../services/orders/OrdersService';
+import { sendNewOrderRequested } from '../../utils/mailSender';
 
 
 export default async  function (fastify:any) {
@@ -22,7 +23,7 @@ export default async  function (fastify:any) {
       const purchase:any = request.body;
       purchase.paymentType = 99;
       purchase.status = 'requested';
-
+      
       const order = await orderService.addOrder(purchase);
       return order;
     }

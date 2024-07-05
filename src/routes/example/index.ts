@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { EmailTemplate } from '../../services/mail/senders/emailTemplate';
+import { sendNewOrderRequested } from '../../utils/mailSender';
+import { OrderService } from '../../services/orders/OrdersService';
 
 const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   /**
@@ -19,14 +21,15 @@ const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
    *       200:
    *         description: hello world
    */
-  fastify.get("/", async (_request, reply) => {
-    const mail = new EmailTemplate("newClient.html");
-    return mail.setHandlebarsFields({ userName: "John Doe",clientName: "Jane Doe",clientEmail: "xarkamx@gmail.com"})
-      .sendMail(
-        "xarkamx@gmail.com",
-        "New Client"
-      );
-  });
+  fastify.get("/", async (_request:any, reply) => {
+    const {user} = _request.user;
+    const order = (await new OrderService().getOrderById(42))
+    console.log(order)
+    return sendNewOrderRequested(
+      user,_request.headers.authorization,order
+    );
+  }
+    )
 };
 
 export default example;

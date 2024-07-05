@@ -34,7 +34,7 @@ export class EmailTemplate {
     return this;
   }
 
-  sendMail(to:string, subject:string){
+  sendMail(to:string|[string], subject:string){
     const mailer = new MailService();
     return mailer.sendMail(to, subject, this.html);
   }

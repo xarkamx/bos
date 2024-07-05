@@ -19,7 +19,7 @@ export class MailService {
         this.email = smtpConfig.user
     }
 
-    async sendMail(to:string, subject:string, html:string){
+    async sendMail(to:string|[string], subject:string, html:string){
         const mailOptions = {
             from: this.email,
             to,
