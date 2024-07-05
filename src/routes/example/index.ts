@@ -23,7 +23,6 @@ const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.get("/", async (_request:any, reply) => {
     const {user} = _request.user;
     const order = (await new OrderService().getOrderById(42))
-    console.log(order)
     return sendNewOrderRequested(
       user,_request.headers.authorization,order
     );
