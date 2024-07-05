@@ -15,6 +15,7 @@ export class MailService {
               pass: smtpConfig.password,
             },
         }
+        console.log(configOptions)
         this.transport = nodemailer.createTransport(configOptions);
         this.email = smtpConfig.user
     }
