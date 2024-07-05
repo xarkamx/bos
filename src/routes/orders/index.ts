@@ -100,7 +100,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       const order = await orderService.addOrder(purchase);
       const orderDetails = await orderService.getOrderById(order?.data?.orderId);
       sendNewOrderRequested(_request.user,_request.headers.authorization,orderDetails);
-      return orderDetails;
+      return order;
     }
   })
   
