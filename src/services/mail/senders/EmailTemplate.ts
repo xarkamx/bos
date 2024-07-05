@@ -7,7 +7,7 @@ export class EmailTemplate {
   template: string;
   html: string ='';
   constructor(templateName:string) {
-    const templatePath = path.join('src', 'templates', templateName);
+    const templatePath = path.join(__dirname,'../../../', 'templates', templateName);
     this.template = fs.readFileSync(templatePath, 'utf8');
   }
   getRequiredHandlebarsFields() {
