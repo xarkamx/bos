@@ -23,7 +23,7 @@ const app = Fastify({
 // Register JWT
 
 // Register your application as a normal plugin.
-void app.register(import("."));
+void app.register(require("."));
 
 
 app.addHook("onRequest", async (request: any, reply) => {
