@@ -1,5 +1,4 @@
 import type { FastifyPluginAsync } from "fastify";
-import { EmailTemplate } from '../../services/mail/senders/emailTemplate';
 import { sendNewOrderRequested } from '../../utils/mailSender';
 import { OrderService } from '../../services/orders/OrdersService';
 

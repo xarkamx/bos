@@ -1,4 +1,4 @@
-import { EmailTemplate } from '../services/mail/senders/emailTemplate';
+import { EmailTemplate } from '../services/mail/senders/EmailTemplate';
 import { BasService } from '../services/users/basService';
 
 export async function sendNewClientMailToOwner (client: any, user: any) {
