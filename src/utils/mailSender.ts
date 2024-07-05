@@ -30,6 +30,7 @@ export async function sendNewOrderRequested(user:any,jwt:string,details:any){
   const resp = await Promise.all([admins,cashiers]);
   const users = resp.flat();
   users.push(user);
+  console.log(users);
   const mails:any = users.map((user:any)=>{
     return mail.setHandlebarsFields(
       { employeeName: user.name,

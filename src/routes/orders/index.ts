@@ -99,7 +99,8 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       const purchase:any = _request.body;
       const order = await orderService.addOrder(purchase);
       const orderDetails = await orderService.getOrderById(order?.data?.orderId);
-      sendNewOrderRequested(_request.user,_request.headers.authorization,orderDetails);
+      const {user} = _request.user;
+      sendNewOrderRequested(user,_request.headers.authorization,orderDetails);
       return order;
     }
   })
@@ -126,7 +127,8 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       const order = await orderService.addOrder(purchase);
       
       const orderDetails = await orderService.getOrderById(order?.data?.orderId);
-      sendNewOrderRequested(_request.user,_request.headers.authorization,orderDetails);
+      const {user} = _request.user;
+      sendNewOrderRequested(user,_request.headers.authorization,orderDetails);
       return order;
     }
   })
