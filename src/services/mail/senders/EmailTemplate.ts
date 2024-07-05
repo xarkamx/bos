@@ -1,12 +1,13 @@
 import fs from 'fs';
 import { HttpError } from '../../../errors/HttpError';
 import { MailService } from '../MailService';
+import path from 'path';
 
 export class EmailTemplate {
   template: string;
   html: string ='';
   constructor(templateName:string) {
-    const templatePath = `src/templates/${templateName}`;
+    const templatePath = path.join('src', 'templates', templateName);
     this.template = fs.readFileSync(templatePath, 'utf8');
   }
   getRequiredHandlebarsFields() {
