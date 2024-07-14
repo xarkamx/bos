@@ -41,6 +41,45 @@ export class ProductsModel {
     return this.db(this.tableName)
       .update('price', this.db.raw(`price ${operation} ${increment}`));
   }
+  getProductById(id: number) {
+    return this.db(this.tableName)
+    .select('name','price','id','category','description','short_description','image')
+    .where('id', id).first();
+  }
+  getHowManySalesPerProduct(productId:number) {
+    return this.db('items')
+      .sum('quantity as totalSold')
+      .sum('price as totalIncome')
+      .select('product_id')
+      .where('product_id', productId)
+      .groupBy('product_id')
+      .first();
+  }
+
+  getCustomersPerProduct(productId:number) {
+    return this.getItemsDetailsPerProduct(productId)
+    .groupBy('clients.client_id')
+    .select('clients.client_id as clientId','clients.name as clientName','clients.rfc')
+    .sum('quantity as totalSold')
+    .sum('price as totalIncome')
+    .orderBy('totalIncome','desc');
+    ;
+  }
+  getOrdersPerProduct(productId:number) {
+    return this.getItemsDetailsPerProduct(productId)
+    .select('order_id as orderId','orders.created_at as createdAt','orders.status as status')
+    .groupBy('order_id')
+    .sum('quantity as totalSold')
+    .sum('price as totalIncome')
+    .orderBy('totalIncome','desc');
+  }
+  getItemsDetailsPerProduct(productId:number) {
+    return this.db('items')
+      .leftJoin('orders', 'items.order_id', 'orders.id')
+      .leftJoin('clients', 'orders.client_id', 'clients.client_id')
+      .where('product_id', productId);
+  
+  }
 }
 export type iProduct = {
   id: number

@@ -21,7 +21,7 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: '/inventory',
     config:{
       auth:{
-        roles:['cashier','storer','middleman']
+        roles:['cashier','storer','middleman','customer']
       }
     },
     async handler (_request:any, reply) {
@@ -92,6 +92,19 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return products;
     }
   })
+  fastify.route({
+    method: 'GET',
+    url: '/:id/info',
+    config:{
+      auth:{
+        roles:['storer','cashier']
+      }
+    },
+    async handler (_request:any, reply) {
+      const productService = new ProductsService();
+      return productService.getDetailsPerProduct(_request.params.id);
+    }
+  });
 };
 
 export default products;

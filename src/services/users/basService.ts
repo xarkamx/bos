@@ -2,6 +2,8 @@ import axios from 'axios';
 import { HttpError } from '../../errors/HttpError';
 
 export class BasService {
+
+  jwt:string = '';
   
   async auth({email,password}:CredentialType){
     const basUrl = process.env.BAS_URL;
@@ -20,6 +22,11 @@ export class BasService {
     }
 
    
+  }
+
+  async asSuperAdmin(){
+      this.jwt = `Bearer ${process.env.BAS_SUPER_ADMIN_TOKEN }` || '';
+      return this.jwt;
   }
   // Not sure if this is in the right place
 
@@ -63,6 +70,7 @@ export class BasService {
     const url:any= process.env.BAS_URL;
     const company = process.env.BAS_COMPANY;
     const validUrl = encodeURI(`${url}/companies/${company}/users`);
+    console.log(jwt);
     try{
       const users= await axios.post(validUrl,{
         name:user.name,

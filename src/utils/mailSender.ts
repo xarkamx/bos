@@ -18,7 +18,19 @@ export async function sendWelcomeMessageToClient(client:any,user:any){
       client.email,
       "Bienvenido a nuestra plataforma"
     );
+}
 
+export async function sendWelcomeMessageToClientAsUser(client:any){
+  const mail=new EmailTemplate("clientAsUser.html");
+  mail.setHandlebarsFields({ 
+    clientName: client.name,
+    pageLink: process.env.CLIENT_URL ?? 'https://pos-green.vercel.app/',
+    companyEmail: process.env.COMPANY_EMAIL ?? 'hojalateriagutierrez@gmail.com'
+   })
+    .sendMail(
+      client.email,
+      "Bienvenido a nuestra plataforma"
+    );
 }
 
 export async function sendNewOrderRequested(user:any,jwt:string,details:any){

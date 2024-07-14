@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { OrderService } from '../../services/orders/OrdersService';
 import { sendNewOrderRequested } from '../../utils/mailSender';
+import { ClientService } from '../../services/clients/ClientService';
 
 const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
@@ -38,7 +39,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: "/:id",
     config:{
       auth:{
-        roles:['cashier']
+        roles:['cashier','customer']
       }
     },
     async handler (_request:any, reply) {
@@ -108,6 +109,11 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: "POST",
     url: "/request",
+    config:{
+      auth:{
+        roles:['customer','middleman']
+      }
+    },
     schema: {
       body: {
         type: "object",
@@ -123,6 +129,13 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       purchase.paymentType = 99;
       purchase.status = 'requested';
       purchase.discount = 0;
+
+      if(!purchase.clientId){
+        const {user} = _request.user;
+        const clientService = new ClientService();
+        const client = await clientService.getClientByEmail(user.email);
+        purchase.clientId = client.id;
+      }
 
       const order = await orderService.addOrder(purchase);
       

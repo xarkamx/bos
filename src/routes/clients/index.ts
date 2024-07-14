@@ -3,7 +3,8 @@ import { ClientService } from '../../services/clients/ClientService';
 import { HttpError } from '../../errors/HttpError';
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
 import { BillingService } from '../../services/billing/BillingService';
-import { sendNewClientMailToOwner, sendWelcomeMessageToClient } from '../../utils/mailSender';
+import { sendNewClientMailToOwner, sendWelcomeMessageToClient, sendWelcomeMessageToClientAsUser } from '../../utils/mailSender';
+import { updateClientSchema } from './schemas/clientSchemas';
 
 const clients:FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => {
   fastify.route({
@@ -73,19 +74,7 @@ const clients:FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => 
         roles:['cashier']
       }
     },
-    schema: {
-      body: {
-        type: 'object',
-        properties: {
-          rfc: { type: 'string' },
-          name: { type: 'string' },
-          email: { type: 'string' },
-          phones: { type: 'array', items: { type: 'string' } },
-          legal: { type: 'boolean' },
-          postal_code: { type: 'string' },
-        },
-      },
-    },
+    schema: updateClientSchema,
     async handler (_request:any) {
       const clientService = new ClientService();
       
@@ -102,6 +91,38 @@ const clients:FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => 
       }
 
       return client 
+    }
+  });
+
+  fastify.route({
+    method: 'POST',
+    url: '/credentials',
+    config: {
+      auth:{
+        public: true,
+      }
+    },
+    schema:{
+      body:{
+        type: 'object',
+        required:['email','password'],
+        properties:{
+          email:{type:'string'},
+          password:{type:'string'}
+        }
+      }
+    },
+    async handler (_request:any) {
+      const clientService = new ClientService();
+      const client  = await clientService.addCredentials(
+        _request.body.email,
+        _request.body.password
+      );
+      
+    sendWelcomeMessageToClientAsUser(
+      client
+    );
+    return {message: 'Credentials added', client};
     }
   });
 };

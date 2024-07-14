@@ -35,6 +35,23 @@ export class PaymentsServices {
     .orderBy('id', 'desc')
     ;
   }
+
+  async getPaymentsByClientId (clientId: number) {
+    const paymentModel = new PaymentsModel();
+    return paymentModel.getAll([
+      'payments.id',
+      'payments.amount',
+      'payments.created_at',
+      'orders.id as orderId',
+    ])
+    .leftJoin('orders', 'payments.external_id', 'orders.id')
+    .where('orders.client_id', clientId)
+    .andWhere('payments.flow', 'inflow')
+    .andWhere('payments.payment_type', 'order')
+    .andWhere('payments.amount',">", '0')
+    .orderBy('payments.id', 'desc')
+    ;
+  }
 }
 
 type PaymentReference = {

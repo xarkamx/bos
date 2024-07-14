@@ -3,6 +3,7 @@ import { ClientModel, type iClient } from '../../models/ClientModel';
 import { OrderModel } from '../../models/OrderModel';
 import { PaymentsModel } from '../../models/PaymentsModel';
 import { OrderService } from '../orders/OrdersService';
+import { BasService } from '../users/basService';
 
 export class ClientService {
   async createClient(client: iClient): Promise<any> {
@@ -28,8 +29,13 @@ export class ClientService {
     } catch (error) {
       console.log(error,resp);
     }
-
+   
     return resp;
+  }
+
+  async getClientByEmail(email: string): Promise<any> {
+    const clientModel = new ClientModel();
+    return clientModel.getClientByEmail(email);
   }
 
   async getResume(clientId: string): Promise<any> {
@@ -111,5 +117,24 @@ export class ClientService {
   async updateClient(clientId: number, client: Partial<iClient>): Promise<any> {
     const clientModel = new ClientModel();
     return clientModel.updateClient(clientId, client);
+  }
+
+  async addCredentials(email: string, password: string): Promise<any> {
+    const clientModel = new ClientModel();
+    const client = await clientModel.getClientByEmail(email);
+    if(!client) throw new HttpError('Client not found', 404);
+    if(client.bas_id) throw new HttpError('Client already has credentials', 400);
+
+    const bas = new BasService();
+    bas.asSuperAdmin();
+    const credentials = await bas.addUser(bas.jwt,{
+      name: client.name,
+      email,
+      password
+    });
+    await bas.addRole(bas.jwt, credentials.userId, 'customer');
+
+    await clientModel.updateClient(client.id, {bas_id: credentials.userId});
+    return client
   }
 }
