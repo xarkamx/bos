@@ -17,7 +17,11 @@ export class OrderModel {
 
   async addOrder(order: any) {
     order = snakeCaseReplacer(order);
-    const status = order.total - order.partial_payment < .1? 'paid' : 'pending';
+    let {status} = order;
+    if(!status){
+    status = order.total - order.partial_payment < .1? 'paid' : 'pending';
+  }
+  
     const res = await this.db
       .transaction(async (trx: any) => 
       trx.insert({...order,status}).into(this.tableName)
@@ -95,8 +99,14 @@ export class OrderModel {
   }
 
   async deleteOrder(id: number) {
-    return this.db(this.tableName).where({ id }).del();
+    return this.db(this.tableName)
+    .update({
+      deleted_at: new Date(),
+      status: 'cancelled'
+    })
+    .where({ id })
   }
+
 }
 
 export type IOrder ={

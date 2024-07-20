@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import { ApiKeyModel } from '../../models/ApiKeyModel';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
 import { OrderService } from '../../services/orders/OrdersService';
@@ -26,7 +27,6 @@ export default async function Billing(fastify:any){
           },
          paymentMethod:{
             type: 'string',
-            default: 'PUE',
          },
         },
       },
@@ -122,6 +122,179 @@ export default async function Billing(fastify:any){
       }
 
       return service.sendInvoice(order[0].billed,order[0].email);
+    }
+  });
+
+  fastify.route({
+    method:'POST',
+    url:'/custom',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          orderIds: {
+            type: 'array',
+            items: {
+              type: 'number',
+            },
+          },
+          taxType:{
+            type: 'string',
+            default: '601',
+          },
+          paymentType:{
+            type: 'string',
+          },
+         paymentMethod:{
+            type: 'string',
+            default: 'PUE',
+         },
+         email:{
+           type:'string',
+         },
+        },
+      },
+    },
+    async handler(request:any, reply:any) {
+
+      const { customerId, products, paymentForm,paymentMethod} = request.body;
+      const type = request.body.orgTaxSystem || '601';
+      let key = '';
+
+      if(type === '606') {
+        const apiModel = new ApiKeyModel();
+        const api = await apiModel.getApiKeyByName('lease');
+        key = api.key;
+      }
+
+      const service = new BillingService(new FacturaApiService(key));
+      const invoice =await service.customInvoice(customerId,products,{
+        paymentForm,
+        paymentMethod
+
+      });
+      return invoice;
+
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/external/products',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    schema: {
+      
+    },
+    async handler(request:any, reply:any) {
+      const service = new BillingService(new FacturaApiService());
+      return service.getExternalProducts(
+        request.query
+      );
+    }
+  });
+
+  fastify.route({
+    method:'POST',
+    url:'/complement',
+    schema:{
+      body:{
+        type:'object',
+        properties:{
+          billId:{
+            type:'string',
+          },
+        },
+      },
+    },
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    async handler(request:any, reply:any) { 
+
+      // Es necesario que se lleve un registro de pagos parciales facturados
+      // para poder calcular cuantos pagos parciales se han hecho
+      reply.code(201);
+      const {billId,paymentForm,amount} = request.body;
+      const service = new BillingService(new FacturaApiService());
+      const {uuid,total,payment_form} = await service.getBillById(billId);
+
+      if (payment_form !== '99') {
+        throw new HttpError('La factura no es de pagos parciales',400);
+      }
+
+      const ordersService = new OrderService();
+      const resp = await ordersService.getOrdersByBillId(billId);
+      return  service.paymentComplement(resp[0].client_id,amount,{
+        
+          type:"pago",
+          data:[{
+            payment_form:paymentForm,
+            related_documents:[{
+              uuid,
+              amount,
+              installment:1,
+              last_balance:total,
+              taxes:[{
+                base:amount/0.16,
+                type:'IVA',
+                rate:0.16,
+              }],
+            }],
+         
+        }],
+      });
+    }
+  });
+  fastify.route({
+    method:'POST',
+    url:'/request',
+    config: {
+      auth: {
+       public:true,
+      }
+    },
+    schema:{
+      body:{
+        type:'object',
+        properties:{
+          requestId:{
+            type:'string',
+          },
+          status:{
+            type:'string',
+            default:'pending',
+          }
+        },
+      },
+    },
+    async handler(request:any, reply:any) {
+      const {requestId,status} = request.body;
+      const service = new BillingService(new FacturaApiService());
+      return service.addRequestId(requestId,status);
+    }
+  });
+  fastify.route({
+    method:'GET',
+    url:'/request',
+    config: {
+      auth: {
+       public:true,
+      }
+    },
+    async handler(request:any, reply:any) {
+      const service = new BillingService(new FacturaApiService());
+      return service.getAcceptedRequests();
     }
   });
 }

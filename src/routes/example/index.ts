@@ -1,4 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
+import {  sendWelcomeMessageToClientAsUser } from '../../utils/mailSender';
+import { OrderService } from '../../services/orders/OrdersService';
+import { ClientService } from '../../services/clients/ClientService';
 
 const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   /**
@@ -18,9 +21,16 @@ const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
    *       200:
    *         description: hello world
    */
-  fastify.get("/", async (_request, reply) => {
-    void reply.send({ hello: "world" });
-  });
+  fastify.get("/", async (_request:any, reply) => {
+    const clientService = new ClientService();
+    const client = await clientService.getClientByEmail("albertogmx91@gmail.com");
+
+    await  sendWelcomeMessageToClientAsUser(
+      client
+    );
+    return "Hello world";
+  }
+    )
 };
 
 export default example;

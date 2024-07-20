@@ -2,6 +2,8 @@ import axios from 'axios';
 import { HttpError } from '../../errors/HttpError';
 
 export class BasService {
+
+  jwt:string = '';
   
   async auth({email,password}:CredentialType){
     const basUrl = process.env.BAS_URL;
@@ -22,7 +24,10 @@ export class BasService {
    
   }
 
-
+  async asSuperAdmin(){
+      this.jwt = `Bearer ${process.env.BAS_SUPER_ADMIN_TOKEN }` || '';
+      return this.jwt;
+  }
   // Not sure if this is in the right place
 
   async getUsers(jwt:string){
@@ -65,6 +70,7 @@ export class BasService {
     const url:any= process.env.BAS_URL;
     const company = process.env.BAS_COMPANY;
     const validUrl = encodeURI(`${url}/companies/${company}/users`);
+    console.log(jwt);
     try{
       const users= await axios.post(validUrl,{
         name:user.name,
@@ -116,6 +122,22 @@ export class BasService {
 
    }
 
+   async getUsersByRole(jwt:string, role:string){
+    const url:any= process.env.BAS_URL;
+    const company = process.env.BAS_COMPANY;
+    const validUrl = encodeURI(`${url}/companies/${company}/roles/${role}/users`);
+    try{
+      const users= await axios.get(validUrl,{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+   }
+  }
+
    async sendNotification(jwt:string,  notification:any){
     const url:any= process.env.BAS_URL;
     const validUrl = encodeURI(`${url}/notifications`);
@@ -145,6 +167,22 @@ export class BasService {
       throw new HttpError(err.response.data.message, err.response.status)
     }
    }
+
+   async removeUserFromCompany(jwt:string, userId:number){
+    const url:string= process.env.BAS_URL ?? '';
+    const company = process.env.BAS_COMPANY ?? '';
+    const validUrl = encodeURI(`${url}/companies/${company}/users/${userId}`);
+    try{
+      const users= await axios.delete(validUrl,{
+        headers:{
+          Authorization:jwt
+        }
+      })
+      return users.data.data;
+    }catch(err:any){
+      throw new HttpError(err.response.data.message, err.response.status)
+    }
+   }
 }
 
 
@@ -157,7 +195,6 @@ type UserType = {
   name: string;
   email: string;
   password: string;
-  role: string;
 }
 
 type DeviceType = {

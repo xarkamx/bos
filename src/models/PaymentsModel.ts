@@ -64,7 +64,7 @@ export class PaymentsModel{
       .orderBy('id', 'desc');
   }
 
-  async getAll(columns: string[] = []):Promise<any> {
+  getAll(columns: string[] = []) {
     return this.db.select(columns).from(this.tableName);
   }
 
@@ -80,6 +80,22 @@ export class PaymentsModel{
       .transaction(async (trx: any) => 
       trx(this.tableName).where('external_id', id).del()
       );
+  }
+
+  async getPaymentsPerMonth(){
+//     SELECT
+//   EXTRACT(YEAR FROM created_at) AS year,
+//   EXTRACT(MONTH FROM created_at) AS month,
+//   product_id,
+//   COUNT(product_id) AS itemCount
+// FROM
+//   items
+//   where flow='outflow'
+// GROUP BY
+//   year,
+//   month,
+//   product_id  
+// ORDER BY `items`.`product_id` ASC
   }
 }
 

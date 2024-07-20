@@ -6,6 +6,8 @@ import Fastify from "fastify";
 
 import Db from "./db";
 
+import all from "."
+
 // Read the .env file.
 dotenv.config();
 Db.getInstance();
@@ -23,7 +25,7 @@ const app = Fastify({
 // Register JWT
 
 // Register your application as a normal plugin.
-void app.register(import("."));
+void app.register(all);
 
 
 app.addHook("onRequest", async (request: any, reply) => {

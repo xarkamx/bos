@@ -15,7 +15,11 @@ export class ClientModel {
   }
 
   getClients() {
-    return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal', 'postal_code','tax_system');
+    return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal', 'postal_code','tax_system', 'bas_id');
+  }
+
+  getClientByEmail(email:string){
+    return this.getClients().where('email', email).first();
   }
   
   async countClients(): Promise<any> {

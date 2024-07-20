@@ -33,11 +33,6 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/',
-    config:{
-      auth:{
-        roles:['cashier','storer']
-      }
-    },
     async handler (_request:any, reply) {
       const inventoryService = new InventoryService();
       return inventoryService.getAllItems(_request.query.type);

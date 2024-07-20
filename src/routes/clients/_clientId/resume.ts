@@ -18,6 +18,20 @@ const clientResume:FastifyPluginAsync = async (fastify, _opts): Promise<void> =>
           return clientService.getResume(_request.params.clientId);
         }
     })
+
+    fastify.route({
+      method:'GET',
+      url:'/resume/payments',
+      config:{
+        auth:{
+          roles:['cashier','admin']
+        }
+      },
+      async handler(_request:any,reply){
+        const clientService = new ClientService();
+        return clientService.getClientPayments(_request.params.clientId);
+      }
+    });
 }
 
 export default clientResume;

@@ -67,3 +67,23 @@ SELECT
 from products
     left join inv on inv.product_id = products.id
     left join sold on sold.product_id = products.id;
+
+With pr as (
+        SELECT
+            product_id,
+            name,
+            sum(quantity) as qty,
+            order_id
+        from items
+            left join products on product_id = products.id
+        GROUP by order_id
+        ORDER BY
+            `items`.`product_id` ASC
+    )
+
+SELECT
+    product_id,
+    qty / count(product_id) as per_order,
+    name
+from pr
+GROUP by product_id;

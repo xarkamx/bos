@@ -17,7 +17,7 @@ export class BillingModel {
     return this.db(this.tableName).where('id', id).first();
   }
 
-  async getBillings(query:Partial<BillingType>) {
+  getBillings(query:Partial<BillingType>) {
     query = snakeCaseReplacer(query);
     return this.db(this.tableName).where(query);
   }
@@ -30,7 +30,7 @@ export class BillingModel {
 }
 
 export type BillingType = {
-  externalId: number;
+  externalId: string;
   status: string;
   orderId: number;
   ownerId: number;

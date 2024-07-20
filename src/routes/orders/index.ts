@@ -1,5 +1,7 @@
 import type { FastifyPluginAsync } from "fastify";
 import { OrderService } from '../../services/orders/OrdersService';
+import { sendNewOrderRequested } from '../../utils/mailSender';
+import { ClientService } from '../../services/clients/ClientService';
 
 const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   fastify.route({
@@ -37,7 +39,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: "/:id",
     config:{
       auth:{
-        roles:['cashier']
+        roles:['cashier','customer']
       }
     },
     async handler (_request:any, reply) {
@@ -88,17 +90,62 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
           discount: { type: "number" },  // Discount amount of the order
           partialPayment: { type: "number" },  // Partial payment amount of the order
           paymentType: { type: "number", default: 1},
+          status: { type: "string" },  // Status of the order
           items: { type: "array" },  // Items of the order
         },
       },
     },
-    async handler (_request, reply) {
+    async handler (_request:any, reply) {
       const orderService = new OrderService();
       const purchase:any = _request.body;
       const order = await orderService.addOrder(purchase);
+      const orderDetails = await orderService.getOrderById(order?.data?.orderId);
+      const {user} = _request.user;
+      sendNewOrderRequested(user,_request.headers.authorization,orderDetails);
       return order;
     }
   })
+  
+  fastify.route({
+    method: "POST",
+    url: "/request",
+    config:{
+      auth:{
+        roles:['customer','middleman']
+      }
+    },
+    schema: {
+      body: {
+        type: "object",
+        properties: {
+          items: { type: "array" },  // Items of the order
+          clientId: { type: "number"},  // Id of the customer
+        },
+      },
+    },
+    async handler (_request:any, reply) {
+      const orderService = new OrderService();
+      const purchase:any = _request.body;
+      purchase.paymentType = 99;
+      purchase.status = 'requested';
+      purchase.discount = 0;
+
+      if(!purchase.clientId){
+        const {user} = _request.user;
+        const clientService = new ClientService();
+        const client = await clientService.getClientByEmail(user.email);
+        purchase.clientId = client.id;
+      }
+
+      const order = await orderService.addOrder(purchase);
+      
+      const orderDetails = await orderService.getOrderById(order?.data?.orderId);
+      const {user} = _request.user;
+      sendNewOrderRequested(user,_request.headers.authorization,orderDetails);
+      return order;
+    }
+  })
+
   fastify.route({
     method: "DELETE",
     url: "/:id",

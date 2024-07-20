@@ -1,5 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { InventoryModel } from '../../models/InventoryModel';
+import { ProcessModel, type ProcessType } from '../../models/ProcessModel';
 import { type optionalProduct, ProductsModel } from '../../models/productsModel';
 
 export class ProductsService {
@@ -29,6 +30,22 @@ export class ProductsService {
     return productModel.updateAllPricesIn(increment);
   }
 
+  async getDetailsPerProduct (productId: number): Promise<any> {
+    const productModel = new ProductsModel();
+    
+    const product =  productModel.getProductById(productId);
+    const sales =  productModel.getHowManySalesPerProduct(productId);
+    const customers =  productModel.getCustomersPerProduct(productId);
+    const orders =  productModel.getOrdersPerProduct(productId);
+    const details = await Promise.all([product,sales, customers, orders]);
+    return {
+      product: details[0],
+      sales: details[1],
+      customers: details[2],
+      orders: details[3]
+    }
+  }
+
 
   async addProductToInventory (id: number, quantity: number): Promise<any> {
     const productModel = new ProductsModel();
@@ -45,6 +62,30 @@ export class ProductsService {
   async getInventory (): Promise<any> {
     const inventoryModel = new InventoryModel();
     return inventoryModel.getAllItemsByType('product'); 
+  }
+
+  async getProductsInProcess(){
+    const productModel = new ProcessModel();
+    return productModel.getGroupedProcess();
+  }
+
+  async addProcess (process: ProcessType): Promise<any> {
+    const processModel = new ProcessModel();
+    return processModel.addProcess(process);
+  }
+
+  async getGroupedProcess (): Promise<any> {
+    const processModel = new ProcessModel();
+    let content = await processModel.getGroupedProcess();
+    content = content.reduce((acc: any, item: any) => {
+      const flow = item.flow === 'inflow' ? -1 : 1;
+      const quantity:number = item.quantity * flow;
+      acc[item.productId] = acc[item.productId] || item;
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+      acc[item.productId].total = acc[item.productId].total?acc[item.productId].total+quantity:quantity;
+      return acc;
+    }, {})
+    return Object.values(content).filter((item: any) => item.total > 0);
   }
 }
 

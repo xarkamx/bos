@@ -11,7 +11,7 @@ const orderPayments:FastifyPluginAsync = async (fastify, _opts): Promise<void> =
         url:'/payments',
         config:{
           auth:{
-            roles:['cashier']
+            roles:['cashier','customer']
           }
         },
         async handler(_request:any,reply){
@@ -31,7 +31,7 @@ const orderPayments:FastifyPluginAsync = async (fastify, _opts): Promise<void> =
         async handler(_request:any,reply){
           const paymentService = new PaymentsServices();
           const ordersService = new OrderService();
-          await ordersService.updateOrder(_request.params.orderId,{status:'pending'})
+          await ordersService.updateOrder(_request.params.orderId,{status:'pending',partialPayment:0});
           return paymentService.cancelPaymentByOrderId(_request.params.orderId);
         }
     });

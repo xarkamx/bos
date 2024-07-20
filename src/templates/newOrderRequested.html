@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información sobre un pedido</title>
+    <style>
+         .container {
+            font-family: Arial, sans-serif;
+            background-color: #838383;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-flow:row wrap;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .content {
+            background-color: #efefef;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            
+
+            max-width: 600px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #777;
+        }
+        .items {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+        }
+        .items div {
+          display: flex;
+          justify-content: space-around;
+          margin: 10px;
+          background-color: #f9f9f9;
+          border-radius: 5px;
+          padding: 10px;
+        }
+        .items div  div {
+            display: inline;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<div class='container'>
+  <div class='content'>
+    <h1>Información sobre el pedido</h1>
+    <p>Estimado/a [employeeName],</p>
+    <p>Queremos informarte sobre un nuevo pedido registrado en nuestro sistema:</p>
+    <ul>
+        <li><strong>Número de pedido:</strong> [orderId]</li>
+        <li><strong>Fecha del pedido:</strong> [createdAt]</li>
+        <li><strong>Productos solicitados:</strong> <div class='items'>[items]</div></li>
+        <li><strong>Cliente:</strong> [clientName]</li>
+        <li><strong>Correo electrónico del cliente:</strong> [clientEmail]</li>
+        <li><strong>Total:</strong> [orderTotal]</li>
+    </ul>
+    <p>Por favor, verifica esta información.</p>
+    <p>¡Gracias!</p>
+    <p class="footer">El equipo de HG</p>
+  </div>
+</div>
+</html>

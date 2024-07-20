@@ -1,4 +1,5 @@
 import { HttpError } from '../../errors/HttpError';
+import { BillingModel } from '../../models/BillingModel';
 import type { iClient } from '../../models/ClientModel';
 import { numberPadStart } from '../../utils/helpers';
 import { ClientService } from '../clients/ClientService';
@@ -15,9 +16,15 @@ export class BillingService{
     if(paymentMethod === 'PPD') {
       paymentType = '99';
     }
-    
+
     const {orders, customer} = await loadOrders(orderIds);
+    const type:number=parseInt(paymentType||orders[0].order.paymentType,10)
     const items = formatInvoice(orders);
+    
+    if(type === 99){
+      paymentMethod = 'PPD'
+    }
+
     const invoice = {
       customer: {
         legal_name: customer.name,
@@ -29,7 +36,7 @@ export class BillingService{
         },
       },
       items,
-      payment_form: numberPadStart(2,paymentType||orders[0].order.paymentType),
+      payment_form: numberPadStart(2,type),
       payment_method:  paymentMethod || 'PUE',
       use: 'G01', // Hardcoded for now
     };
@@ -40,6 +47,10 @@ export class BillingService{
     }catch(e:any){
       throw new HttpError(e.message, 400);
     }
+  }
+
+  async getBillById(billingId:string){
+    return this.billing.getBilling(billingId);
   }
 
   async cancelInvoice(billingId:string,motive:string){
@@ -63,9 +74,79 @@ export class BillingService{
     return this.billing.downloadInvoice(billingId);
   }
 
+  async downloadXml(billingId:string){
+    return this.billing.downloadXml(billingId);
+  }
+
+  async customInvoice(customerId:string,products:any[],paymentDetails:any){
+    const service = new ClientService();
+    const customer = await service.getClient(customerId);
+
+    if(!customer) throw new HttpError('Customer not found', 404);
+
+    const invoice = {
+      customer: {
+        legal_name: customer.name,
+        tax_id: customer.rfc,
+        tax_system: customer.tax_system, // Hardcoded for now
+        email: customer.email,
+        address: {
+          zip: customer.postal_code,
+        },
+      },
+      items: products,
+      payment_form: paymentDetails.paymentForm?numberPadStart(2,paymentDetails.paymentForm):undefined,
+      payment_method: paymentDetails.paymentMethod || 'PUE',
+      use: paymentDetails.use, // Hardcoded for now
+    };
+    return this.billing.addInvoice(invoice);
+  }
+
+  async paymentComplement(customerId:string,amount:number, complement:any){
+    const service = new ClientService();
+    const customer = await service.getClient(customerId);
+
+    if(!customer) throw new HttpError('Customer not found', 404);
+
+    const invoice = {
+      customer: {
+        legal_name: customer.name,
+        tax_id: customer.rfc,
+        tax_system: customer.tax_system, // Hardcoded for now
+        email: customer.email,
+        address: {
+          zip: customer.postal_code,
+        },
+      },
+      complements: [complement],
+      type: 'P',
+    };
+    return this.billing.addInvoice(invoice);
+  }
+
   async sendInvoice(billingId:string, email:string){
     if(email === '') return this.billing.sendInvoice(billingId);
     return this.billing.sendInvoice(billingId,{email});
+  }
+
+  async addRequestId(requestId:string,status:string){
+    const model = new BillingModel();
+    const exists = await model.getBillings({externalId:requestId});
+    if(exists.length) {
+      await model.updateBilling(exists[0].id, {
+        status,
+      });
+      }else {
+        await  model.addBilling({externalId: requestId, status: 'Accepted', orderId: 0, ownerId: 0});
+      } 
+
+    
+    return model.getBillings({});
+  }
+
+  async getAcceptedRequests(){
+    const model = new BillingModel();
+    return model.getBillings({status: 'Accepted'});
   }
 
   validateClient(legal:string){
@@ -86,6 +167,10 @@ export class BillingService{
         zip: client.postal_code,
       },
     });
+  }
+
+  getExternalProducts(query:string){
+    return this.billing.searchProducts(query);
   }
 
 } 

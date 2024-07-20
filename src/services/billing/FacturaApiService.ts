@@ -4,8 +4,8 @@ import type { iClient } from '../../models/ClientModel';
 
 export class FacturaApiService {
   api: any;
-  constructor() {
-    this.api = new Facturapi(process.env.FACTURAPI_KEY);
+  constructor(apiKey='') {
+    this.api = new Facturapi(apiKey || process.env.FACTURAPI_KEY);
   }
 
   addCustomer(customer: BillingCustomer) {
@@ -55,6 +55,16 @@ export class FacturaApiService {
 
   updateClient(id:string,client:BillingCustomer){
     return this.api.customers.update(id,client);
+  }
+
+  getBilling(id:string){
+    return this.api.invoices.retrieve(id);
+  }
+
+  async searchProducts(query:string){
+    return this.api.catalogs.searchProducts({
+      q: query
+    });
   }
 
 }

@@ -13,8 +13,15 @@ export class OrderService {
     const paymentModel = new PaymentsModel();
     const inventoryModel = new InventoryModel();
     try{
+      
       const items = await this.getItemsPrices(purchase.items);
       const subtotal = this.getSubtotal(items);
+      const pendingPayment = (subtotal-purchase.discount) - purchase.partialPayment;
+      
+      if(pendingPayment <1){
+        purchase.status = 'paid';
+      }
+
       const order = {
         clientId: purchase.clientId,
         total: subtotal - purchase.discount,
@@ -22,6 +29,7 @@ export class OrderService {
         subtotal,
         partialPayment: purchase.partialPayment,
         paymentType: purchase.paymentType,
+        status:purchase.status ?? 'pending',
       }
       const [orderId] = await om.addOrder(order);
       const orderItems = items.map((item) => (
@@ -41,7 +49,8 @@ export class OrderService {
            });
       // Move this to products service
       const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity* -1, type:'product' }))
-      await inventoryModel.addInBulkToInventory(inventoryItems);
+        await inventoryModel.addInBulkToInventory(inventoryItems);
+
       return {message: 'Order created', data: {orderId, items:products}}
     }catch(e:any){
       return {message: e.message}
@@ -55,6 +64,13 @@ export class OrderService {
       .select('clients.name as clientName', 'rfc', 'clients.client_id as clientId','clients.email','clients.postal_code as postalCode')
       .orderBy('orders.id', 'desc');
     ;
+  }
+
+   getOrdersByClientId(clientId: number) {
+    const orderModel = new OrderModel();
+    return orderModel.getOrders().where({client_id: clientId})
+    .select('id', 'total', 'discount', 'subtotal', 'partial_payment as partialPayment', 'status', 'billed', 'created_at as createdAt', 'updated_at as updatedAt')
+    .orderBy('id', 'desc');
   }
 
   async getOrdersByBillId(billId: string) {
@@ -101,7 +117,7 @@ export class OrderService {
     const status = total < 1  ? 'paid' : 'pending';
     
     const response =await orderModel.updateOrder(id, { partialPayment:addedPayment, status });
-    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId });
+    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId, paymentType: 'order' });
     return { message: 'Payment added', data: { ...response, status, total,paid:addedPayment,payment  }};
   }
 
@@ -118,7 +134,7 @@ export class OrderService {
 
     const items = await itemsModel.getItemsByOrderId(id);
     await inventoryModel.addInBulkToInventory(items.map((item:any) => 
-      ({ external_id: item.productId,  quantity: (item.quantity*-1), type:'product' })))
+      ({ external_id: item.productId,  quantity: (item.quantity), type:'product' })))
     await itemsModel.deleteItemsByOrderId(id);
     await paymentModel.deletePaymentsByExternalId(id);
     return  om.deleteOrder(id);
@@ -130,6 +146,30 @@ export class OrderService {
   async updateOrder(id: number, order: Partial<IOrder>) {
     const om = new OrderModel();
     return om.updateOrder(id, order);
+  }
+
+  async removeItemsFromOrder(orderId: number) {
+    const itemsModel = new ItemsModel();
+    return itemsModel.deleteItemsByOrderId(orderId);
+  }
+
+  async addItemsToOrder(orderId:number,items: tItem[]) {
+    const itemsWithPrice = await this.getItemsPrices(items);
+    const itemsModel = new ItemsModel();
+    const orderItems = itemsWithPrice.map((item) => (
+      { 
+        product_id: item.id,
+        order_id:orderId,
+        quantity: item.quantity,
+        price: item.total 
+          }))
+    return itemsModel.addItems(orderItems);
+  }
+
+  addItemsToInventory(items: tItem[]) {
+    const inventoryModel = new InventoryModel();
+    const inventoryItems = items.map((item) => ({ external_id: item.productId,  quantity: item.quantity, type:'product' }))
+    return inventoryModel.addInBulkToInventory(inventoryItems);
   }
 
   async updateByBillId(billId: string, order: any) {
