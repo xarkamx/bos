@@ -1,5 +1,6 @@
 import { HttpError } from '../../errors/HttpError';
 import { MaterialModel, type tMaterial } from '../../models/MaterialsModel';
+import { ProductsModel } from '../../models/productsModel';
 import { trimAllStringsInObject } from '../../utils/helpers';
 
 export class MaterialService {
@@ -25,7 +26,7 @@ export class MaterialService {
         return model.addPrice(materialId, providerId, price);
     }
 
-    getMaterialById(id) {
+    getMaterialById(id:number) {
         const model = new MaterialModel();
         return model.getAll().where({ id }).first();
     }
@@ -39,13 +40,19 @@ export class MaterialService {
         
         return materialFormat(materials)
     }
-
-    updateMaterial(id, material) {
-        return 'toDo';
+    async addProductsToMaterial(materialId: number,products: {productId:number,quantity:number}[]) {
+        const model = new MaterialModel();
+        const material = await model.getAll().where({ id: materialId }).first();
+        if (!material) {
+            throw new HttpError('Material not found',404);
+        }
+        return model.addProductsToMaterial(materialId, products);
     }
 
-    getMaterialByIdWithBankDetails(id) {
-        return 'toDo';
+    async getProductsByMaterialId(materialId: number) {
+        const model = new ProductsModel();
+        return model.getProductByMaterialId(materialId);
+    
     }
 }
 

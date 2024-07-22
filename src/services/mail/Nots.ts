@@ -10,7 +10,6 @@ export class NotsService {
     async sendTemplatedEmail(templateId:number,email:string,handlebarsData:any) {
         const url = process.env.MAIL_URL ?? '';
         const validUrl = encodeURI(`${url}/emails/send`);
-        console.log(this.token, 'Token');
         try {
             const users = await axios.post(validUrl, {
                 templateId,

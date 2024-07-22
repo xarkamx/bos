@@ -21,6 +21,24 @@ export class MaterialModel {
   getAll() {
     return this.db(this.tableName);
   }
+
+  async addProductToMaterial(materialId: number, productId: number,qtyRequired:number) {
+    return this.db('recipes').insert(
+        {
+          material_id: materialId,
+          product_id: productId,
+          quantity: qtyRequired
+          });
+  }
+
+  async addProductsToMaterial(materialId: number, products: {productId:number,quantity:number}[]) {
+    return this.db('recipes').insert(products.map(product => (
+        {
+          material_id: materialId,
+          product_id: product.productId,
+          quantity: product.quantity
+          })));
+  }
 }
 
 export type tMaterial = {

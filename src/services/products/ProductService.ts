@@ -61,7 +61,14 @@ export class ProductsService {
 
   async getInventory (): Promise<any> {
     const inventoryModel = new InventoryModel();
-    return inventoryModel.getAllItemsByType('product'); 
+    const products = await  inventoryModel.getAllItemsByType('product'); 
+    return products[0].map((product: any) => {
+      return {
+        ...product,
+        materials: product.materials? JSON.parse(product.materials): [],
+        
+      }
+    });
   }
 
   async getProductsInProcess(){

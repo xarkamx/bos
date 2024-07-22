@@ -56,6 +56,15 @@ export class ProductsModel {
       .first();
   }
 
+  getProductByMaterialId(materialId: number) {
+    return this.db('recipes')
+      .leftJoin('products', 'recipes.product_id', 'products.id')
+      .leftJoin('materials', 'recipes.material_id', 'materials.id')
+      .where('material_id', materialId)
+      .select('products.name as productName','products.price','products.id','recipes.quantity as requiredQuantity','materials.name','materials.unit')
+      .groupBy('products.id');
+  }
+
   getCustomersPerProduct(productId:number) {
     return this.getItemsDetailsPerProduct(productId)
     .groupBy('clients.client_id')

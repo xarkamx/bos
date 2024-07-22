@@ -43,8 +43,7 @@ export default async function middleman(fastify: any) {
         throw new Error('Unable to create middleman');
       }
 
-      const resp = await service.addRole(request.headers.authorization, middlemanUser.userId, 'middleman');
-      console.log(resp,'response')
+      await service.addRole(request.headers.authorization, middlemanUser.userId, 'middleman');
       const middlemanService = new MiddlemanService();
   
       await middlemanService.addMiddleman({

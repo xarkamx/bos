@@ -38,17 +38,55 @@ export class InventoryModel {
   }
 
   async getAllItemsByType(type:string) {
-    const resp = await this.db.raw(`
-    with inv as (
-      SELECT sum(quantity) as qty ,external_id as product_id, inventory.type FROM inventory where inventory.type ='${type}' group by external_id  
-    ), sold as (
-      SELECT product_id,sum(quantity) as qty, sum(price) as amount FROM items group by product_id
-    )
-    SELECT image,id,name, price as unitPrice, inv.qty as inStock, sold.qty as soldUnits, sold.amount as soldAmount from products
-    left join inv on inv.product_id = products.id
-    left join sold on sold.product_id = products.id;
+    return this.db.raw(`
+    SELECT 
+    p.image, 
+    p.id, 
+    p.name, 
+    p.price as unitPrice, 
+    inv.qty as inStock, 
+    sold.qty as soldUnits, 
+    sold.amount as soldAmount,
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'materialId', m.id, 
+                'name', m.name, 
+                'unit', m.unit,
+                'quantity', r.quantity
+            )
+        )
+        FROM recipes r
+        JOIN materials m ON m.id = r.material_id
+        WHERE r.product_id = p.id
+    ) as materials
+FROM 
+    products p
+LEFT JOIN 
+    (
+        SELECT 
+            sum(quantity) as qty, 
+            external_id as product_id, 
+            inventory.type 
+        FROM 
+            inventory 
+        WHERE 
+            inventory.type = '${type}' 
+        GROUP BY 
+            external_id
+    ) as inv ON inv.product_id = p.id
+LEFT JOIN 
+    (
+        SELECT 
+            product_id,
+            sum(quantity) as qty, 
+            sum(price) as amount 
+        FROM 
+            items 
+        GROUP BY 
+            product_id
+    ) as sold ON sold.product_id = p.id;
     `)
-    return resp;
   }
 
 }

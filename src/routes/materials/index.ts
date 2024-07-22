@@ -67,4 +67,59 @@ export default async function Materials(fastify: any) {
       return service.getMaterials()
     }
   })
+
+  fastify.route({
+    method: 'POST',
+    url: '/:id/products',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    schema:{
+      body:{
+        type: 'array',
+        items:{
+          type: 'object',
+          required: ['productId','quantity'],
+          properties:{
+            productId: { type: 'number' },
+            quantity: { type: 'number' },
+          }
+        }
+      }
+    },
+    async handler(_request: any, reply: any) {
+      const service = new MaterialService()
+      return service.addProductsToMaterial(_request.params.id, _request.body)
+    }
+  })
+
+  fastify.route({
+    method: 'GET',
+    url: '/:id/products',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    async handler(_request: any, reply: any) {
+      const service = new MaterialService()
+      return service.getProductsByMaterialId(_request.params.id)
+    }
+  })
+
+  fastify.route({
+    method: 'GET',
+    url: '/:id',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    async handler(_request: any, reply: any) {
+      const service = new MaterialService()
+      return service.getMaterialById(_request.params.id)
+    }
+  })
 }
