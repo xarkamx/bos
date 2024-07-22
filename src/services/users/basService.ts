@@ -70,7 +70,6 @@ export class BasService {
     const url:any= process.env.BAS_URL;
     const company = process.env.BAS_COMPANY;
     const validUrl = encodeURI(`${url}/companies/${company}/users`);
-    console.log(jwt);
     try{
       const users= await axios.post(validUrl,{
         name:user.name,
