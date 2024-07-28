@@ -105,6 +105,18 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return productService.getDetailsPerProduct(_request.params.id);
     }
   });
+  fastify.route({
+    method: 'GET',
+    url: '/:id/materials',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    async handler(_request: any, reply: any) {
+      const service = new ProductsService()
+      return service.getMaterialsPerProduct(_request.params.id)
+  }})
 };
 
 export default products;

@@ -1,4 +1,5 @@
 import { MaterialService } from '../../services/materials/materialsService'
+import { ProductsService } from '../../services/products/ProductService'
 
 export default async function Materials(fastify: any) {
   fastify.route({
@@ -122,4 +123,31 @@ export default async function Materials(fastify: any) {
       return service.getMaterialById(_request.params.id)
     }
   })
+
+  fastify.route({
+    method: 'DELETE',
+    url: '/:id/products',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    async handler(_request: any, reply: any) {
+      const { name, description, unit, provider_id, price } = _request.body
+      const service = new MaterialService()
+      return "TODO"
+    },
+  })
+  fastify.route({
+    method: 'DELETE',
+    url: '/:id',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    async handler(_request: any, reply: any) {
+      const service = new MaterialService()
+      return "ToDo"
+  }})
 }
