@@ -39,6 +39,10 @@ export class MaterialModel {
           quantity: product.quantity
           })));
   }
+
+  async deleteProductsFromMaterial(materialId: number,productId:number) {
+    return this.db('recipes').where({material_id:materialId,product_id:productId}).del();
+  }
 }
 
 export type tMaterial = {

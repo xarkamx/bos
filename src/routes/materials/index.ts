@@ -126,16 +126,15 @@ export default async function Materials(fastify: any) {
 
   fastify.route({
     method: 'DELETE',
-    url: '/:id/products',
+    url: '/:id/products/:productId',
     config: {
       auth: {
         roles: ['admin', 'cashier', 'storer'],
       },
     },
     async handler(_request: any, reply: any) {
-      const { name, description, unit, provider_id, price } = _request.body
       const service = new MaterialService()
-      return "TODO"
+      return service.deleteProductsFromMaterial(_request.params.id, _request.params.productId)
     },
   })
   fastify.route({

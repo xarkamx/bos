@@ -8,8 +8,8 @@ export class InventoryModel {
     this.db = db; 
   }
 
-  async addToInventory(id: number,type:string, quantity: number): Promise<any> {
-    return this.db(this.tableName).insert({external_id:id,type, quantity});
+  async addToInventory(id: number,type:string, quantity: number,description='inventory'): Promise<any> {
+    return this.db(this.tableName).insert({external_id:id,type, quantity,description});
   }
 
   async addInBulkToInventory(items:InventoryItem[]): Promise<any> {

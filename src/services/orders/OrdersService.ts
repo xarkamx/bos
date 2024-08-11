@@ -48,7 +48,7 @@ export class OrderService {
             clientId:purchase.clientId
            });
       // Move this to products service
-      const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity* -1, type:'product' }))
+      const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity* -1, type:'product',description:'purchase' }))
         await inventoryModel.addInBulkToInventory(inventoryItems);
 
       return {message: 'Order created', data: {orderId, items:products}}
@@ -134,7 +134,7 @@ export class OrderService {
 
     const items = await itemsModel.getItemsByOrderId(id);
     await inventoryModel.addInBulkToInventory(items.map((item:any) => 
-      ({ external_id: item.productId,  quantity: (item.quantity), type:'product' })))
+      ({ external_id: item.productId,  quantity: (item.quantity), type:'product',description:'cancel' })));
     await itemsModel.deleteItemsByOrderId(id);
     await paymentModel.deletePaymentsByExternalId(id);
     return  om.deleteOrder(id);
@@ -168,7 +168,7 @@ export class OrderService {
 
   addItemsToInventory(items: tItem[]) {
     const inventoryModel = new InventoryModel();
-    const inventoryItems = items.map((item) => ({ external_id: item.productId,  quantity: item.quantity, type:'product' }))
+    const inventoryItems = items.map((item) => ({ external_id: item.productId,  quantity: item.quantity, type:'product',descrption:'order update' }));
     return inventoryModel.addInBulkToInventory(inventoryItems);
   }
 

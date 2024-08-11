@@ -48,7 +48,10 @@ export class MaterialService {
         }
         return model.addProductsToMaterial(materialId, products);
     }
-
+   async deleteProductsFromMaterial(materialId: number,productId:number) {
+        const model = new MaterialModel();
+        return model.deleteProductsFromMaterial(materialId, productId)
+   }
     async getProductsByMaterialId(materialId: number) {
         const model = new ProductsModel();
         return model.getProductByMaterialId(materialId);
