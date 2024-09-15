@@ -22,6 +22,21 @@ export class InventoryService {
     return itemsModel.getAllItems();
   }
 
+  async getInventoryItemsByProductId(id: number): Promise<any> {
+    const inventoryModel = new InventoryModel();
+    return inventoryModel.getAllByType('product')
+    .where({ external_id: id })
+    .join('products', 'products.id', 'inventory.external_id')
+    .select(
+        'inventory.id',
+       'inventory.quantity',
+       'inventory.description',
+       'inventory.created_at as createdAt',
+      )
+      .orderBy('inventory.created_at', 'desc')
+    ;
+  }
+
   async getItemsByProductId(id: number): Promise<any> {
     const itemsModel = new ItemsModel();
     return itemsModel.getAllItems().where({ "products.id": id });

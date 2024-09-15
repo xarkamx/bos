@@ -90,7 +90,7 @@ export class ProductsModel {
     .groupBy('order_id')
     .sum('quantity as totalSold')
     .sum('price as totalIncome')
-    .orderBy('totalIncome','desc');
+    .orderBy('orders.created_at','desc');
   }
   getItemsDetailsPerProduct(productId:number) {
     return this.db('items')

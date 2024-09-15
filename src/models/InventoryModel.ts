@@ -16,7 +16,7 @@ export class InventoryModel {
     return this.db(this.tableName).insert(items);
   }
 
-  async getsByIds(ids: number[]): Promise<any> {
+  getsByIds(ids: number[]): Promise<any> {
     return this.db(this.tableName).select('id', 'quantity').whereIn('external_id', ids);
   }
 
@@ -87,6 +87,10 @@ LEFT JOIN
             product_id
     ) as sold ON sold.product_id = p.id;
     `)
+  }
+
+  getAllByType(type:string) {
+    return this.db(this.tableName).where('type', type);
   }
 
 }
