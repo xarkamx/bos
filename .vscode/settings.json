@@ -19,5 +19,8 @@
     "titleBar.inactiveBackground": "#757ef599",
     "titleBar.inactiveForeground": "#15202b99"
   },
-  "peacock.color": "#757ef5"
+  "peacock.color": "#757ef5",
+  "cSpell.words": [
+    "fastify"
+  ]
 }
