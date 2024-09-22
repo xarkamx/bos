@@ -32,9 +32,9 @@ const app: FastifyPluginAsync<AppOptions> = async (
     options: opts,
   });
 
-  schedule('10 * * * * *', () => {
+  schedule('* 10 * * * *', () => {
     console.log('Validating health of the system');
-    console.log('every 10 seconds');
+    console.log('every 10 minutes');
   });
 
 };
