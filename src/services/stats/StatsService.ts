@@ -47,4 +47,22 @@ export class StatsService{
         );
       return resp[0];
     }
+
+    async weeklyResume(){
+      const paymentModel = new PaymentsModel();
+      const orderModel = new OrderModel();
+      const payments = await paymentModel.getPaymentsOfCurrentWeek();
+      const outflow = payments.find((p:any)=>p.flow==='outflow')?.total||0;
+      const inflow = payments.find((p:any)=>p.flow==='inflow')?.total||0;
+
+      // number of products out of stock
+
+      return {
+        orders:await orderModel.countOrders().whereRaw(`YEARWEEK(created_at) = YEARWEEK(NOW())`).first(),
+        outflow,
+        inflow
+      }
+
+
+    }
 }

@@ -25,7 +25,7 @@ void app.register(all);
 
 
 app.addHook("onRequest", async (request: any, reply) => {
-  const {auth} = request.context.config;
+  const {auth} = request.routeOptions.config;
   if(auth?.public){
     return;
   }
@@ -46,7 +46,7 @@ app.addHook("onRequest", async (request: any, reply) => {
 });
 
 function validate(request:any) {
-  const {auth} = request.context.config;
+  const {auth} = request.routeOptions.config;
   if(!auth){
     return;
   }

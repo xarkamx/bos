@@ -68,6 +68,11 @@ export class PaymentsModel{
     return this.db.select(columns).from(this.tableName);
   }
 
+  getTotal(type: string) {
+    console.log(type);
+    return this.db(this.tableName).where('payment_type', type).sum('amount as total');
+  }
+
   async deletePayment(id: number) {
     return this.db
       .transaction(async (trx: any) => 
@@ -96,6 +101,14 @@ export class PaymentsModel{
 //   month,
 //   product_id  
 // ORDER BY `items`.`product_id` ASC
+  }
+
+  async getPaymentsOfCurrentWeek(){
+    return this.db.select(this.db.raw(`SUM(amount) as total,flow`))
+    .from(this.tableName)
+    .whereRaw(`YEARWEEK(created_at) = YEARWEEK(NOW())`)
+    .groupBy('flow')
+    ;
   }
 }
 

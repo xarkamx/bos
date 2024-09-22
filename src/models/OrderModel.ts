@@ -94,7 +94,7 @@ export class OrderModel {
     return this.db(this.tableName);
   }
 
-  async countOrders() {
+  countOrders() {
     return this.db(this.tableName).count('id as count');
   }
 

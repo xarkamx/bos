@@ -103,6 +103,20 @@ const info:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       },
     })
 
+    fastify.route({
+      method:'GET',
+      url:'/weekly',
+      config:{
+        auth:{
+          roles:['admin']
+        }
+      },
+      async handler(_request,reply){
+        const stats = new StatsService();
+        return stats.weeklyResume() 
+      },
+    })
+
 
 }
 

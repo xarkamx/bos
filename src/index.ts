@@ -2,6 +2,7 @@ import type { AutoloadPluginOptions } from "@fastify/autoload";
 import AutoLoad from "@fastify/autoload";
 import type { FastifyPluginAsync } from "fastify";
 import { join } from "path";
+import { schedule } from 'node-cron';
 
 export type AppOptions = {
   // Place your custom options for app below here.
@@ -29,6 +30,11 @@ const app: FastifyPluginAsync<AppOptions> = async (
     dir: join(__dirname, "routes"),
     routeParams: true,
     options: opts,
+  });
+
+  schedule('* 10 * * * *', () => {
+    console.log('Validating health of the system');
+    console.log('every 10 minutes');
   });
 
 };
