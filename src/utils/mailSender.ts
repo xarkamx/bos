@@ -64,3 +64,38 @@ function formatArrayAsHTMLList(array: any[]) {
   <div>Precio: $ ${item.total.toFixed(2)}</div>
   </div>`).join('');
 }
+
+export async function sendBillingNotification(user:any,jwt:string,billingDetails: BillingDetails){
+  console.log('users',jwt,user, billingDetails);
+  const mailService = new EmailTemplate('newInvoice.html');
+  const bas = new BasService();
+  const cashiers =  bas.getUsersByRole(jwt,'cashier');
+  const admins =  bas.getUsersByRole(jwt,'admin');
+  const resp = await Promise.all([admins,cashiers]);
+  const users = resp.flat();
+  users.push(user);
+  
+  
+  const emails:any = users.map((user:any)=>{
+      return mailService.setHandlebarsFields({
+        "userName": user.name,
+        "orderId": billingDetails.orderIds.join(','),
+        "invoiceNumber": billingDetails.folio_number,
+        "invoiceDate": new Date(billingDetails.date).toLocaleString(),
+        "clientName": billingDetails.clientName,
+        "totalAmount": `$ ${billingDetails.total.toFixed(2)}`,
+        "paymentMethod": billingDetails.payment_method
+      }).sendMail(user.email, "Factura generada");
+  });
+
+  return Promise.all(emails);
+}
+
+type BillingDetails = {
+  orderIds: number[],
+  folio_number: string,
+  date: string,
+  clientName: string,
+  total: number,
+  payment_method: string
+}

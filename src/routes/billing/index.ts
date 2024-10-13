@@ -2,7 +2,10 @@ import { HttpError } from '../../errors/HttpError';
 import { ApiKeyModel } from '../../models/ApiKeyModel';
 import { BillingService } from '../../services/billing/BillingService'
 import { FacturaApiService } from '../../services/billing/FacturaApiService';
+import { EmailTemplate } from '../../services/mail/senders/EmailTemplate';
 import { OrderService } from '../../services/orders/OrdersService';
+import { BasService } from '../../services/users/basService';
+import { sendBillingNotification } from '../../utils/mailSender';
 
 export default async function Billing(fastify:any){
   fastify.route({
@@ -41,6 +44,15 @@ export default async function Billing(fastify:any){
       const service = new BillingService(new FacturaApiService());
       const invoice =await service.addInvoice(orderIds,taxType,paymentType,paymentMethod);
       service.sendInvoice(invoice.id,'');
+      const {user} = request.user;
+      sendBillingNotification(user,request.headers.authorization,{
+        orderIds,
+        folio_number:invoice.folio_number,
+        date:invoice.date,
+        clientName:invoice.customer.legal_name,
+        total:invoice.total,
+        payment_method:invoice.payment_method,
+      });
       return invoice;
     }
   })
