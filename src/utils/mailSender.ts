@@ -1,4 +1,6 @@
+import { count } from 'console';
 import { EmailTemplate } from '../services/mail/senders/EmailTemplate';
+import { StatsService } from '../services/stats/StatsService';
 import { BasService } from '../services/users/basService';
 
 export async function sendNewClientMailToOwner (client: any, user: any) {
@@ -66,7 +68,6 @@ function formatArrayAsHTMLList(array: any[]) {
 }
 
 export async function sendBillingNotification(user:any,jwt:string,billingDetails: BillingDetails){
-  console.log('users',jwt,user, billingDetails);
   const mailService = new EmailTemplate('newInvoice.html');
   const bas = new BasService();
   const cashiers =  bas.getUsersByRole(jwt,'cashier');
@@ -89,6 +90,32 @@ export async function sendBillingNotification(user:any,jwt:string,billingDetails
   });
 
   return Promise.all(emails);
+}
+
+export async function resumeOfTheWeek(){
+  const mailService = new EmailTemplate('resumeOfTheWeek.html');
+  const stats = new StatsService();
+ const week=await stats.weeklyResume()
+ // remove hardcoded email
+  return mailService.setHandlebarsFields({
+    count:week.orders.count,
+    inflow:week.inflow,
+    outflow:week.outflow,
+  }).sendMail('xarkamx@gmail.com',"Resumen de la semana");
+
+  
+}
+
+export async function sendInvoiceSubstitutionNotification(ogInvoice: any, newInvoice: any,order:any) {
+  const mailService = new EmailTemplate('notifyInvoiceSubstitution.html');
+  // remove hardcoded email
+  return mailService.setHandlebarsFields({
+    originalInvoice: ogInvoice.folio_number,
+    substituteInvoice: newInvoice.folio_number,
+    clientName: ogInvoice.customer.legal_name,
+    substitutionDate: new Date().toLocaleString(),
+  }).sendMail(order.email,'Factura sustituida');
+    
 }
 
 type BillingDetails = {

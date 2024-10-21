@@ -215,6 +215,34 @@ export default async function Billing(fastify:any){
   });
 
   fastify.route({
+    method: 'GET',
+    url: '/expired',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    async handler(request:any, reply:any) {
+      const service = new OrderService();
+      return service.getOrdersWithExpiredBilling();
+    }
+  });
+
+  fastify.route({
+    method: 'POST',
+    url: '/expired',
+    config: {
+      auth: {
+        roles: ['admin','cashier'],
+      }
+    },
+    async handler(request:any, reply:any) {
+      const service = new BillingService(new FacturaApiService());
+      return service.autoCancelExpiredInvoices();
+    }
+  });
+
+  fastify.route({
     method:'POST',
     url:'/complement',
     schema:{

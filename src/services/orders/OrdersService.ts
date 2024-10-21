@@ -75,7 +75,9 @@ export class OrderService {
 
   async getOrdersByBillId(billId: string) {
     const orderModel = new OrderModel();
-    return orderModel.getOrders().where({billed: billId});
+    return orderModel.getOrders()
+    .select('id', 'total', 'discount', 'subtotal', 'partial_payment as partialPayment', 'status', 'billed', 'created_at as createdAt', 'updated_at as updatedAt')
+    .where({billed: billId});
   }
   
 
@@ -175,6 +177,11 @@ export class OrderService {
   async updateByBillId(billId: string, order: any) {
     const om = new OrderModel();
     return om.db('orders').where({ billed: billId }).update(order);
+  }
+
+  async getOrdersWithExpiredBilling() {
+    const om = new OrderModel();
+    return om.getOrdersWithExpiredBilling();
   }
 
   private async getItemsPrices(items: any[]): Promise<any[]> {

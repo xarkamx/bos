@@ -3,6 +3,7 @@ import AutoLoad from "@fastify/autoload";
 import type { FastifyPluginAsync } from "fastify";
 import { join } from "path";
 import { schedule } from 'node-cron';
+import { loadCronService } from './services/crons/SettledCronService';
 
 export type AppOptions = {
   // Place your custom options for app below here.
@@ -32,10 +33,11 @@ const app: FastifyPluginAsync<AppOptions> = async (
     options: opts,
   });
 
-  // schedule('* 10 * * * *', () => {
-  //   console.log('Validating health of the system');
-  //   console.log('every 10 minutes');
-  // });
+  schedule('* * 1 * * *', () => {
+    console.log('Executing cron jobs');
+    const service = loadCronService();
+    return service.executeCronJobs();
+  });
 
 };
 

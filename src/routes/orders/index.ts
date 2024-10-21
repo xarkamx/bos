@@ -182,6 +182,20 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return orderService.updateOrder(_request.params.id,_request.body);
     }
   });  
+
+  fastify.route({
+    method: "GET",
+    url: "/bill/:id",
+    config:{
+      auth:{
+        roles:['cashier','admin']
+      }
+    },
+    async handler (_request:any, reply) {
+      const orderService = new OrderService();
+      return orderService.getOrdersByBillId(_request.params.id);
+    }
+  });
 };
 
 export default orders;

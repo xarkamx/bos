@@ -107,6 +107,17 @@ export class OrderModel {
     .where({ id })
   }
 
+  getOrdersWithExpiredBilling() {
+   // get pending orders created last month
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() );
+    return this.db(this.tableName)
+    .leftJoin('clients', 'orders.client_id', 'clients.client_id')
+    
+    .whereRaw(`MONTH(orders.billed_at) = ${lastMonth.getMonth()}`)
+    .andWhere('status', 'pending')
+    .andWhere('billed', 'is not', null);
+}
 }
 
 export type IOrder ={

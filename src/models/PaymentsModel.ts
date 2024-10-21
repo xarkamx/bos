@@ -69,7 +69,6 @@ export class PaymentsModel{
   }
 
   getTotal(type: string) {
-    console.log(type);
     return this.db(this.tableName).where('payment_type', type).sum('amount as total');
   }
 

@@ -20,8 +20,11 @@ export class FacturaApiService {
     return this.api.invoices.create(invoice);
   }
 
-  cancelInvoice(id:string,motive:string){
-    return this.api.invoices.cancel(id,{motive});
+  cancelInvoice(id:string,motive:string,substitution:string){
+    return this.api.invoices.cancel(id,{
+      motive,
+      substitution,
+    });
   }
 
   list(query:QueryType){

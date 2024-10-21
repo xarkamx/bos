@@ -2,6 +2,7 @@ import { HttpError } from '../../errors/HttpError';
 import { BillingModel } from '../../models/BillingModel';
 import type { iClient } from '../../models/ClientModel';
 import { numberPadStart } from '../../utils/helpers';
+import { sendInvoiceSubstitutionNotification } from '../../utils/mailSender';
 import { ClientService } from '../clients/ClientService';
 import { OrderService } from '../orders/OrdersService';
 
@@ -64,6 +65,27 @@ export class BillingService{
 
     await service.updateByBillId(billingId, {billed: null, billed_at: null});
     return billing;
+  }
+
+  async autoCancelExpiredInvoices() {
+    const om = new OrderService();
+    const orders = await om.getOrdersWithExpiredBilling();
+    const promisedSubstitutions = orders.map((order:any) => this.invoiceSubstitution(order));
+    await Promise.allSettled(promisedSubstitutions);
+  }
+
+  async invoiceSubstitution(order:any){
+    const bill =await  this.getBillById(order.billed);
+    if(bill.payment_method === 'PPD') {
+      throw new HttpError('PPD invoices cannot be substituted', 400);
+    }
+    console.log(`Folio ${bill.series}-${bill.folio_number} is going to be canceled`);
+    await this.cancelInvoice(order.billed, '03');
+    console.log(`Folio ${bill.series}-${bill.folio_number} was canceled`);
+    const newBill = await this.addInvoice([order.id], order.tax_system, order.payment_type, 'PUE');
+    console.log(`Folio ${newBill.series}-${newBill.folio_number} was created`);
+    
+    sendInvoiceSubstitutionNotification(bill, newBill, order);
   }
 
   async getAllInvoices(query:any){
