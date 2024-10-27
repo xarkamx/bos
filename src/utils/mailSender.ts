@@ -118,6 +118,17 @@ export async function sendInvoiceSubstitutionNotification(ogInvoice: any, newInv
     
 }
 
+export async function sendNotificationError(error:errorMessage){
+  const mailService = new EmailTemplate('errorNotification.html');
+  // remove hardcoded email
+  return mailService.setHandlebarsFields({
+    errorCode: error.errorCode,
+    message: error.message,
+    errorDateTime: error.errorDateTime,
+    userName: 'Admin'
+  }).sendMail('xarkamx@gmail.com','Error en la plataforma');
+}
+
 type BillingDetails = {
   orderIds: number[],
   folio_number: string,
@@ -125,4 +136,10 @@ type BillingDetails = {
   clientName: string,
   total: number,
   payment_method: string
+}
+
+type errorMessage = {
+  errorCode: string,
+  message: string,
+  errorDateTime: string
 }

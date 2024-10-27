@@ -30,6 +30,58 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
      
     }
   });
+
+  fastify.route({
+    method: 'POST',
+    url: '/products',
+    config:{
+      auth:{
+        roles:['cashier','storer']
+      }
+    },
+    schema:{
+      body: {
+        type: 'object',
+        required: ['quantity'],
+        properties: {
+          quantity: { type: 'number' },
+          product_id: { type: 'number' },
+        }
+      },
+    },
+    async handler (_request:any, reply) {
+      const inventoryService = new InventoryService();
+      const {product_id,quantity} = _request.body;
+      const inv= await inventoryService.addItemToInventory(product_id,'product',quantity);
+    }
+  });
+
+  fastify.route({
+    method: 'POST',
+    url: '/materials',
+    config:{
+      auth:{
+        roles:['cashier','storer']
+      }
+    },
+    schema:{
+      body: {
+        type: 'object',
+        required: ['quantity'],
+        properties: {
+          quantity: { type: 'number' },
+          material_id: { type: 'number' },
+        }
+      },
+    },
+    async handler (_request:any, reply) {
+      const inventoryService = new InventoryService();
+      const {material_id,quantity} = _request.body;
+      return inventoryService.addItemToInventory(material_id,'materials',quantity);
+    }
+  });
+
+
   fastify.route({
     method: 'GET',
     url: '/',
