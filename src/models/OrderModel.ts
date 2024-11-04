@@ -116,6 +116,7 @@ export class OrderModel {
     
     .whereRaw(`MONTH(orders.billed_at) = ${lastMonth.getMonth()}`)
     .andWhere('status', 'pending')
+    .andWhere('payment_type', '!=', 99)
     .andWhere('billed', 'is not', null);
 }
 }

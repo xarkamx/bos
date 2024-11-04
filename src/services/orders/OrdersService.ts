@@ -77,7 +77,8 @@ export class OrderService {
     const orderModel = new OrderModel();
     return orderModel.getOrders()
     .select('id', 'total', 'discount', 'subtotal', 'partial_payment as partialPayment', 'status', 'billed', 'created_at as createdAt', 'updated_at as updatedAt','client_id')
-    .where({billed: billId});
+    .where({billed: billId})
+    .andWhere('payment_type', '!=', 99);
   }
   
 

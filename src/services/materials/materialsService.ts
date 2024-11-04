@@ -34,9 +34,7 @@ export class MaterialService {
     async getMaterials() {
         const model = new MaterialModel();
         const materials = await model.getAll()
-          .leftJoin('materials_price_list', 'materials.id', 'materials_price_list.material_id')
-          .leftJoin('providers', 'materials_price_list.provider_id', 'providers.id')
-          .select('materials.id','materials.name', 'unit', 'price','materials_price_list.created_at', 'providers.name as provider_name' );
+          .select('materials.id','materials.name', 'unit', 'price' );
         
         return materialFormat(materials)
     }
@@ -56,6 +54,15 @@ export class MaterialService {
         const model = new ProductsModel();
         return model.getProductByMaterialId(materialId);
     
+    }
+
+    async updateMaterial(id: number, material: Partial<tMaterial>) {
+        const model = new MaterialModel();
+        trimAllStringsInObject(material);
+        await model.updateMaterial(id, material);
+        if (material.price) {
+            await this.addPrice(id,0, material.price);
+        }
     }
 }
 

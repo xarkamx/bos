@@ -19,6 +19,10 @@ export class MaterialModel {
   getMaterialById(id: number): Promise<tMaterial> {
     return this.db(this.tableName).where({ id }).first();
   }
+
+  getMaterialsByProductId(productId: number): Promise<tMaterial[]> {
+    return this.db(this.tableName).where({ product_id: productId });
+  }
 } 
 
 export type tMaterial = {

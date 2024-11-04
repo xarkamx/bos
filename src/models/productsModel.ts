@@ -69,7 +69,7 @@ export class ProductsModel {
     return this.db('recipes')
       .leftJoin('materials', 'recipes.material_id', 'materials.id')
       .where('product_id', productId)
-      .select('recipes.id','materials.name','materials.unit')
+      .select('recipes.id','materials.name','materials.unit','materials.id as materialId')
       .sum('quantity as requiredQuantity')
       .groupBy('materials.id')
       ;

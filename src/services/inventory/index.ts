@@ -17,6 +17,15 @@ export class InventoryService {
     return inventoryModel.getAllItemsByType(type || 'product');
   }
 
+  async getMaterials(): Promise<any> {
+    const inventoryModel = new InventoryModel();
+    return inventoryModel.getAllByType('materials')
+    .groupBy('external_id')
+    .sum('quantity as quantity')
+    .select('external_id as id', 'materials.description','name','unit','price')
+    .join('materials', 'materials.id', 'inventory.external_id');
+  }
+
   async getAllSoldItems(): Promise<any> {
     const itemsModel = new ItemsModel();
     return itemsModel.getAllItems();

@@ -123,9 +123,9 @@ export async function sendNotificationError(error:errorMessage){
   // remove hardcoded email
   return mailService.setHandlebarsFields({
     errorCode: error.errorCode,
-    message: error.message,
+    errorMessage: error.message,
     errorDateTime: error.errorDateTime,
-    userName: 'Admin'
+    username: 'Admin'
   }).sendMail('xarkamx@gmail.com','Error en la plataforma');
 }
 

@@ -22,6 +22,10 @@ export class MaterialModel {
     return this.db(this.tableName);
   }
 
+  async updateMaterial(id: number, material: Partial<tMaterial>) {
+    return this.db(this.tableName).where({ id }).update(material);
+  }
+
   async addProductToMaterial(materialId: number, productId: number,qtyRequired:number) {
     return this.db('recipes').insert(
         {

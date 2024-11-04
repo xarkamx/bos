@@ -1,5 +1,7 @@
 import { type FastifyPluginAsync } from 'fastify';
 import { InventoryService } from '../../services/inventory';
+import { MaterialService } from '../../services/Materials';
+import { HttpError } from '../../errors/HttpError';
 
 
 
@@ -26,8 +28,22 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     async handler (_request:any, reply) {
       const inventoryService = new InventoryService();
       const {external_id,type,quantity} = _request.body;
-      return inventoryService.addItemToInventory(external_id,type,quantity);
+      const inv = await inventoryService.addItemToInventory(external_id,type,quantity);
+      if(type==='product'){
+        const materialService = new MaterialService();
+        await materialService.consumeMaterial(external_id,quantity);
+      }
+      return inv;
      
+    }
+  });
+
+  fastify.route({
+    method: 'GET',
+    url: '/materials',
+    async handler (_request:any, reply) {
+      const inventoryService = new InventoryService();
+      return inventoryService.getMaterials();
     }
   });
 
@@ -70,14 +86,19 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         required: ['quantity'],
         properties: {
           quantity: { type: 'number' },
-          material_id: { type: 'number' },
+          materialId: { type: 'number' },
         }
       },
     },
     async handler (_request:any, reply) {
       const inventoryService = new InventoryService();
-      const {material_id,quantity} = _request.body;
-      return inventoryService.addItemToInventory(material_id,'materials',quantity);
+      const materialService = new MaterialService();
+      const {materialId,quantity} = _request.body;
+      const materialExists = await materialService.getMaterialById(materialId);
+      if(!materialExists){
+       throw new HttpError('Material does not exist',404);
+      }
+      return inventoryService.addItemToInventory(materialId,'materials',quantity);
     }
   });
 
@@ -132,6 +153,7 @@ const inventory:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       return inventoryService.getInventoryItemsByProductId(_request.params.product_id);
     }
   });
+
 };
 
 export default inventory;
