@@ -1,4 +1,4 @@
-import { MaterialServiceV2 } from '../../services/materials/materialsServiceV2'
+import { MaterialServiceV2 } from '../../services/Materials/materialsServiceV2'
 
 export default async function Materials(fastify: any) {
   fastify.route({
