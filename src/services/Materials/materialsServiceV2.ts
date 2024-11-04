@@ -3,7 +3,7 @@ import { MaterialModel, type tMaterial } from '../../models/MaterialsModel';
 import { ProductsModel } from '../../models/productsModel';
 import { trimAllStringsInObject } from '../../utils/helpers';
 
-export class MaterialService {
+export class MaterialServiceV2 {
     async createMaterial(material: tMaterial) {
         const model = new MaterialModel();
         trimAllStringsInObject(material);

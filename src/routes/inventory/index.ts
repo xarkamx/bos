@@ -1,6 +1,6 @@
 import { type FastifyPluginAsync } from 'fastify';
 import { InventoryService } from '../../services/inventory';
-import { MaterialService } from '../../services/Materials';
+import { MaterialService } from '../../services/materials';
 import { HttpError } from '../../errors/HttpError';
 
 

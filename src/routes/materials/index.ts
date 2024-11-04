@@ -1,5 +1,4 @@
-import { MaterialService } from '../../services/Materials/materialsService'
-import { ProductsService } from '../../services/products/ProductService'
+import { MaterialServiceV2 } from '../../services/materials/materialsServiceV2'
 
 export default async function Materials(fastify: any) {
   fastify.route({
@@ -24,7 +23,7 @@ export default async function Materials(fastify: any) {
     },
     async handler(_request: any, reply: any) {
       const { name, description, unit, provider_id, price } = _request.body
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       reply.code(201)
       return service.createMaterial({ name, description, unit, provider_id, price })
     },
@@ -49,7 +48,7 @@ export default async function Materials(fastify: any) {
     },
     async handler(_request: any, reply: any) {
       const { price, provider_id } = _request.body
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       reply.code(201)
       return service.addPrice(_request.params.id, provider_id, price)
     }
@@ -63,7 +62,7 @@ export default async function Materials(fastify: any) {
       },
     },
     async handler(_request: any, reply: any) {
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       return service.getMaterials()
     }
   })
@@ -90,7 +89,7 @@ export default async function Materials(fastify: any) {
       }
     },
     async handler(_request: any, reply: any) {
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       return service.addProductsToMaterial(_request.params.id, _request.body)
     }
   })
@@ -104,7 +103,7 @@ export default async function Materials(fastify: any) {
       },
     },
     async handler(_request: any, reply: any) {
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       return service.getProductsByMaterialId(_request.params.id)
     }
   })
@@ -118,7 +117,7 @@ export default async function Materials(fastify: any) {
       },
     },
     async handler(_request: any, reply: any) {
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       return service.getMaterialById(_request.params.id)
     }
   })
@@ -131,7 +130,7 @@ export default async function Materials(fastify: any) {
       },
     },
     async handler(_request: any, reply: any) {
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       return service.deleteProductsFromMaterial(_request.params.id, _request.params.productId)
     },
   })
@@ -144,7 +143,7 @@ export default async function Materials(fastify: any) {
       },
     },
     async handler(_request: any, reply: any) {
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       return "ToDo"
   }})
   fastify.route({
@@ -168,7 +167,7 @@ export default async function Materials(fastify: any) {
     },
     async handler(_request: any, reply: any) {
 
-      const service = new MaterialService()
+      const service = new MaterialServiceV2()
       reply.code(201)
       return service.updateMaterial(_request.params.id, _request.body)
   }
