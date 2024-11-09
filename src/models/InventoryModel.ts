@@ -53,7 +53,8 @@ export class InventoryModel {
                 'materialId', m.id, 
                 'name', m.name, 
                 'unit', m.unit,
-                'quantity', r.quantity
+                'quantity', r.quantity,
+                'price', m.price
             )
         )
         FROM recipes r

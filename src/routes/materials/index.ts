@@ -1,3 +1,4 @@
+import { InventoryService } from '../../services/inventory'
 import { MaterialServiceV2 } from '../../services/Materials/materialsServiceV2'
 
 export default async function Materials(fastify: any) {
@@ -118,7 +119,10 @@ export default async function Materials(fastify: any) {
     },
     async handler(_request: any, reply: any) {
       const service = new MaterialServiceV2()
-      return service.getMaterialById(_request.params.id)
+      const inventoryService = new InventoryService()
+      const materials = await service.getMaterialById(_request.params.id)
+      const inventory = await inventoryService.getMaterialInventory(_request.params.id)
+      return { ...materials, inventory }
     }
   })
   fastify.route({

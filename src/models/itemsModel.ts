@@ -37,7 +37,7 @@ export class ItemsModel {
         'name',
         'quantity',
         'items.price as total',
-        'products.price as unitPrice'
+        this.db.raw('(items.price/quantity) as unitPrice')
       )
       .from(this.tableName)
       .leftJoin('products', 'items.product_id', 'products.id')
