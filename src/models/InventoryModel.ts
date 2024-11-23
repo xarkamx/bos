@@ -44,6 +44,8 @@ export class InventoryModel {
     p.id, 
     p.name, 
     p.price as unitPrice, 
+    p.description,
+    p.short_description as shortDescription,
     inv.qty as inStock, 
     sold.qty as soldUnits, 
     sold.amount as soldAmount,

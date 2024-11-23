@@ -242,7 +242,6 @@ function storeBillId(orderIds:number[], billId:string){
 }
 
 
-
 export type BillingCustomer = {
   legal_name: string;
   tax_id: string;
