@@ -9,6 +9,7 @@ export type AppOptions = {
   // Place your custom options for app below here.
 } & Partial<AutoloadPluginOptions>;
 
+process.env.TZ = 'America/Mexico_City';
 const app: FastifyPluginAsync<AppOptions> = async (
   fastify,
   opts
