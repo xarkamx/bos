@@ -38,5 +38,5 @@ export default {
                 directory: './src/database/seeds',
             },
         },
-    },
+    }
 }
