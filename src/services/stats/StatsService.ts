@@ -65,4 +65,25 @@ export class StatsService{
 
 
     }
+
+    async getExpiredDebts(){
+      const ordersModel = new OrderModel();
+      return ordersModel.getOrders()
+      .join('clients','orders.client_id','clients.client_id')
+      .where({status:'pending'})
+      .whereRaw('total - partial_payment > 1000')
+      .whereRaw('DATEDIFF(NOW(),created_at) > 14')
+      .select({
+       "orderId": "orders.id",
+        "clientId": "clients.client_id",
+        "clientName": "clients.name",
+        "clientEmail": "clients.email",
+        "clientPhone": "clients.phones",
+        "total": "orders.total",
+        "paymentAmount": "orders.partial_payment",
+        "debt": db.raw('total - partial_payment'),
+        "days": db.raw('DATEDIFF(NOW(),created_at)'),
+        "createdAt": "orders.created_at"
+      })
+    }
 }

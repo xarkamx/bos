@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recordatorio de Pago Pendiente</title>
+  <style>
+    h1 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .content {
+      background-color: #efefef;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: auto;
+      max-width: 600px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 10px;
+    }
+
+    .footer {
+      font-size: 14px;
+      color: #777;
+    }
+
+    .items {
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+    }
+
+    .items div {
+      display: flex;
+      justify-content: space-around;
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="content">
+    <p>Estimado/a <b>[clientName]</b>,</p>
+    <p>Esperamos que se encuentre bien. Nos ponemos en contacto para recordarle que la <b>orden  #[orderId]</b>, con fecha del [createdAt], presenta un adeudo pendiente.</p>
+    <p>Monto total a pagar: $[debt] MXN</p>
+    <p>Le agradeceríamos que proceda con el pago a la brevedad posible. Si ya realizó el pago, por favor ignore este mensaje.</p>
+    <p>En caso de cualquier duda o si necesita asistencia, estamos a su disposición en:</p>
+    <ol>
+      <li>Teléfono: 33-3638-3996</li>
+      <li>Correo electrónico:<a href="mailto: hojalateriagutierrez@gmail.com "> hojalateriagutierrez@gmail.com </a></li>
+    </ol>
+    <p>Agradecemos de antemano su atención y quedamos a sus órdenes.</p>
+    <div class="footer">
+      <p>Atentamente,</p>
+      <p>Herrajería Gutiérrez</p>
+    </div>
+  </div>
+</body>
+
+</html>

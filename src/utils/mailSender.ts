@@ -129,6 +129,26 @@ export async function sendNotificationError(error:errorMessage){
   }).sendMail('xarkamx@gmail.com','Error en la plataforma');
 }
 
+export async function sendPaymentRemainder(debtorInfo:any){
+  const mailService = new EmailTemplate('paymentRemainder.html');
+  if(!debtorInfo.clientEmail) return;
+  return mailService.setHandlebarsFields({
+    clientName: debtorInfo.clientName,
+    orderId: debtorInfo.orderId,
+    debt: debtorInfo.debt,
+    createdAt: new Date(debtorInfo.createdAt).toLocaleString(
+      'es-MX',
+      { timeZone: 'America/Mexico_City',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+
+       }
+    ),
+  }).sendMail(debtorInfo.clientEmail,`Recordatorio de pago pendiente – Orden #${debtorInfo.orderId}`);
+}
+
 type BillingDetails = {
   orderIds: number[],
   folio_number: string,

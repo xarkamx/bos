@@ -117,6 +117,20 @@ const info:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       },
     })
 
+    fastify.route({
+      method:'GET',
+      url:'/orders/expired',
+      config:{
+        auth:{
+          roles:['admin','cashier']
+        }
+      },
+      async handler(_request,reply){
+        const stats = new StatsService();
+        return stats.getExpiredDebts()
+    }
+  })
+
 
 }
 
