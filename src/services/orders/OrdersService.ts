@@ -1,9 +1,12 @@
 import { HttpError } from '../../errors/HttpError';
 import { InventoryModel } from '../../models/InventoryModel';
 import { ItemsModel, type tItem } from '../../models/itemsModel';
-import { type IOrderResponse, type IOrder, OrderModel } from '../../models/OrderModel';
+import { type IOrder, OrderModel } from '../../models/OrderModel';
 import { PaymentsModel } from '../../models/PaymentsModel';
 import { type iProduct, ProductsModel } from '../../models/productsModel';
+import { numberPadStart } from '../../utils/helpers';
+import { BillingService } from '../billing/BillingService';
+import { FacturaApiService } from '../billing/FacturaApiService';
 
 
 export class OrderService {
@@ -109,7 +112,18 @@ export class OrderService {
   async pay(id: number,clientId:number, payment: number, paymentMethod=1) {
     const orderModel = new OrderModel();
     const paymentModel = new PaymentsModel();
-    const order:IOrderResponse = (await orderModel.getOrderById(id))[0];
+    const billingService = new BillingService(new FacturaApiService());
+    const order = await orderModel.getOrderById(id)
+    .join('clients', 'orders.client_id', 'clients.client_id')
+    .select({
+      client_id: 'clients.client_id',
+      total: 'orders.total',
+      partialPayment: 'orders.partial_payment',
+      status: 'orders.status',
+      uuid: 'orders.billed',
+      paymentMethod: 'orders.payment_type',
+    })
+    .first()
     
     if (!order) {
       throw new HttpError('Order not found', 404);
@@ -126,12 +140,36 @@ export class OrderService {
       throw new HttpError(`Client is over paying debt is ${order.total-order.partialPayment} 
       and is paying ${payment}`, 400);
     }
-
+    const invoice = await this.sendInvoice(paymentModel, id, order, billingService, addedPayment, paymentMethod, payment);
     const status = total < 1  ? 'paid' : 'pending';
-    
     const response =await orderModel.updateOrder(id, { partialPayment:addedPayment, status });
-    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId, paymentType: 'order' });
+    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId, paymentType: 'order',billingId:invoice?.id });
+   
     return { message: 'Payment added', data: { ...response, status, total,paid:addedPayment,payment  }};
+  }
+
+  private async sendInvoice (paymentModel: PaymentsModel, id: number, order: any, billingService: BillingService, addedPayment: any, paymentMethod: number, payment: number) {
+    const payments=await paymentModel.getPaymentsByOrderId(id);
+    if (order.uuid&&order.paymentMethod===99) {
+      const { uuid }=await billingService.getBillById(order.uuid);
+      return await billingService.paymentComplement(order.client_id, addedPayment, {
+        type: "pago",
+        data: [{
+          payment_form: numberPadStart(2, paymentMethod),
+          related_documents: [{
+            uuid,
+            installment: payments.length+1,
+            last_balance: order.total-order.partialPayment,
+            amount: payment,
+            taxes: [{
+              base: payment/0.16,
+              type: 'IVA',
+              rate: 0.16,
+            }],
+          }],
+        }],
+      });
+    }
   }
 
   async cancelOrder(id: number) {

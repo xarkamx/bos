@@ -55,7 +55,8 @@ export class PaymentsModel{
         'flow',
         'description',
         'amount',
-        'created_at as createdAt'
+        'created_at as createdAt',
+        'billing_id as billingId'
       )
       .from(this.tableName)
       .where('external_id', orderId)
@@ -119,6 +120,7 @@ export type IPayment = {
   description?: string;
   amount: number;
   clientId?: number;
+  billingId?: string;
 }
 export type IPaymentResponse = {
   id: number;

@@ -276,14 +276,12 @@ export default async function Billing(fastify:any){
       const ordersService = new OrderService();
       const resp = await ordersService.getPPDOrdersByBillId(billId);
       return  service.paymentComplement(resp[0].client_id,amount,{
-        
           type:"pago",
           data:[{
             payment_form:paymentForm,
             related_documents:[{
               uuid,
               amount,
-              installment:1,
               last_balance:total,
               taxes:[{
                 base:amount/0.16,
