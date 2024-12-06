@@ -57,13 +57,12 @@ export class BillingService{
   async cancelInvoice(billingId:string,motive:string){
     const service = new OrderService();
     let billing = {};
+    await service.updateByBillId(billingId, {billed: null, billed_at: null});
     try{
        billing = await this.billing.cancelInvoice(billingId,motive);
     }catch(e:any){
       throw new HttpError(e.message, 400);
     }
-
-    await service.updateByBillId(billingId, {billed: null, billed_at: null});
     return billing;
   }
 

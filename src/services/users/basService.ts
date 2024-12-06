@@ -177,7 +177,7 @@ export class BasService {
           Authorization:jwt
         }
       })
-      return users.data.data;
+      return {message:`User ${userId} removed from company ${company}`,user:userId};
     }catch(err:any){
       throw new HttpError(err.response.data.message, err.response.status)
     }

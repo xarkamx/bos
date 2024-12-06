@@ -73,12 +73,22 @@ export class OrderService {
     .orderBy('id', 'desc');
   }
 
-  async getOrdersByBillId(billId: string) {
+   getOrdersByBillId(billId: string) {
+    return this.getAll()
+    .where({billed: billId})
+    .andWhere('payment_type', '!=', 99);
+  }
+
+  async getPPDOrdersByBillId(billId: string) {
+    return  this.getAll().where({billed: billId})
+    .andWhere('payment_type', 99);
+  }
+
+  getAll(){
     const orderModel = new OrderModel();
     return orderModel.getOrders()
     .select('id', 'total', 'discount', 'subtotal', 'partial_payment as partialPayment', 'status', 'billed', 'created_at as createdAt', 'updated_at as updatedAt','client_id')
-    .where({billed: billId})
-    .andWhere('payment_type', '!=', 99);
+    .orderBy('id', 'desc');
   }
   
 

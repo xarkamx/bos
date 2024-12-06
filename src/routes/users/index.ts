@@ -16,6 +16,20 @@ export default async function Users(fastify:any, opts:any) {
   })
 
   fastify.route({
+    method: 'DELETE',
+    url: '/:userId',
+    config:{
+      auth:{
+        roles:['admin']
+      }
+    },
+    async handler (request:any, reply:any) {
+      const bas = new BasService();
+      return bas.removeUserFromCompany(request.headers.authorization, request.params.userId);
+    }
+  });
+
+  fastify.route({
     method: 'POST',
     url: '/',
     schema:{
