@@ -1,9 +1,15 @@
 import axios from 'axios';
 import { BillableServicesModel } from '../../models/BillableServiceModel';
+import { CacheService } from '../cache/cacheService';
 
 export class Siapa {
-  
+
     async get(code:string) {
+        const cache = CacheService.getInstance().storage;
+        const cached =cache.get(code);
+        if(cached){
+          return cached;
+        }
         const response = await axios.post(`https://api.siapa.wispok.mx/api/siapa/user/inscription/${code}`);
         const content = response.data.data
         const {DOMICI,ENTREC,COLONI,MUNICI,FECVEN,TOTAL1} = content.data
@@ -32,7 +38,7 @@ export class Siapa {
         });
         let date = FECVEN["0"].split('.')
         date = new Date(date[2],date[1],date[0])
-        return {
+        const resp = {
           paymentUrl: `https://siapa.wispok.mx/cc/${code}`,
           total: TOTAL1["0"],
           address: `${DOMICI["0"]} ${ENTREC["0"]} ${COLONI["0"]} ${MUNICI["0"]}` ,
@@ -40,19 +46,29 @@ export class Siapa {
           history:values,
           qr: response.data.qr,
         };
+        cache.set(code,resp);
+        return values;
     }
 
     async getSimple(code:string){
+
+      const cache = CacheService.getInstance().storage;
+      const cached =cache.get(`simple-${code}`);
+      if(cached){
+        return cached
+      }
       const response = await axios.get(`https://api.siapa.wispok.mx/api/pokme/get-info/encripter/${code}`);
       const content = response.data.data
 
-      return {
+      const resp = {
         paymentUrl: `https://siapa.wispok.mx/cc/${code}`,
         total:content.pendient.mounth.total_decimal,
         dueDate:content.pendient.due_date,
         status:content.pendient.due_paymenths.map((item:any) =>( {status:item.status,date:item.due_month})),
-
       }
+
+      cache.set(`simple-${code}`,resp);
+      return resp;
     }
 
     async getAll(){

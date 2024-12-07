@@ -1,11 +1,14 @@
 
 import { decode } from 'jsonwebtoken';
 import { BasService } from './basService';
+import { CacheService } from '../cache/cacheService';
 
 export class MeService{
     private readonly jwt:jwtType;
+    private readonly cache:any;
     constructor(private readonly jwtString:string){
         const obj:any=decode(this.jwtString)
+        this.cache = CacheService.getInstance().storage;
         this.jwt = {
             token:jwtString,
             ...obj
@@ -17,8 +20,14 @@ export class MeService{
     }
 
     async getDetails(){
+        const cached = this.cache.get(this.jwt.token);
+        if(cached){
+            return cached;
+        }
         const bas = new BasService();
-        return bas.getDetails(this.jwt.token);
+        const details =await  bas.getDetails(this.jwt.token);
+        this.cache.set(this.jwt.token,details);
+        return details;
     }
 }
 

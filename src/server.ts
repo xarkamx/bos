@@ -16,6 +16,7 @@ import { ErrorModel } from './models/ErrorsModel';
 import RouterSingleton from './config/routes';
 import { MeService } from './services/users/meService';
 import { HttpError } from './errors/HttpError';
+import { CacheService } from './services/cache/cacheService';
 const isProduction = process.env.NODE_ENV === "production";
 // Instantiate Fastify with some config
 const app = Fastify({
@@ -27,8 +28,10 @@ const app = Fastify({
 // Register your application as a normal plugin.
 void app.register(all);
 
+CacheService.getInstance();
 
 app.addHook("onRequest", async (request: any, reply) => {
+  
   const {auth} = request.routeOptions.config;
   if(auth?.public){
     return;
@@ -37,8 +40,8 @@ app.addHook("onRequest", async (request: any, reply) => {
   if(!request.headers.authorization){
     throw new HttpError('Missing Authorization Header', 401);
   }
-
     const user = new MeService(request.headers.authorization.replace('Bearer ', ''));
+    
     if(user.isExpired()){
       throw new HttpError('Token is expired', 401);
     }
