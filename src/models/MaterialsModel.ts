@@ -22,6 +22,10 @@ export class MaterialModel {
     return this.db(this.tableName);
   }
 
+  getMaterialPriceHistory(materialId:number) {
+    return this.db(this.listTableName).where({material_id:materialId}).orderBy('created_at','desc');
+  }
+
   async updateMaterial(id: number, material: Partial<tMaterial>) {
     return this.db(this.tableName).where({ id }).update(material);
   }

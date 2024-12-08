@@ -111,6 +111,20 @@ export default async function Materials(fastify: any) {
 
   fastify.route({
     method: 'GET',
+    url: '/:id/history',
+    config: {
+      auth: {
+        roles: ['admin', 'cashier', 'storer'],
+      },
+    },
+    async handler(_request: any) {
+      const service = new MaterialServiceV2()
+      return service.getMaterialPriceHistory(_request.params.id)
+    }
+  })
+
+  fastify.route({
+    method: 'GET',
     url: '/:id',
     config: {
       auth: {
@@ -173,7 +187,10 @@ export default async function Materials(fastify: any) {
 
       const service = new MaterialServiceV2()
       reply.code(201)
-      return service.updateMaterial(_request.params.id, _request.body)
+      const updated = await service.updateMaterial(_request.params.id, _request.body)
+      await service.updateProductsPriceByMaterialId(_request.params.id)
+
+      return updated
   }
 })
 }

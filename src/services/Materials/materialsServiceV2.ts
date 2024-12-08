@@ -2,6 +2,7 @@ import { HttpError } from '../../errors/HttpError';
 import { MaterialModel, type tMaterial } from '../../models/MaterialsModel';
 import { ProductsModel } from '../../models/productsModel';
 import { trimAllStringsInObject } from '../../utils/helpers';
+import { sendPriceReductionNotification } from '../../utils/mailSender';
 
 export class MaterialServiceV2 {
     async createMaterial(material: tMaterial) {
@@ -64,7 +65,46 @@ export class MaterialServiceV2 {
             await this.addPrice(id,0, material.price);
         }
     }
+
+    async updateProductsPriceByMaterialId(materialId: number) {
+        const model = new ProductsModel();
+        const products = await model.getProductByMaterialId(materialId);
+        const [current,prev] = await this.getMaterialPriceHistory(materialId);
+        if(!prev?.price) return
+        const diff = current.price - prev.price;
+        if(diff === 0 ) return;
+        let percentage = diff / current.price;
+
+        if(Math.abs(percentage*100) <= 5 ) return;
+
+        const newPrices = products.map((product:any) => {
+            const priceRatio =product.price / prev.price;
+            let newPrice = current.price * priceRatio;
+            if(newPrice === product.price) return;
+            if(newPrice < product.price) {
+                newPrice = product.price * 0.95;
+            }
+            return {
+                id: product.id,
+                name: product.productName,
+                price: newPrice,
+                oldPrice: product.price,
+            };
+        });
+
+        if(diff < 0 && newPrices.length) {
+            sendPriceReductionNotification(newPrices)
+        }
+
+        return Promise.all(newPrices.map((product:any) => model.updateProduct(product.id, { price: product.price })));
+    } 
+
+    async getMaterialPriceHistory(materialId: number) {
+        const model = new MaterialModel();
+        return model.getMaterialPriceHistory(materialId);
+    }
 }
+
 
 function materialFormat(materials:any){
   return materials.reduce((acc:any, material:any) => {

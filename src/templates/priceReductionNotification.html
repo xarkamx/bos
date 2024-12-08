@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información sobre un pedido</title>
+    <style>
+         .container {
+            font-family: Arial, sans-serif;
+            background-color: #FFA07A;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-flow:row wrap;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .content {
+            background-color: #efefef;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+            
+
+            max-width: 600px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #777;
+        }
+        .items {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+        }
+        .items div {
+          display: flex;
+          justify-content: space-around;
+          margin: 10px;
+          background-color: #f9f9f9;
+          border-radius: 5px;
+          padding: 10px;
+        }
+        .items div  div {
+            display: inline;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<div class='container'>
+  <div class='content'>
+    <div>
+        <img src="https://surtidoraferreteramexicana.com/wp-content/uploads/2023/11/logoFilled.png" alt="HG Logo" width="100">
+      </div>
+    <h1>¡Reducción de precio!</h1>
+    <p>Estimado/a [userName],</p>
+    <p>Nos complace informarle que hemos podido reducir los precios de algunos de nuestros productos más populares gracias a una disminución en los costos de materia prima.</p>
+    <div class='items'>
+        [items]
+    </div>
+    <p>Queremos que nuestros clientes se beneficien de estos ahorros, por lo que le invitamos a aprovechar estos precios reducidos mientras dure esta promoción.</p>
+    <p>Si tiene alguna pregunta o necesita más información, no dude en ponerse en contacto con nosotros. Estamos aquí para ayudarle.</p>
+    <p>¡Gracias por su atención!</p>
+    <p class="footer">El equipo de HG</p>
+</div>
+</html>

@@ -2,6 +2,7 @@ import { count } from 'console';
 import { EmailTemplate } from '../services/mail/senders/EmailTemplate';
 import { StatsService } from '../services/stats/StatsService';
 import { BasService } from '../services/users/basService';
+import { ClientService } from '../services/clients/ClientService';
 
 export async function sendNewClientMailToOwner (client: any, user: any) {
   const mail=new EmailTemplate("newClient.html");
@@ -118,6 +119,7 @@ export async function sendInvoiceSubstitutionNotification(ogInvoice: any, newInv
     
 }
 
+
 export async function sendNotificationError(error:errorMessage){
   const mailService = new EmailTemplate('errorNotification.html');
   // remove hardcoded email
@@ -147,6 +149,32 @@ export async function sendPaymentRemainder(debtorInfo:any){
        }
     ),
   }).sendMail(debtorInfo.clientEmail,`Recordatorio de pago pendiente – Orden #${debtorInfo.orderId}`);
+}
+
+export async function sendPriceReductionNotification(items: any) {
+  const mailService = new EmailTemplate('priceReductionNotification.html');
+  const clientService = new ClientService();
+  const clients = await clientService.getClients();
+  
+  items = formatPriceChangeItems(items);
+  return clients.filter((client:any)=>client.email).map((client:any)=>{
+    mailService.setHandlebarsFields({
+      userName: client.name,
+      items
+    }).sendMail(client.email,'¡Ofertas Increíbles! Reducción de Precios 🚀');
+  })
+  // remove hardcoded email
+
+}
+
+
+
+function formatPriceChangeItems(items:any){
+  return items.map((item:any)=>`<div>
+  <div>${item.name}</div>
+  <div>Precio anterior: $ ${item.oldPrice.toFixed(2)}</div>
+  <div>Precio nuevo: $ ${item.price.toFixed(2)}</div>
+  </div>`).join('');
 }
 
 type BillingDetails = {
