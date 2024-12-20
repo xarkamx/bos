@@ -252,6 +252,15 @@ export default async function Billing(fastify:any){
           billId:{
             type:'string',
           },
+          paymentForm:{
+            type:'string',
+          },
+          amount:{
+            type:'number',
+          },
+          paymentDate:{
+            type:'string'
+          }
         },
       },
     },
@@ -265,7 +274,7 @@ export default async function Billing(fastify:any){
       // Es necesario que se lleve un registro de pagos parciales facturados
       // para poder calcular cuantos pagos parciales se han hecho
       reply.code(201);
-      const {billId,paymentForm,amount} = request.body;
+      const {billId,paymentForm,amount,paymentDate} = request.body;
       const service = new BillingService(new FacturaApiService());
       const {uuid,total,payment_form} = await service.getBillById(billId);
 
@@ -277,12 +286,15 @@ export default async function Billing(fastify:any){
       const resp = await ordersService.getPPDOrdersByBillId(billId);
       return  service.paymentComplement(resp[0].client_id,amount,{
           type:"pago",
+         
           data:[{
             payment_form:paymentForm,
+            date:paymentDate,
             related_documents:[{
               uuid,
               amount,
               last_balance:total,
+              installment:1,
               taxes:[{
                 base:amount/0.16,
                 type:'IVA',
