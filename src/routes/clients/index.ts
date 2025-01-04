@@ -45,7 +45,7 @@ const clients:FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => 
     url: '/',
     config:{
       auth:{
-        roles:['cashier']
+        roles:['cashier','storer']
       }
     },
     async handler (_request:any) {
@@ -58,7 +58,7 @@ const clients:FastifyPluginAsync = async (fastify:any, _opts): Promise<void> => 
     url: '/:id',
     config:{
       auth:{
-        roles:['cashier']
+        roles:['cashier','storer']
       }
     },
     async handler (_request:any) {

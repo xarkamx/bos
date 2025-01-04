@@ -9,7 +9,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: "/",
     config:{
       auth:{
-        roles:['cashier']
+        roles:['cashier','storer']
       }
     },
     schema: {
@@ -79,7 +79,7 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: "/",
     config:{
       auth:{
-        roles:['cashier']
+        roles:['cashier','storer']
       }
     },
     schema: {

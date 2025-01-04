@@ -11,7 +11,7 @@ const orderPayments:FastifyPluginAsync = async (fastify, _opts): Promise<void> =
         url:'/payments',
         config:{
           auth:{
-            roles:['cashier','customer']
+            roles:['cashier','customer','storer']
           }
         },
         async handler(_request:any,reply){

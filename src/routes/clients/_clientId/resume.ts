@@ -24,7 +24,7 @@ const clientResume:FastifyPluginAsync = async (fastify, _opts): Promise<void> =>
       url:'/resume/payments',
       config:{
         auth:{
-          roles:['cashier','admin']
+          roles:['cashier','admin','storer']
         }
       },
       async handler(_request:any,reply){

@@ -36,7 +36,7 @@ export default async function Billing(fastify:any){
     },
     config: {
       auth: {
-        roles: ['admin','cashier'],
+        roles: ['admin','cashier','storer'],
       },
     },
     async handler(request:any, reply:any) {

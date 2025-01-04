@@ -7,7 +7,7 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
     url: '/',
    config:{
       auth:{
-        roles:['cashier','storer']
+        roles:['cashier','storer','app']
       }
     },
     async handler (_request, reply) {
