@@ -34,6 +34,7 @@ export default async function Payroll (fastify: any, opts: any) {
           status: { type: 'string' },
           accountNumber: { type: 'string' },
           bankName: { type: 'string' },
+          workWeek: { type: 'number'}
         },
       }
     },

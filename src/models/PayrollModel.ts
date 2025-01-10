@@ -10,13 +10,16 @@ export class PayrollModel{
 
      getAllPayrolls(){
         return this.db(this.tableName).select(
-            'id',
-            'name',
-            'salary_per_day as salaryPerDay',
-            'status',
-            'account_number as accountNumber',
-            'bank_name as bankName',
-            'employee_id as employeeId'
+           {
+            id: 'id',
+            employeeId: 'employee_id',
+            name: 'name',
+            salaryPerDay: 'salary_per_day',
+            status: 'status',
+            accountNumber: 'account_number',
+            bankName: 'bank_name',
+            workWeek: 'work_week'
+           }
         );
     }
 
@@ -27,6 +30,7 @@ export class PayrollModel{
 
     async update(id: number, payroll: Partial<PayrollType>){
         payroll = snakeCaseReplacer(payroll);
+        console.log(payroll);
         return this.db(this.tableName).where('id', id).update(payroll);
     }
 
@@ -40,4 +44,5 @@ export type PayrollType = {
     status: string;
     accountNumber: string;
     bankName: string;
+    workWeek: number;
 }

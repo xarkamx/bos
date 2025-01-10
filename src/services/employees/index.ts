@@ -37,6 +37,7 @@ export class EmployeesService {
       status: employee.status,
       accountNumber: employee.accountNumber,
       bankName: employee.bankName,
+      workWeek:employee.workWeek ?? 5
     });
 
     return addedEmployee;
@@ -48,16 +49,20 @@ export class EmployeesService {
     return employeeModel.getEmployees()
     .join('payroll', 'employees.id', 'payroll.employee_id')
     .select(
-      'employees.id',
-      'employees.name',
-      'employees.email',
-      'employees.phone',
-      'employees.pto_days as ptoDays',
-      'employees.rfc',
-      'payroll.salary_per_day as salaryPerDay',
-      'payroll.status',
-      'payroll.account_number as accountNumber',
-      'payroll.bank_name as bankName')
+    {
+      id: 'employees.id',
+      name: 'employees.name',
+      email: 'employees.email',
+      phone: 'employees.phone',
+      ptoDays: 'employees.pto_days',
+      rfc: 'employees.rfc',
+      salaryPerDay: 'payroll.salary_per_day',
+      status: 'payroll.status',
+      accountNumber: 'payroll.account_number',
+      bankName: 'payroll.bank_name',
+      workWeek: 'payroll.work_week'
+    }  
+    )
     .where('employees.id', employeeId).first();
   }
 
@@ -181,6 +186,7 @@ export class EmployeesService {
       status: employee.status,
       accountNumber: employee.accountNumber,
       bankName: employee.bankName,
+      workWeek: employee.workWeek ?? 5
     });
 
     return Promise.all([employeeDetails, payrollDetails]);
@@ -212,6 +218,7 @@ type Employee = {
   status: string;
   bankName: string;
   accountNumber: string;
+  workWeek?: number;
 }
 
 type PtoType = {

@@ -36,8 +36,9 @@ export default async function Employees (fastify: any, opts: any) {
           salaryPerDay: { type: 'number' },
           status: { type: 'string'},
           bankName: { type: 'string'},
-          accountNumber: { type: 'string'
-        },
+          accountNumber: { type: 'string'},
+          workweek: { type: 'number' }
+        ,
       }
     }},
     async handler (request: any, reply: any) {
@@ -150,8 +151,8 @@ export default async function Employees (fastify: any, opts: any) {
           salaryPerDay: { type: 'number' },
           status: { type: 'string'},
           bankName: { type: 'string'},
-          accountNumber: { type: 'string'
-        },
+          accountNumber: { type: 'string'},
+          workWeek: { type: 'number'}
       }
     }},
     async handler (request: any, reply: any) {

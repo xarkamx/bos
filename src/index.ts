@@ -34,7 +34,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
     options: opts,
   });
 
-  schedule('* * 1 * * *', () => {
+  schedule('* * 10 * * *', () => {
     console.log('Executing cron jobs');
     const service = loadCronService();
     return service.executeCronJobs();
