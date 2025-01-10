@@ -30,7 +30,6 @@ export class PayrollModel{
 
     async update(id: number, payroll: Partial<PayrollType>){
         payroll = snakeCaseReplacer(payroll);
-        console.log(payroll);
         return this.db(this.tableName).where('id', id).update(payroll);
     }
 
