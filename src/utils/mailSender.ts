@@ -3,6 +3,7 @@ import { EmailTemplate } from '../services/mail/senders/EmailTemplate';
 import { StatsService } from '../services/stats/StatsService';
 import { BasService } from '../services/users/basService';
 import { ClientService } from '../services/clients/ClientService';
+import { OrderService } from '../services/orders/OrdersService';
 
 export async function sendNewClientMailToOwner (client: any, user: any) {
   const mail=new EmailTemplate("newClient.html");
@@ -45,6 +46,8 @@ export async function sendNewOrderRequested(user:any,jwt:string,details:any){
   const resp = await Promise.all([admins,cashiers]);
   const users = resp.flat();
   users.push(user);
+  const statusSubject = order.status === 'pending' ? 'Nuevo pedido solicitado' : 'Compra completada';
+  const subject = `${statusSubject} - Orden #${order.id}`;
   const mails:any = users.map((user:any)=>{
     return mail.setHandlebarsFields(
       { employeeName: user.name,
@@ -53,8 +56,10 @@ export async function sendNewOrderRequested(user:any,jwt:string,details:any){
          items:formatArrayAsHTMLList(items),
          clientName:order.clientName,
          clientEmail:order.email,
-         orderTotal:`$ ${order.total.toFixed(2)}` ,
-        }).sendMail(user.email,"Nuevo pedido solicitado");
+         orderTotal:`$ ${order.total.toFixed(2)}`,
+         status:order.status,
+         paymentMethod:order.paymentType
+        }).sendMail(user.email,subject);
   });
 
   return Promise.all(mails);
@@ -151,11 +156,33 @@ export async function sendPaymentRemainder(debtorInfo:any){
   }).sendMail(debtorInfo.clientEmail,`Recordatorio de pago pendiente – Orden #${debtorInfo.orderId}`);
 }
 
+export async function sendPaymentStatusChangeNotification(jwt:string,paymentDetails:any){
+  const mailService = new EmailTemplate('paymentUpdated.html');
+  const users = await getClientsByRole(jwt,['admin','cashier']);
+  const orderService = new OrderService();
+  const {order}:any = await orderService.getOrderById(paymentDetails.id);
+  const debt = order.total - order.partialPayment;
+  const mails = users.map((user:any)=>{
+    return mailService.setHandlebarsFields({
+      orderId: order.id,
+      clientName: order.clientName,
+      createdAt: new Date(order.createdAt).toLocaleString(),
+      clientEmail: order.email,
+      orderTotal: order.total,
+      debt: debt.toFixed(2),
+      paymentAmount:paymentDetails.payment.toFixed(2),
+      paymentDate: new Date().toLocaleString(),
+      paymentStatus: order.status,
+      paymentMethod: paymentDetails.paymentMethod
+    }).sendMail(user.email,`Estado de pago actualizado – Orden #${order.id}`);
+  });
+  return Promise.all(mails);
+}
+
 export async function sendPriceReductionNotification(items: any) {
   const mailService = new EmailTemplate('priceReductionNotification.html');
   const clientService = new ClientService();
   const clients = await clientService.getClients();
-  
   items = formatPriceChangeItems(items);
   return clients.filter((client:any)=>client.email).map((client:any)=>{
     mailService.setHandlebarsFields({
@@ -175,6 +202,14 @@ function formatPriceChangeItems(items:any){
   <div>Precio anterior: $ ${item.oldPrice.toFixed(2)}</div>
   <div>Precio nuevo: $ ${item.price.toFixed(2)}</div>
   </div>`).join('');
+}
+
+
+async function getClientsByRole(jwt:string,roles:string[]){
+  const bas = new BasService();
+  const userPromises = roles.map((role)=>bas.getUsersByRole(jwt,role)).flat();
+  const mails = await Promise.all(userPromises);
+  return mails.flat();
 }
 
 type BillingDetails = {

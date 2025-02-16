@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Información sobre un pedido</title>
+    <title>Información sobre el pago de un pedido</title>
     <style>
          .container {
             font-family: Arial, sans-serif;
-            background-color: #838383;
+            background-color: #9bc3c7;
             padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-flow:row wrap;
+            flex-flow: row wrap;
             color: #333;
         }
         h1 {
@@ -23,11 +23,9 @@
         .content {
             background-color: #efefef;
             padding: 20px;
-            border-radius: 5px;
+            border-radius: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: auto;
-            
-
             max-width: 600px;
         }
         p {
@@ -46,42 +44,30 @@
             font-size: 14px;
             color: #777;
         }
-        .items {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 10px;
-        }
-        .items div {
-          display: flex;
-          justify-content: space-around;
-          margin: 10px;
-          background-color: #f9f9f9;
-          border-radius: 5px;
-          padding: 10px;
-        }
-        .items div  div {
-            display: inline;
-            padding: 1rem;
-        }
     </style>
 </head>
+<body>
 <div class='container'>
   <div class='content'>
-    <h1>Información sobre el pedido</h1>
-    <p>Estimado/a [employeeName],</p>
-    <p>Queremos informarte sobre un nuevo pedido por un total de [orderTotal] registrado en nuestro sistema para [clientName]:</p>
+    <h1>Información sobre el pago de un pedido</h1>
+    <p>Estimado/a equipo de administración,</p>
+    <p>Queremos informarte que se ha registrado un pago para el siguiente pedido:</p>
     <ul>
         <li><strong>Número de pedido:</strong> [orderId]</li>
         <li><strong>Fecha del pedido:</strong> [createdAt]</li>
-        <li><strong>Productos solicitados:</strong> <div class='items'>[items]</div></li>
         <li><strong>Cliente:</strong> [clientName]</li>
         <li><strong>Correo electrónico del cliente:</strong> [clientEmail]</li>
-        <li><strong>Total:</strong> [orderTotal]</li>
+        <li><strong>Total del pedido:</strong> [orderTotal]</li>
+        <li><strong>Monto pagado:</strong> [paymentAmount]</li>
+        <li><strong>Saldo pendiente:</strong>[debt]</li>
+        <li><strong>Fecha del pago:</strong> [paymentDate]</li>
         <li><strong>Forma de pago:</strong> [paymentMethod]</li>
-        <li><strong>Estado:</strong> [status]</li>
+        <li><strong>Estado del pago:</strong> [paymentStatus]</li>
     </ul>
     <p>Por favor, verifica esta información.</p>
     <p>¡Gracias!</p>
     <p class="footer">El equipo de HG</p>
   </div>
 </div>
+</body>
 </html>

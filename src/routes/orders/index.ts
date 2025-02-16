@@ -1,6 +1,6 @@
 import type { FastifyPluginAsync } from "fastify";
 import { OrderService } from '../../services/orders/OrdersService';
-import { sendNewOrderRequested } from '../../utils/mailSender';
+import { sendNewOrderRequested, sendPaymentStatusChangeNotification } from '../../utils/mailSender';
 import { ClientService } from '../../services/clients/ClientService';
 
 const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
@@ -71,7 +71,16 @@ const orders: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
       // Update partial payment of the order
       const {payment,paymentMethod,clientId} = _request.body;
       const orderService = new OrderService();
-      return orderService.pay(_request.params.id,clientId, payment, paymentMethod);
+      const paymentReq = orderService.pay(_request.params.id,clientId, payment, paymentMethod);
+
+      sendPaymentStatusChangeNotification(_request.headers.authorization,{
+        id: _request.params.id,
+        clientId,
+        payment,
+        paymentMethod
+      });
+      return paymentReq;
+
     }
   })
   fastify.route({

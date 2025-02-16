@@ -2,6 +2,7 @@ import { HttpError } from '../../errors/HttpError';
 import { InventoryModel } from '../../models/InventoryModel';
 import { ProcessModel, type ProcessType } from '../../models/ProcessModel';
 import { type optionalProduct, ProductsModel } from '../../models/productsModel';
+import { sendPriceReductionNotification } from '../../utils/mailSender';
 
 export class ProductsService {
   async getAllProducts (): Promise<iProduct[]> {
@@ -22,6 +23,13 @@ export class ProductsService {
   async updateProduct (id: number, product:optionalProduct): Promise<iProduct> {
     const productModel = new ProductsModel();
     product.name = product.name?.toUpperCase();
+    const currentProduct = await productModel.getProductById(id)
+    if(!currentProduct) throw new HttpError('Product not found', 404);
+    const price = product.price ?? currentProduct.price;
+    if(currentProduct.price>price){
+      console.log(product)
+      sendPriceReductionNotification([{name:currentProduct.name,oldPrice:currentProduct.price,price:product.price}]);
+    }
     return productModel.updateProduct(id, product);
   }
 
