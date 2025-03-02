@@ -1,7 +1,5 @@
 import type { FastifyPluginAsync } from "fastify";
-import {  sendWelcomeMessageToClientAsUser } from '../../utils/mailSender';
-import { OrderService } from '../../services/orders/OrdersService';
-import { ClientService } from '../../services/clients/ClientService';
+import { WsTemplate } from '../../templates/wsSender';
 
 const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
   /**
@@ -22,13 +20,21 @@ const example: FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
    *         description: hello world
    */
   fastify.get("/", async (_request:any, reply) => {
-    const clientService = new ClientService();
-    const client = await clientService.getClientByEmail("albertogmx91@gmail.com");
-
-    await  sendWelcomeMessageToClientAsUser(
-      client
-    );
-    return "Hello world";
+    const ws= new WsTemplate('newOrder.md');
+    return ws.sendNotification(
+      {
+        'order_id':'John Doe',
+        'customer_name':'John Doe',
+        'customer_email':'j@doe.com',
+        'customer_phone':'1234567890',
+        'order_total':'$ 100.00',
+        'order_date':'2022-01-01',
+        'status':'1'
+      },
+      '523323280770'
+    
+    )
+   
   }
     )
 };

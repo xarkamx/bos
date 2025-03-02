@@ -1,4 +1,3 @@
-import { count } from 'console';
 import { EmailTemplate } from '../services/mail/senders/EmailTemplate';
 import { StatsService } from '../services/stats/StatsService';
 import { BasService } from '../services/users/basService';
@@ -48,6 +47,7 @@ export async function sendNewOrderRequested(user:any,jwt:string,details:any){
   users.push(user);
   const statusSubject = order.status === 'pending' ? 'Nuevo pedido solicitado' : 'Compra completada';
   const subject = `${statusSubject} - Orden #${order.id}`;
+  
   const mails:any = users.map((user:any)=>{
     return mail.setHandlebarsFields(
       { employeeName: user.name,
