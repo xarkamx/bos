@@ -1,8 +1,6 @@
 import { type FastifyPluginAsync } from 'fastify'
 import { ClientService } from '../../services/clients/ClientService'
 import { HttpError } from '../../errors/HttpError'
-import { FacturaApiService } from '../../services/billing/FacturaApiService'
-import { BillingService } from '../../services/billing/BillingService'
 import { sendNewClientMailToOwner, sendWelcomeMessageToClient, sendWelcomeMessageToClientAsUser } from '../../utils/mailSender'
 import { updateClientSchema } from './schemas/clientSchemas'
 

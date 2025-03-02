@@ -21,6 +21,8 @@
   },
   "peacock.color": "#757ef5",
   "cSpell.words": [
+    "Factura",
     "fastify"
-  ]
+  ],
+  "eslint.format.enable": true
 }

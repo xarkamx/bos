@@ -56,32 +56,6 @@ export default async function Billing (fastify:any) {
   })
 
   fastify.route({
-    method: 'DELETE',
-    url: '/:facturaApiId',
-    config: {
-      auth: {
-        roles: ['admin','cashier']
-      }
-    },
-    schema: {
-      body: {
-        type: 'object',
-        properties: {
-          motive: {
-            type: 'string',
-            default: '03'
-          }
-        }
-      }
-    },
-    async handler (request:any) {
-      const { facturaApiId } = request.params
-      const { motive } = request.body
-      const service = new BillingService(new FacturaApiService())
-      return service.cancelInvoice(facturaApiId,motive )
-    }
-  })
-  fastify.route({
     method: 'GET',
     url: '/',
     config: {
@@ -93,24 +67,6 @@ export default async function Billing (fastify:any) {
       const { query } = request
       const service = new BillingService(new FacturaApiService())
       return service.getAllInvoices(query)
-    }
-  })
-
-  fastify.route({
-    method: 'GET',
-    url: '/:facturaApiId/download',
-    config: {
-      auth: {
-        roles: ['admin','cashier']
-      }
-    },
-    async handler (request:any, reply:any) {
-      const { facturaApiId } = request.params
-      const service = new BillingService(new FacturaApiService())
-      const file = service.downloadInvoice(facturaApiId)
-      reply.header('Content-Disposition', `attachment; filename=${facturaApiId}.zip`)
-      reply.header('Content-Type', 'application/zip')
-      return file
     }
   })
 
@@ -268,9 +224,6 @@ export default async function Billing (fastify:any) {
       }
     },
     async handler (request:any, reply:any) { 
-
-      // Es necesario que se lleve un registro de pagos parciales facturados
-      // para poder calcular cuantos pagos parciales se han hecho
       reply.code(201)
       const { billId,paymentForm,amount,paymentDate } = request.body
       const service = new BillingService(new FacturaApiService())
@@ -284,7 +237,6 @@ export default async function Billing (fastify:any) {
       const resp = await ordersService.getPPDOrdersByBillId(billId)
       return  service.paymentComplement(resp[0].client_id,amount,{
         type: 'pago',
-         
         data: [{
           payment_form: paymentForm,
           date: paymentDate,
@@ -299,7 +251,6 @@ export default async function Billing (fastify:any) {
               rate: 0.16
             }]
           }]
-         
         }]
       })
     }
