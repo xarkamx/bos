@@ -1,14 +1,14 @@
-import { MetadataBillingService } from '../../../services/billing/MetadataBillingService';
+import { MetadataBillingService } from '../../../services/billing/MetadataBillingService'
 
 
-export default async function MetadataBilling(fastify:any){
+export default async function MetadataBilling (fastify:any) {
 
   fastify.route({
     method: 'POST',
     url: '/',
     config: {
       auth: {
-       public:true,
+        public: true
       }
     },
     schema: {
@@ -18,70 +18,70 @@ export default async function MetadataBilling(fastify:any){
           type: 'object',
           properties: {
             uuid: {
-              type: 'string',
+              type: 'string'
             },
             issuerRfc: {
-              type: 'string',
+              type: 'string'
             },
             issuerName: {
-              type: 'string',
+              type: 'string'
             },
             receiverRfc: {
-              type: 'string',
+              type: 'string'
             },
             receiverName: {
-              type: 'string',
+              type: 'string'
             },
             pacRfc: {
-              type: 'string',
+              type: 'string'
             },
             issueDate: {
-              type: 'string',
+              type: 'string'
             },
             satCertificationDate: {
-              type: 'string',
+              type: 'string'
             },
             amount: {
-              type: 'number',
+              type: 'number'
             },
             voucherEffect: {
-              type: 'string',
+              type: 'string'
             },
             status: {
-              type: 'string',
+              type: 'string'
             },
             cancellationDate: {
-              type: 'string',
+              type: 'string'
             },
             paymentStatus: {
-              type: 'string',
-            },
+              type: 'string'
+            }
           },
           required: ['uuid','issuerRfc', 'issuerName']
         }
         
-      },
+      }
     },
-    async handler(request:any, reply:any) {
-      const metadataBilling = request.body;
-      const service = new MetadataBillingService();
-      const result = await service.add(metadataBilling);
-      return result;
+    async handler (request:any) {
+      const metadataBilling = request.body
+      const service = new MetadataBillingService()
+      const result = await service.add(metadataBilling)
+      return result
     }
-  });
+  })
 
   fastify.route({
     method: 'GET',
     url: '/',
     config: {
       auth: {
-       public:true,
+        public: true
       }
     },
-    async handler(request:any, reply:any) {
-      const service = new MetadataBillingService();
-      const result = await service.getAll();
-      return result;
+    async handler () {
+      const service = new MetadataBillingService()
+      const result = await service.getAll()
+      return result
     }
   })
 }

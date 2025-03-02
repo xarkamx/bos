@@ -1,22 +1,22 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 
 export class ItemsModel {
-  tableName: string;
-  db: any;
-  constructor() {
-    this.tableName = 'items';
-    this.db = db;
+  tableName: string
+  db: any
+  constructor () {
+    this.tableName = 'items'
+    this.db = db
   }
 
-  addItems(items: any[]) {
+  addItems (items: any[]) {
     return this.db.transaction(async (trx: any) => {
-      const res = await trx.insert(items).into(this.tableName);
-      return res;
-    });
+      const res = await trx.insert(items).into(this.tableName)
+      return res
+    })
   }
 
-  getAllItems() {
+  getAllItems () {
     return this.db
       .select(
         'product_id as productId',
@@ -27,10 +27,10 @@ export class ItemsModel {
         'items.created_at as createdAt'
       )
       .leftJoin('products', 'items.product_id', 'products.id')
-      .from(this.tableName);
+      .from(this.tableName)
   }
 
-  getItemsByOrderId(id: number) {
+  getItemsByOrderId (id: number) {
     return this.db
       .select(
         'product_id as productId',
@@ -41,11 +41,11 @@ export class ItemsModel {
       )
       .from(this.tableName)
       .leftJoin('products', 'items.product_id', 'products.id')
-      .where({ order_id: id });
+      .where({ order_id: id })
   }
 
-  deleteItemsByOrderId(id: number) {
-    return this.db(this.tableName).where({ order_id: id }).del();
+  deleteItemsByOrderId (id: number) {
+    return this.db(this.tableName).where({ order_id: id }).del()
   }
 } 
 

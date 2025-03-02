@@ -1,43 +1,43 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 export class InventoryModel {
-  tableName: string;
-  db: any;
-  constructor() {
-    this.tableName = 'inventory';
-    this.db = db; 
+  tableName: string
+  db: any
+  constructor () {
+    this.tableName = 'inventory'
+    this.db = db 
   }
 
-  async addToInventory(id: number,type:string, quantity: number,description='inventory'): Promise<any> {
-    return this.db(this.tableName).insert({external_id:id,type, quantity,description});
+  async addToInventory (id: number,type:string, quantity: number,description = 'inventory'): Promise<any> {
+    return this.db(this.tableName).insert({ external_id: id,type, quantity,description })
   }
 
-  async addInBulkToInventory(items:InventoryItem[]): Promise<any> {
-    return this.db(this.tableName).insert(items);
+  async addInBulkToInventory (items:InventoryItem[]): Promise<any> {
+    return this.db(this.tableName).insert(items)
   }
 
-  getsByIds(ids: number[]): Promise<any> {
-    return this.db(this.tableName).select('id', 'quantity').whereIn('external_id', ids);
+  getsByIds (ids: number[]): Promise<any> {
+    return this.db(this.tableName).select('id', 'quantity').whereIn('external_id', ids)
   }
 
-  async getTotalQty(externalId:number): Promise<number> {
-    const result = await this.db(this.tableName).select('quantity').where('external_id', externalId).sum('quantity as quantity').first();
-    return result.quantity;
+  async getTotalQty (externalId:number): Promise<number> {
+    const result = await this.db(this.tableName).select('quantity').where('external_id', externalId).sum('quantity as quantity').first()
+    return result.quantity
   }
 
-  async updateQuantity(id: number, quantity: number): Promise<any> {
-    return this.db(this.tableName).where('id', id).update({quantity});
+  async updateQuantity (id: number, quantity: number): Promise<any> {
+    return this.db(this.tableName).where('id', id).update({ quantity })
   }
 
-  async deleteFromInventory(id: number): Promise<any> {
-    return this.db(this.tableName).where('id', id).del();
+  async deleteFromInventory (id: number): Promise<any> {
+    return this.db(this.tableName).where('id', id).del()
   }
 
-  async deleteAllsFromInventory(): Promise<any> {
-    return this.db(this.tableName).del();
+  async deleteAllsFromInventory (): Promise<any> {
+    return this.db(this.tableName).del()
   }
 
-  async getAllItemsByType(type:string) {
+  async getAllItemsByType (type:string) {
     return this.db.raw(`
     SELECT 
     p.image, 
@@ -92,8 +92,8 @@ LEFT JOIN
     `)
   }
 
-  getAllByType(type:string) {
-    return this.db(this.tableName).where('type', type);
+  getAllByType (type:string) {
+    return this.db(this.tableName).where('type', type)
   }
 
 }

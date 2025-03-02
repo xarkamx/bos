@@ -1,18 +1,18 @@
-import { CronService } from '../../services/crons';
-import { loadCronService } from '../../services/crons/SettledCronService';
+import { CronService } from '../../services/crons'
+import { loadCronService } from '../../services/crons/SettledCronService'
 
 export default async function (fastify:any) {
   fastify.route({
     method: 'GET',
     url: '/',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
-    handler: async (request:any, reply:any) => {
-      const service = new CronService();
-      return service.getCronJobs();
+    handler: async () => {
+      const service = new CronService()
+      return service.getCronJobs()
     }
   })
 
@@ -20,8 +20,8 @@ export default async function (fastify:any) {
     method: 'POST',
     url: '/',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
     schema: {
@@ -33,41 +33,41 @@ export default async function (fastify:any) {
           schedule: { type: 'string' },
           status: { type: 'string' },
           type: { type: 'string' },
-          command: { type: 'string' },
+          command: { type: 'string' }
         }
       }
     },
-    handler: async (request:any, reply:any) => {
-      const service =  loadCronService();
-      return service.addCronJob(request.body);
+    handler: async (request:any) => {
+      const service =  loadCronService()
+      return service.addCronJob(request.body)
     }
   })
 
   fastify.route({
-    method:'GET',
-    url:'/executable',
+    method: 'GET',
+    url: '/executable',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
-    handler: async (request:any, reply:any) => {
-      const service = loadCronService();
-      return service.getExecutableCronJobs();
+    handler: async () => {
+      const service = loadCronService()
+      return service.getExecutableCronJobs()
     }
-  });
+  })
 
   fastify.route({
-    method:'POST',
-    url:'/executable',
+    method: 'POST',
+    url: '/executable',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
-    handler: async (request:any, reply:any) => {
-      const service = loadCronService();
-      return service.executeCronJobs();
+    handler: async () => {
+      const service = loadCronService()
+      return service.executeCronJobs()
     }
-  });
+  })
 }

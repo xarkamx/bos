@@ -1,27 +1,27 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 export class BillableServicesModel {
-  public tableName = 'billableServices';
-  public db: any;
-  constructor(){
-    this.db = db;
+  public tableName = 'billableServices'
+  public db: any
+  constructor () {
+    this.db = db
   }
 
-  async add(data:BillableServiceType){
-    const [id] = await this.db(this.tableName).insert(data);
-    return id;
+  async add (data:BillableServiceType) {
+    const [id] = await this.db(this.tableName).insert(data)
+    return id
   }
 
-  getByName(name:string){
-    return this.db(this.tableName).where({name});
+  getByName (name:string) {
+    return this.db(this.tableName).where({ name })
   }
 
-  getById(id:number){
-    return this.db(this.tableName).where({id}).first();
+  getById (id:number) {
+    return this.db(this.tableName).where({ id }).first()
   }
 
-  getAll(){
-    return this.db(this.tableName);
+  getAll () {
+    return this.db(this.tableName)
   }
 }
 

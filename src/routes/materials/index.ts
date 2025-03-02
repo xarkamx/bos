@@ -1,7 +1,7 @@
 import { InventoryService } from '../../services/inventory'
 import { MaterialServiceV2 } from '../../services/Materials/materialsServiceV2'
 
-export default async function Materials(fastify: any) {
+export default async function Materials (fastify: any) {
   fastify.route({
     method: 'POST',
     url: '/',
@@ -13,21 +13,21 @@ export default async function Materials(fastify: any) {
           name: { type: 'string' },
           description: { type: 'string' },
           unit: { type: 'string' },
-          price: { type: 'number' },
-        },
-      },
+          price: { type: 'number' }
+        }
+      }
     },
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any, reply: any) {
       const { name, description, unit, provider_id, price } = _request.body
       const service = new MaterialServiceV2()
       reply.code(201)
       return service.createMaterial({ name, description, unit, provider_id, price })
-    },
+    }
   })
   fastify.route({
     method: 'POST',
@@ -38,16 +38,16 @@ export default async function Materials(fastify: any) {
         required: ['price'],
         properties: {
           price: { type: 'number' },
-          provider_id: { type: 'number' },
-        },
-      },
+          provider_id: { type: 'number' }
+        }
+      }
     },
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any, reply: any) {
       const { price, provider_id } = _request.body
       const service = new MaterialServiceV2()
       reply.code(201)
@@ -59,10 +59,10 @@ export default async function Materials(fastify: any) {
     url: '/',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler () {
       const service = new MaterialServiceV2()
       return service.getMaterials()
     }
@@ -73,23 +73,23 @@ export default async function Materials(fastify: any) {
     url: '/:id/products',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    schema:{
-      body:{
+    schema: {
+      body: {
         type: 'array',
-        items:{
+        items: {
           type: 'object',
           required: ['productId','quantity'],
-          properties:{
+          properties: {
             productId: { type: 'number' },
-            quantity: { type: 'number' },
+            quantity: { type: 'number' }
           }
         }
       }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any) {
       const service = new MaterialServiceV2()
       return service.addProductsToMaterial(_request.params.id, _request.body)
     }
@@ -100,10 +100,10 @@ export default async function Materials(fastify: any) {
     url: '/:id/products',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any) {
       const service = new MaterialServiceV2()
       return service.getProductsByMaterialId(_request.params.id)
     }
@@ -114,10 +114,10 @@ export default async function Materials(fastify: any) {
     url: '/:id/history',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any) {
+    async handler (_request: any) {
       const service = new MaterialServiceV2()
       return service.getMaterialPriceHistory(_request.params.id)
     }
@@ -128,10 +128,10 @@ export default async function Materials(fastify: any) {
     url: '/:id',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any) {
       const service = new MaterialServiceV2()
       const inventoryService = new InventoryService()
       const materials = await service.getMaterialById(_request.params.id)
@@ -144,26 +144,25 @@ export default async function Materials(fastify: any) {
     url: '/:id/products/:productId',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any) {
       const service = new MaterialServiceV2()
       return service.deleteProductsFromMaterial(_request.params.id, _request.params.productId)
-    },
+    }
   })
   fastify.route({
     method: 'DELETE',
     url: '/:id',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
-      const service = new MaterialServiceV2()
-      return "ToDo"
-  }})
+    async handler () {
+      return 'ToDo'
+    } })
   fastify.route({
     method: 'PUT',
     url: '/:id',
@@ -174,16 +173,16 @@ export default async function Materials(fastify: any) {
           name: { type: 'string' },
           description: { type: 'string' },
           unit: { type: 'string' },
-          price: { type: 'number' },
-        },
-      },
+          price: { type: 'number' }
+        }
+      }
     },
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any, reply: any) {
 
       const service = new MaterialServiceV2()
       reply.code(201)
@@ -191,6 +190,6 @@ export default async function Materials(fastify: any) {
       await service.updateProductsPriceByMaterialId(_request.params.id)
 
       return updated
-  }
-})
+    }
+  })
 }

@@ -1,8 +1,8 @@
-import { ProviderService } from '../../services/providers/providerService';
+import { ProviderService } from '../../services/providers/providerService'
 const authJson = {
-  roles: ['admin', 'cashier','storer'],
+  roles: ['admin', 'cashier','storer']
 }
-export default async function Providers(fastify:any){
+export default async function Providers (fastify:any) {
   fastify.route({
     method: 'POST',
     url: '/',
@@ -15,39 +15,39 @@ export default async function Providers(fastify:any){
           email: { type: 'string' },
           phone: { type: 'string' },
           address: { type: 'string' },
-          RFC: { type: 'string' },
-        },
-      },
+          RFC: { type: 'string' }
+        }
+      }
     },
     config: {
-      auth: authJson,
+      auth: authJson
     },
-    async handler(_request: any, reply: any) {
-      const providerService = new ProviderService();
-      reply.code(201);
-      return providerService.createProvider(_request.body);
-    },
+    async handler (_request: any, reply: any) {
+      const providerService = new ProviderService()
+      reply.code(201)
+      return providerService.createProvider(_request.body)
+    }
   })
   fastify.route({
     method: 'GET',
     url: '/',
     config: {
-      auth: authJson,
+      auth: authJson
     },
-    async handler(_request: any, reply: any) {
-      const providerService = new ProviderService();
-      return providerService.getProviders();
+    async handler () {
+      const providerService = new ProviderService()
+      return providerService.getProviders()
     }
   })
   fastify.route({
     method: 'GET',
     url: '/:id',
     config: {
-      auth: authJson,
+      auth: authJson
     },
-    async handler(_request: any, reply: any) {
-      const providerService = new ProviderService();
-      return providerService.getProviderById(_request.params.id);
+    async handler (_request: any) {
+      const providerService = new ProviderService()
+      return providerService.getProviderById(_request.params.id)
     }
   })
 }

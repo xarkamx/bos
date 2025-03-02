@@ -1,6 +1,6 @@
-import { ProductsService } from '../../services/products/ProductService';
+import { ProductsService } from '../../services/products/ProductService'
 
-export default async function (fastify:any){
+export default async function (fastify:any) {
   fastify.route({
     method: 'POST',
     url: '/',
@@ -13,23 +13,23 @@ export default async function (fastify:any){
           quantity: { type: 'number' },
           unit: { type: 'string', enum: ['kg','units'] },
           status: { type: 'string',default: 'onProcess' },
-          flow: { type: 'string', enum: ['inflow','outflow'] },
-        },
-      },
+          flow: { type: 'string', enum: ['inflow','outflow'] }
+        }
+      }
     },
-    async handler(request:any, reply:any) {
-      const service = new ProductsService();
-      const resp = await service.addProcess(request.body);
+    async handler (request:any) {
+      const service = new ProductsService()
+      const resp = await service.addProcess(request.body)
       return resp
     }
-  });
+  })
   fastify.route({
     method: 'GET',
     url: '/',
-    async handler(request:any, reply:any) {
-      const service = new ProductsService();
-      const resp = await service.getGroupedProcess();
+    async handler () {
+      const service = new ProductsService()
+      const resp = await service.getGroupedProcess()
       return resp
     }
-  });
+  })
 }

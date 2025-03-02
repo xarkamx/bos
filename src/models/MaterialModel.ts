@@ -1,27 +1,27 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 
 export class MaterialModel {
-  tableName: string;
-  db: any;
-  constructor() {
-    this.tableName = 'materials';
-    this.db = db;
+  tableName: string
+  db: any
+  constructor () {
+    this.tableName = 'materials'
+    this.db = db
   }
 
-  addMaterial(material: tMaterial) {
+  addMaterial (material: tMaterial) {
     return this.db.transaction(async (trx: any) => {
-      const res = await trx.insert(material).into(this.tableName);
-      return res;
-    });
+      const res = await trx.insert(material).into(this.tableName)
+      return res
+    })
   }
 
-  getMaterialById(id: number): Promise<tMaterial> {
-    return this.db(this.tableName).where({ id }).first();
+  getMaterialById (id: number): Promise<tMaterial> {
+    return this.db(this.tableName).where({ id }).first()
   }
 
-  getMaterialsByProductId(productId: number): Promise<tMaterial[]> {
-    return this.db(this.tableName).where({ product_id: productId });
+  getMaterialsByProductId (productId: number): Promise<tMaterial[]> {
+    return this.db(this.tableName).where({ product_id: productId })
   }
 } 
 

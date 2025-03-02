@@ -7,7 +7,7 @@ export const updateClientSchema = {
       email: { type: 'string' },
       phones: { type: 'array', items: { type: 'string' } },
       legal: { type: 'boolean' },
-      postal_code: { type: 'string' },
-    },
-  },
+      postal_code: { type: 'string' }
+    }
+  }
 }

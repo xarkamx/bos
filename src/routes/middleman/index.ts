@@ -1,19 +1,19 @@
-import { ClientService } from '../../services/clients/ClientService';
-import { MiddlemanService } from '../../services/middleman/MiddlemanService';
-import { BasService } from '../../services/users/basService';
-import { sendNewClientMailToOwner, sendWelcomeMessageToClient } from '../../utils/mailSender';
+import { ClientService } from '../../services/clients/ClientService'
+import { MiddlemanService } from '../../services/middleman/MiddlemanService'
+import { BasService } from '../../services/users/basService'
+import { sendNewClientMailToOwner, sendWelcomeMessageToClient } from '../../utils/mailSender'
 
-export default async function middleman(fastify: any) {
+export default async function middleman (fastify: any) {
   fastify.route({
     method: 'POST',
     url: '/',
-    config:{
-      auth:{
-        roles:['admin']
+    config: {
+      auth: {
+        roles: ['admin']
       }
     },
-    schema:{
-      body:{
+    schema: {
+      body: {
         type: 'object',
         required: ['name', 'email', 'password', 'address', 'phone', 'rfc', 'bankName', 'clabe'],
         properties: {
@@ -28,23 +28,23 @@ export default async function middleman(fastify: any) {
         }
       }
     },
-    async handler(request: any, reply: any) {
-      const service = new BasService();
+    async handler (request: any) {
+      const service = new BasService()
       const middlemanUser = await service.addUser(request.headers.authorization, {
         name: request.body.name,
         email: request.body.email,
         password: request.body.password
-      });
+      })
 
 
       
 
-      if(!middlemanUser.userId) {
-        throw new Error('Unable to create middleman');
+      if (!middlemanUser.userId) {
+        throw new Error('Unable to create middleman')
       }
 
-      await service.addRole(request.headers.authorization, middlemanUser.userId, 'middleman');
-      const middlemanService = new MiddlemanService();
+      await service.addRole(request.headers.authorization, middlemanUser.userId, 'middleman')
+      const middlemanService = new MiddlemanService()
   
       await middlemanService.addMiddleman({
         basId: middlemanUser.userId,
@@ -55,182 +55,182 @@ export default async function middleman(fastify: any) {
         rfc: request.body.rfc,
         bankName: request.body.bankName,
         clabe: request.body.clabe
-      });
+      })
 
-      return middlemanService.getMiddlemanById(middlemanUser.userId);
-}})
+      return middlemanService.getMiddlemanById(middlemanUser.userId)
+    } })
 
-fastify.route({
-  method: 'POST',
-  url: '/:id/clients/:clientId',
-  headers:{
-    'Content-Type':'application/x-www-form-urlencoded'
-  },
-  config:{
-    auth:{
-      roles:['admin']
-    }
-  },
-  schema:{
-    params:{
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'number' },
-        clientId: { type: 'number' }
+  fastify.route({
+    method: 'POST',
+    url: '/:id/clients/:clientId',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    config: {
+      auth: {
+        roles: ['admin']
       }
     },
-  },
-  async handler(_request: any, reply: any) {
-    const middlemanService = new MiddlemanService();
-    const [clientId] = await middlemanService.addClientToMiddleman(
-      _request.params.id,
-      _request.params.clientId
-    );
-    const clientService = new ClientService();
-    const {user} = _request.user;
-    const client = await clientService.getClient(clientId);
-      sendNewClientMailToOwner(client, user);
-      sendWelcomeMessageToClient(client, user);
-  }
-});
-
-fastify.route({
-  method: 'GET',
-  url: '/:id/orders',
-  config:{
-    auth:{
-      roles:['admin','middleman']
-    }
-  },
-  schema:{
-    params:{
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'number' }
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' },
+          clientId: { type: 'number' }
+        }
       }
     },
-  },
-  async handler(_request: any, reply: any) {
-    const middlemanService = new MiddlemanService();
-    return middlemanService.getOrdersByMiddlemanId(_request.params.id);
-  }
-});
-
-fastify.route({
-  method: 'GET',
-  url: '/',
-  config:{
-    auth:{
-      roles:['admin']
+    async handler (_request: any) {
+      const middlemanService = new MiddlemanService()
+      const [clientId] = await middlemanService.addClientToMiddleman(
+        _request.params.id,
+        _request.params.clientId
+      )
+      const clientService = new ClientService()
+      const { user } = _request.user
+      const client = await clientService.getClient(clientId)
+      sendNewClientMailToOwner(client, user)
+      sendWelcomeMessageToClient(client, user)
     }
-  },
-  async handler(_request: any, reply: any) {
-    const middlemanService = new MiddlemanService();
-    return middlemanService.getAllMiddlemanWithDebt();
-  }
-});
+  })
 
-fastify.route({
-  method: 'POST',
-  url: '/:id/paid',
-  config:{
-    auth:{
-      roles:['admin']
-    }
-  },
-  schema:{
-    body:{
-      type: 'object',
-      required: ['amount'],
-      properties: {
-        amount: { type: 'number' }
+  fastify.route({
+    method: 'GET',
+    url: '/:id/orders',
+    config: {
+      auth: {
+        roles: ['admin','middleman']
       }
     },
-    params:{
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'number' }
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
       }
     },
-  },
-  async handler(_request: any, reply: any) {
-    const middlemanService = new MiddlemanService();
-    return middlemanService.sendPaymentToMiddleman(_request.params.id, _request.body.amount);
-  }
-});
-
-fastify.route({
-  method: 'GET',
-  url: '/:id/payments',
-  config:{
-    auth:{
-      roles:['admin']
+    async handler (_request: any) {
+      const middlemanService = new MiddlemanService()
+      return middlemanService.getOrdersByMiddlemanId(_request.params.id)
     }
-  },
-  schema:{
-    params:{
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'number' }
+  })
+
+  fastify.route({
+    method: 'GET',
+    url: '/',
+    config: {
+      auth: {
+        roles: ['admin']
       }
     },
-  },
-  async handler(_request: any, reply: any) {
-    const middlemanService = new MiddlemanService();
-    return middlemanService.getMiddlemanPayments(_request.params.id);
-  }
-});
-
-fastify.route({
-  method: 'GET',
-  url: '/:id/clients',
-  config:{
-    auth:{
-      roles:['admin','middleman']
+    async handler () {
+      const middlemanService = new MiddlemanService()
+      return middlemanService.getAllMiddlemanWithDebt()
     }
-  },
-  schema:{
-    params:{
-      type: 'object',
-      required: ['id'],
-      properties: {
-        id: { type: 'number' }
+  })
+
+  fastify.route({
+    method: 'POST',
+    url: '/:id/paid',
+    config: {
+      auth: {
+        roles: ['admin']
       }
     },
-  },
-  async handler(_request: any, reply: any) {
-    const middlemanService = new MiddlemanService();
-    return middlemanService.getAllMiddlemanClients(_request.params.id);
-  }
-});
-
-fastify.route({
-  method:'DELETE',
-  url:'/:id',
-  config:{
-    auth:{
-      roles:['admin']
-    }
-  },
-  schema:{
-    params:{
-      type:'object',
-      required:['id'],
-      properties:{
-        id:{type:'number'}
+    schema: {
+      body: {
+        type: 'object',
+        required: ['amount'],
+        properties: {
+          amount: { type: 'number' }
+        }
+      },
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
       }
+    },
+    async handler (_request: any) {
+      const middlemanService = new MiddlemanService()
+      return middlemanService.sendPaymentToMiddleman(_request.params.id, _request.body.amount)
     }
-  },
-  async handler(_request:any,reply:any){
-    const middlemanService = new MiddlemanService();
-    const basService = new BasService();
-    await basService.removeUserFromCompany(_request.headers.authorization,_request.params.id);
-    await  middlemanService.deleteMiddleman(_request.params.id);
-    return {success:true}
-  }
-})
+  })
+
+  fastify.route({
+    method: 'GET',
+    url: '/:id/payments',
+    config: {
+      auth: {
+        roles: ['admin']
+      }
+    },
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
+      }
+    },
+    async handler (_request: any) {
+      const middlemanService = new MiddlemanService()
+      return middlemanService.getMiddlemanPayments(_request.params.id)
+    }
+  })
+
+  fastify.route({
+    method: 'GET',
+    url: '/:id/clients',
+    config: {
+      auth: {
+        roles: ['admin','middleman']
+      }
+    },
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
+      }
+    },
+    async handler (_request: any) {
+      const middlemanService = new MiddlemanService()
+      return middlemanService.getAllMiddlemanClients(_request.params.id)
+    }
+  })
+
+  fastify.route({
+    method: 'DELETE',
+    url: '/:id',
+    config: {
+      auth: {
+        roles: ['admin']
+      }
+    },
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'number' }
+        }
+      }
+    },
+    async handler (_request:any) {
+      const middlemanService = new MiddlemanService()
+      const basService = new BasService()
+      await basService.removeUserFromCompany(_request.headers.authorization,_request.params.id)
+      await  middlemanService.deleteMiddleman(_request.params.id)
+      return { success: true }
+    }
+  })
 }

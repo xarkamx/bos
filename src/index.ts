@@ -1,15 +1,15 @@
-import type { AutoloadPluginOptions } from "@fastify/autoload";
-import AutoLoad from "@fastify/autoload";
-import type { FastifyPluginAsync } from "fastify";
-import { join } from "path";
-import { schedule } from 'node-cron';
-import { loadCronService } from './services/crons/SettledCronService';
+import type { AutoloadPluginOptions } from '@fastify/autoload'
+import AutoLoad from '@fastify/autoload'
+import type { FastifyPluginAsync } from 'fastify'
+import { join } from 'path'
+import { schedule } from 'node-cron'
+import { loadCronService } from './services/crons/SettledCronService'
 
 export type AppOptions = {
   // Place your custom options for app below here.
 } & Partial<AutoloadPluginOptions>;
 
-process.env.TZ = 'America/Mexico_City';
+process.env.TZ = 'America/Mexico_City'
 const app: FastifyPluginAsync<AppOptions> = async (
   fastify,
   opts
@@ -22,25 +22,24 @@ const app: FastifyPluginAsync<AppOptions> = async (
   // those should be support plugins that are reused
   // through your application
   void fastify.register(AutoLoad, {
-    dir: join(__dirname, "plugins"),
-    options: opts,
-  });
+    dir: join(__dirname, 'plugins'),
+    options: opts
+  })
 
   // This loads all plugins defined in routes
   // define your routes in one of these
   void fastify.register(AutoLoad, {
-    dir: join(__dirname, "routes"),
+    dir: join(__dirname, 'routes'),
     routeParams: true,
-    options: opts,
-  });
+    options: opts
+  })
 
   schedule('* * 10 * * *', () => {
-    console.log('Executing cron jobs');
-    const service = loadCronService();
-    return service.executeCronJobs();
-  });
+    const service = loadCronService()
+    return service.executeCronJobs()
+  })
 
-};
+}
 
-export default app;
-export { app };
+export default app
+export { app }

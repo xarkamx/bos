@@ -1,24 +1,24 @@
-import { db } from '../config/db';
-import { snakeCaseReplacer } from '../utils/objectFormat';
+import { db } from '../config/db'
+import { snakeCaseReplacer } from '../utils/objectFormat'
 
-export class PaymentsModel{
-  tableName: string;
-  db: any;
-  constructor() {
-    this.tableName = 'payments';
-    this.db = db;
+export class PaymentsModel {
+  tableName: string
+  db: any
+  constructor () {
+    this.tableName = 'payments'
+    this.db = db
   }
 
-  addPayment(payment: IPayment) {
-    payment = snakeCaseReplacer(payment);
+  addPayment (payment: IPayment) {
+    payment = snakeCaseReplacer(payment)
     return this.db
       .transaction(async (trx: any) => 
-      trx.insert(payment).into(this.tableName)
-      );
+        trx.insert(payment).into(this.tableName)
+      )
   }
 
-  getAllPayments(searchObject:any,page: number, limit:number){
-    searchObject = snakeCaseReplacer(searchObject);
+  getAllPayments (searchObject:any,page: number, limit:number) {
+    searchObject = snakeCaseReplacer(searchObject)
     const res =  this.db
       .select(
         'id',
@@ -32,19 +32,19 @@ export class PaymentsModel{
       )
       .from(this.tableName)
     if (searchObject) {
-      delete searchObject?.page;
-      delete searchObject?.limit;
-      res.where(searchObject);
+      delete searchObject?.page
+      delete searchObject?.limit
+      res.where(searchObject)
     }
     
     if (page && limit) {
-      res.limit(limit).offset((page - 1) * limit);
+      res.limit(limit).offset((page - 1) * limit)
     }
 
-    return res;
+    return res
   }
 
-  getPaymentsByOrderId(orderId: number) {
+  getPaymentsByOrderId (orderId: number) {
     return this.db
       .select(
         'id',
@@ -62,53 +62,53 @@ export class PaymentsModel{
       .where('external_id', orderId)
       .andWhere('flow', 'inflow')
       .andWhere('payment_type', 'order')
-      .orderBy('id', 'desc');
+      .orderBy('id', 'desc')
   }
 
-  getAll(columns: string[] = []) {
-    return this.db.select(columns).from(this.tableName);
+  getAll (columns: string[] = []) {
+    return this.db.select(columns).from(this.tableName)
   }
 
-  getTotal(type: string) {
-    return this.db(this.tableName).where('payment_type', type).sum('amount as total');
+  getTotal (type: string) {
+    return this.db(this.tableName).where('payment_type', type).sum('amount as total')
   }
 
-  async deletePayment(id: number) {
+  async deletePayment (id: number) {
     return this.db
       .transaction(async (trx: any) => 
-      trx(this.tableName).where('id', id).del()
-      );
+        trx(this.tableName).where('id', id).del()
+      )
   }
 
-  async deletePaymentsByExternalId(id: number) {
+  async deletePaymentsByExternalId (id: number) {
     return this.db
       .transaction(async (trx: any) => 
-      trx(this.tableName).where('external_id', id).del()
-      );
+        trx(this.tableName).where('external_id', id).del()
+      )
   }
 
-  async getPaymentsPerMonth(){
-//     SELECT
-//   EXTRACT(YEAR FROM created_at) AS year,
-//   EXTRACT(MONTH FROM created_at) AS month,
-//   product_id,
-//   COUNT(product_id) AS itemCount
-// FROM
-//   items
-//   where flow='outflow'
-// GROUP BY
-//   year,
-//   month,
-//   product_id  
-// ORDER BY `items`.`product_id` ASC
+  async getPaymentsPerMonth () {
+    //     SELECT
+    //   EXTRACT(YEAR FROM created_at) AS year,
+    //   EXTRACT(MONTH FROM created_at) AS month,
+    //   product_id,
+    //   COUNT(product_id) AS itemCount
+    // FROM
+    //   items
+    //   where flow='outflow'
+    // GROUP BY
+    //   year,
+    //   month,
+    //   product_id  
+    // ORDER BY `items`.`product_id` ASC
   }
 
-  async getPaymentsOfCurrentWeek(){
-    return this.db.select(this.db.raw(`SUM(amount) as total,flow`))
-    .from(this.tableName)
-    .whereRaw(`YEARWEEK(created_at) = YEARWEEK(NOW())`)
-    .groupBy('flow')
-    ;
+  async getPaymentsOfCurrentWeek () {
+    return this.db.select(this.db.raw('SUM(amount) as total,flow'))
+      .from(this.tableName)
+      .whereRaw('YEARWEEK(created_at) = YEARWEEK(NOW())')
+      .groupBy('flow')
+    
   }
 }
 

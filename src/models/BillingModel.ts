@@ -1,30 +1,30 @@
-import { db } from '../config/db';
-import { snakeCaseReplacer } from '../utils/objectFormat';
+import { db } from '../config/db'
+import { snakeCaseReplacer } from '../utils/objectFormat'
 
 export class BillingModel {
-  public tableName = 'billing';
-  public db: any;
-  constructor(){
-    this.db = db;
+  public tableName = 'billing'
+  public db: any
+  constructor () {
+    this.db = db
   }
 
-  async addBilling(billing: BillingType) {
-    billing = snakeCaseReplacer(billing);
-    return this.db(this.tableName).insert(billing);
+  async addBilling (billing: BillingType) {
+    billing = snakeCaseReplacer(billing)
+    return this.db(this.tableName).insert(billing)
   }
 
-  async getBillingById(id: number) {
-    return this.db(this.tableName).where('id', id).first();
+  async getBillingById (id: number) {
+    return this.db(this.tableName).where('id', id).first()
   }
 
-  getBillings(query:Partial<BillingType>) {
-    query = snakeCaseReplacer(query);
-    return this.db(this.tableName).where(query);
+  getBillings (query:Partial<BillingType>) {
+    query = snakeCaseReplacer(query)
+    return this.db(this.tableName).where(query)
   }
 
-  async updateBilling(id: number, billing: Partial<BillingType>) {
-    billing = snakeCaseReplacer(billing);
-    return this.db(this.tableName).where('id', id).update(billing);
+  async updateBilling (id: number, billing: Partial<BillingType>) {
+    billing = snakeCaseReplacer(billing)
+    return this.db(this.tableName).where('id', id).update(billing)
   }
 
 }

@@ -1,6 +1,6 @@
-import type { SensibleOptions } from "@fastify/sensible";
-import sensible from "@fastify/sensible";
-import fp from "fastify-plugin";
+import type { SensibleOptions } from '@fastify/sensible'
+import sensible from '@fastify/sensible'
+import fp from 'fastify-plugin'
 
 /**
  * This plugins adds some utilities to handle http errors
@@ -9,6 +9,6 @@ import fp from "fastify-plugin";
  */
 export default fp<SensibleOptions>(async (fastify, opts) => {
   void fastify.register(sensible, {
-    ...opts,
-  });
-});
+    ...opts
+  })
+})

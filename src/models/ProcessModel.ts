@@ -1,30 +1,30 @@
-import { db } from '../config/db';
-import { snakeCaseReplacer } from '../utils/objectFormat';
+import { db } from '../config/db'
+import { snakeCaseReplacer } from '../utils/objectFormat'
 
-export class ProcessModel{
-  public tableName = 'process';
-  public db: any;
-  constructor(){
-    this.db = db;
+export class ProcessModel {
+  public tableName = 'process'
+  public db: any
+  constructor () {
+    this.db = db
   }
 
-  addProcess(process: ProcessType){
-    process = snakeCaseReplacer(process);
-    return this.db(this.tableName).insert(process);
+  addProcess (process: ProcessType) {
+    process = snakeCaseReplacer(process)
+    return this.db(this.tableName).insert(process)
   }
 
-  getAllProcess(){
+  getAllProcess () {
     return this.db(this.tableName).select('product_id as productId','name','quantity','unit','status','flow')
-      .leftJoin('products','products.id','process.product_id');
+      .leftJoin('products','products.id','process.product_id')
   }
 
-  getGroupedProcess(){
+  getGroupedProcess () {
     return this.getAllProcess().select(
       'name',
       'unit',
       this.db.raw('SUM(quantity) as quantity'),
-      'status',
-    ).groupBy('product_id','flow','unit');
+      'status'
+    ).groupBy('product_id','flow','unit')
   }
 }
 

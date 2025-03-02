@@ -1,26 +1,26 @@
-import { EmployeesService } from '../../services/employees';
+import { EmployeesService } from '../../services/employees'
 
 
-export default async function Employees (fastify: any, opts: any) {
+export default async function Employees (fastify: any) {
   fastify.route({
     method: 'GET',
     url: '/',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       }
     },
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
-      return service.getEmployees();
+    async handler () {
+      const service = new EmployeesService()
+      return service.getEmployees()
     }
-  });
+  })
   fastify.route({
     method: 'POST',
     url: '/',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
     schema: {
@@ -34,17 +34,17 @@ export default async function Employees (fastify: any, opts: any) {
           ptoDays: { type: 'number' },
           rfc: { type: 'string' },
           salaryPerDay: { type: 'number' },
-          status: { type: 'string'},
-          bankName: { type: 'string'},
-          accountNumber: { type: 'string'},
+          status: { type: 'string' },
+          bankName: { type: 'string' },
+          accountNumber: { type: 'string' },
           workweek: { type: 'number' }
-        ,
-      }
-    }},
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
-      service.setBasJwt(request.headers.authorization);
-      return service.createEmployee(request.body);
+        
+        }
+      } },
+    async handler (request: any) {
+      const service = new EmployeesService()
+      service.setBasJwt(request.headers.authorization)
+      return service.createEmployee(request.body)
     }
   })
 
@@ -52,8 +52,8 @@ export default async function Employees (fastify: any, opts: any) {
     method: 'POST',
     url: '/:id/pto',
     config: {
-      auth:{
-        roles:['admin']
+      auth: {
+        roles: ['admin']
       } 
     },
     schema: {
@@ -62,17 +62,17 @@ export default async function Employees (fastify: any, opts: any) {
         properties: {
           ptoType: { type: 'string' },
           startDate: { type: 'string' },
-          endDate: { type: 'string' },
+          endDate: { type: 'string' }
         }
       }
     },
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
+    async handler (request: any) {
+      const service = new EmployeesService()
       return service.requestPto(request.params.id, {
         ptoType: request.body.ptoType,
         startDate: request.body.startDate,
-        endDate: request.body.endDate,
-      });
+        endDate: request.body.endDate
+      })
     }
   })
 
@@ -80,12 +80,12 @@ export default async function Employees (fastify: any, opts: any) {
     method: 'GET',
     url: '/:id/pto',
     config: {
-      auth:{
-        roles:['admin']
+      auth: {
+        roles: ['admin']
       } 
     },
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
+    async handler (request: any) {
+      const service = new EmployeesService()
       return {
         pto: await service.getPTODetails(request.params.id),
         details: await service.getPTODays(request.params.id)
@@ -97,8 +97,8 @@ export default async function Employees (fastify: any, opts: any) {
     method: 'PUT',
     url: '/pto/:ptoId',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
 
@@ -111,9 +111,9 @@ export default async function Employees (fastify: any, opts: any) {
         }
       }
     },
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
-      return service.setPTOStatus(request.params.ptoId, request.body.status);
+    async handler (request: any) {
+      const service = new EmployeesService()
+      return service.setPTOStatus(request.params.ptoId, request.body.status)
     }
   })
 
@@ -121,13 +121,13 @@ export default async function Employees (fastify: any, opts: any) {
     method: 'GET',
     url: '/:id',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
-      return service.getEmployeeById(request.params.id);
+    async handler (request: any) {
+      const service = new EmployeesService()
+      return service.getEmployeeById(request.params.id)
     }
   })
 
@@ -135,8 +135,8 @@ export default async function Employees (fastify: any, opts: any) {
     method: 'PUT',
     url: '/:id',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
     schema: {
@@ -149,15 +149,15 @@ export default async function Employees (fastify: any, opts: any) {
           ptoDays: { type: 'number' },
           rfc: { type: 'string' },
           salaryPerDay: { type: 'number' },
-          status: { type: 'string'},
-          bankName: { type: 'string'},
-          accountNumber: { type: 'string'},
-          workWeek: { type: 'number'}
-      }
-    }},
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
-      return service.updateEmployee(request.params.id, request.body);
+          status: { type: 'string' },
+          bankName: { type: 'string' },
+          accountNumber: { type: 'string' },
+          workWeek: { type: 'number' }
+        }
+      } },
+    async handler (request: any) {
+      const service = new EmployeesService()
+      return service.updateEmployee(request.params.id, request.body)
     }
   })
 
@@ -165,15 +165,15 @@ export default async function Employees (fastify: any, opts: any) {
     method: 'GET',
     url: '/:id/info',
     config: {
-      auth:{
-        roles:['admin','cashier']
+      auth: {
+        roles: ['admin','cashier']
       } 
     },
-    async handler (request: any, reply: any) {
-      const service = new EmployeesService();
-      const employee = await service.getEmployeeById(request.params.id);
-      const pto = await service.getPTODays(request.params.id);
-      const {total} = await service.getPayrollTotalPerEmployeeId(request.params.id);
+    async handler (request: any) {
+      const service = new EmployeesService()
+      const employee = await service.getEmployeeById(request.params.id)
+      const pto = await service.getPTODays(request.params.id)
+      const { total } = await service.getPayrollTotalPerEmployeeId(request.params.id)
       return {
         weeklySalary: employee.salaryPerDay * 6,
         ptoLimit: employee.ptoDays,

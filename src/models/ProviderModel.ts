@@ -1,19 +1,23 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 export class ProviderModel {
-  tableName: string;
-  db: any;
-  constructor() {
-    this.tableName = 'providers';
-    this.db = db;
+  tableName: string
+  db: any
+  constructor () {
+    this.tableName = 'providers'
+    this.db = db
   }
 
-  add(provider: IProvider) {
-    return this.db(this.tableName).insert(provider);
+  add (provider: IProvider) {
+    return this.db(this.tableName).insert(provider)
   }
   
-  getAll() {
-    return this.db(this.tableName).select('*');
+  getAll () {
+    return this.db(this.tableName).select('*')
+  }
+
+  getById (id: number) {
+    return this.getAll().where('id', id).first()
   }
 }
 

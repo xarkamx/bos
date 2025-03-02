@@ -1,55 +1,55 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 export class MaterialModel {
-  tableName: string;
-  db: any;
-  listTableName: string;
-  constructor() {
-    this.tableName = 'materials';
-    this.listTableName = 'materials_price_list';
-    this.db = db;
+  tableName: string
+  db: any
+  listTableName: string
+  constructor () {
+    this.tableName = 'materials'
+    this.listTableName = 'materials_price_list'
+    this.db = db
   }
 
-  async createMaterial(material: Partial<tMaterial>) {
-    return this.db(this.tableName).insert(material);
+  async createMaterial (material: Partial<tMaterial>) {
+    return this.db(this.tableName).insert(material)
   }
   
-  async addPrice(materialId:number,providerId:number,price:number) {
-    return this.db(this.listTableName).insert({material_id:materialId,price,provider_id:providerId});
+  async addPrice (materialId:number,providerId:number,price:number) {
+    return this.db(this.listTableName).insert({ material_id: materialId,price,provider_id: providerId })
   }
 
-  getAll() {
-    return this.db(this.tableName);
+  getAll () {
+    return this.db(this.tableName)
   }
 
-  getMaterialPriceHistory(materialId:number) {
-    return this.db(this.listTableName).where({material_id:materialId}).orderBy('created_at','desc');
+  getMaterialPriceHistory (materialId:number) {
+    return this.db(this.listTableName).where({ material_id: materialId }).orderBy('created_at','desc')
   }
 
-  async updateMaterial(id: number, material: Partial<tMaterial>) {
-    return this.db(this.tableName).where({ id }).update(material);
+  async updateMaterial (id: number, material: Partial<tMaterial>) {
+    return this.db(this.tableName).where({ id }).update(material)
   }
 
-  async addProductToMaterial(materialId: number, productId: number,qtyRequired:number) {
+  async addProductToMaterial (materialId: number, productId: number,qtyRequired:number) {
     return this.db('recipes').insert(
-        {
-          material_id: materialId,
-          product_id: productId,
-          quantity: qtyRequired
-          });
+      {
+        material_id: materialId,
+        product_id: productId,
+        quantity: qtyRequired
+      })
   }
 
-  async addProductsToMaterial(materialId: number, products: {productId:number,quantity:number}[]) {
+  async addProductsToMaterial (materialId: number, products: {productId:number,quantity:number}[]) {
     return this.db('recipes').insert(products.map(product => (
-        {
-          material_id: materialId,
-          product_id: product.productId,
-          quantity: product.quantity
-          })));
+      {
+        material_id: materialId,
+        product_id: product.productId,
+        quantity: product.quantity
+      })))
   }
 
-  async deleteProductsFromMaterial(materialId: number,productId:number) {
-    return this.db('recipes').where({material_id:materialId,product_id:productId}).del();
+  async deleteProductsFromMaterial (materialId: number,productId:number) {
+    return this.db('recipes').where({ material_id: materialId,product_id: productId }).del()
   }
 }
 

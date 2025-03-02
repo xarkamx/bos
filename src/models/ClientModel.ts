@@ -1,39 +1,44 @@
-import { db } from '../config/db';
+import { db } from '../config/db'
 
 export class ClientModel {
-  tableName: string;
-  db: any;
-  constructor() {
-    this.tableName = 'clients';
-    this.db = db; 
+  tableName: string
+  db: any
+  constructor () {
+    this.tableName = 'clients'
+    this.db = db 
   }
 
-  async addClient(client: iClient): Promise<any> {
-    client.name = client.name.toUpperCase();
-    client.rfc = client.rfc.toUpperCase();
-    return this.db(this.tableName).insert(client);
+  async addClient (client: iClient): Promise<any> {
+    client.name = client.name.toUpperCase()
+    client.rfc = client.rfc.toUpperCase()
+    return this.db(this.tableName).insert(client)
   }
 
-  getClients() {
-    return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal', 'postal_code','tax_system', 'bas_id');
+  getClients () {
+    return this.db(this.tableName).select('client_id as id', 'rfc', 'name', 'email', 'phones', 'legal', 'postal_code','tax_system', 'bas_id')
   }
 
-  getClientByEmail(email:string){
-    return this.getClients().where('email', email).first();
+  async getById (id: number) {
+    return this.getClients().where('client_id', id).first()
+  }
+
+
+  getClientByEmail (email:string) {
+    return this.getClients().where('email', email).first()
   }
   
-  async countClients(): Promise<any> {
-    return this.db(this.tableName).count('client_id as count');
+  async countClients (): Promise<any> {
+    return this.db(this.tableName).count('client_id as count')
   }
 
-  async updateClient(id: number, client: any): Promise<any> {
-    if(client.name)
-      client.name = client.name.toUpperCase();
-    if(client.rfc)
-      client.rfc = client.rfc.toUpperCase();
-    if(client.phones)
-      client.phones = JSON.stringify(client.phones);
-    return this.db(this.tableName).where('client_id', id).update(client);
+  async updateClient (id: number, client: any): Promise<any> {
+    if (client.name)
+      client.name = client.name.toUpperCase()
+    if (client.rfc)
+      client.rfc = client.rfc.toUpperCase()
+    if (client.phones)
+      client.phones = JSON.stringify(client.phones)
+    return this.db(this.tableName).where('client_id', id).update(client)
   }
 
 }

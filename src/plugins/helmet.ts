@@ -1,6 +1,6 @@
-import type { FastifyHelmetOptions } from "@fastify/helmet";
-import helmet from "@fastify/helmet";
-import fp from "fastify-plugin";
+import type { FastifyHelmetOptions } from '@fastify/helmet'
+import helmet from '@fastify/helmet'
+import fp from 'fastify-plugin'
 
 /**
  * @fastify/helmet enables the use of helmet in a Fastify application.
@@ -9,6 +9,6 @@ import fp from "fastify-plugin";
  */
 export default fp<FastifyHelmetOptions>(async (fastify, opts) => {
   void fastify.register(helmet, {
-    ...opts,
-  });
-});
+    ...opts
+  })
+})

@@ -1,44 +1,44 @@
-import { type FastifyPluginAsync } from 'fastify';
-import { ProductsService } from '../../services/products/ProductService';
+import { type FastifyPluginAsync } from 'fastify'
+import { ProductsService } from '../../services/products/ProductService'
 
-const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
+const products:FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.route({
     method: 'GET',
     url: '/',
-   config:{
-      auth:{
-        roles:['cashier','storer','app']
+    config: {
+      auth: {
+        roles: ['cashier','storer','app']
       }
     },
-    async handler (_request, reply) {
-      const productService = new ProductsService();
-      const products = await productService.getAllProducts();
-      return products;
-    },
-  });
+    async handler () {
+      const productService = new ProductsService()
+      const products = await productService.getAllProducts()
+      return products
+    }
+  })
   fastify.route({
     method: 'GET',
     url: '/inventory',
-    config:{
-      auth:{
-        roles:['cashier','storer','middleman','customer']
+    config: {
+      auth: {
+        roles: ['cashier','storer','middleman','customer']
       }
     },
-    async handler (_request:any, reply) {
-      const productService = new ProductsService();
-      const products = await productService.getInventory();
-      return products;
+    async handler () {
+      const productService = new ProductsService()
+      const products = await productService.getInventory()
+      return products
     }
-  });
+  })
   fastify.route({
     method: 'POST',
     url: '/',
-   config:{
-      auth:{
-        roles:['cashier','storer']
+    config: {
+      auth: {
+        roles: ['cashier','storer']
       }
     },
-    schema:{
+    schema: {
       body: {
         type: 'object',
         required: ['name', 'price'],
@@ -48,75 +48,75 @@ const products:FastifyPluginAsync = async (fastify, _opts): Promise<void> => {
         }
       }
     },
-    async handler (_request:any, reply) {
-      const productService = new ProductsService();
-      const products = await productService.addProduct(_request.body);
-      return products;
-    },
-  });
+    async handler (_request:any) {
+      const productService = new ProductsService()
+      const products = await productService.addProduct(_request.body)
+      return products
+    }
+  })
 
   fastify.route({
     method: 'DELETE',
     url: '/:id',
-   config:{
-      auth:{
-        roles:['admin']
+    config: {
+      auth: {
+        roles: ['admin']
       }
     },
-    async handler (_request:any, reply) {
-      const productService = new ProductsService();
-      const products = await productService.deleteProduct(_request.params.id);
-      return products;
+    async handler (_request:any) {
+      const productService = new ProductsService()
+      const products = await productService.deleteProduct(_request.params.id)
+      return products
     }
-  });
+  })
   fastify.route({
     method: 'PUT',
     url: '/:id',
-    config:{
-      auth:{
-        roles:['cashier','storer']
+    config: {
+      auth: {
+        roles: ['cashier','storer']
       }
     },
-    schema:{
+    schema: {
       body: {
         type: 'object',
         properties: {
           name: { type: 'string' },
           price: { type: 'number' }
         }
-      },
+      }
     },
-    async handler (_request:any, reply) {
-      const productService = new ProductsService();
-      const products = await productService.updateProduct(_request.params.id, _request.body);
-      return products;
+    async handler (_request:any) {
+      const productService = new ProductsService()
+      const products = await productService.updateProduct(_request.params.id, _request.body)
+      return products
     }
   })
   fastify.route({
     method: 'GET',
     url: '/:id/info',
-    config:{
-      auth:{
-        roles:['storer','cashier']
+    config: {
+      auth: {
+        roles: ['storer','cashier']
       }
     },
-    async handler (_request:any, reply) {
-      const productService = new ProductsService();
-      return productService.getDetailsPerProduct(_request.params.id);
+    async handler (_request:any) {
+      const productService = new ProductsService()
+      return productService.getDetailsPerProduct(_request.params.id)
     }
-  });
+  })
   fastify.route({
     method: 'GET',
     url: '/:id/materials',
     config: {
       auth: {
-        roles: ['admin', 'cashier', 'storer'],
-      },
+        roles: ['admin', 'cashier', 'storer']
+      }
     },
-    async handler(_request: any, reply: any) {
+    async handler (_request: any) {
       const service = new ProductsService()
       return service.getMaterialsPerProduct(_request.params.id)
-  }})
-};
+    } })
+}
 
-export default products;
+export default products

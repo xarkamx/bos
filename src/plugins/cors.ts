@@ -1,6 +1,6 @@
-import type { FastifyCorsOptions } from "@fastify/cors";
-import cors from "@fastify/cors";
-import fp from "fastify-plugin";
+import type { FastifyCorsOptions } from '@fastify/cors'
+import cors from '@fastify/cors'
+import fp from 'fastify-plugin'
 
 /**
  * @fastify/cors enables the use of CORS in a Fastify application.
@@ -9,6 +9,6 @@ import fp from "fastify-plugin";
  */
 export default fp<FastifyCorsOptions>(async (fastify, opts) => {
   void fastify.register(cors, {
-    ...opts,
-  });
-});
+    ...opts
+  })
+})

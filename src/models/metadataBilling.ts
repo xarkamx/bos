@@ -1,30 +1,30 @@
-import { db } from '../config/db';
-import { snakeCaseReplacer } from '../utils/objectFormat';
+import { db } from '../config/db'
+import { snakeCaseReplacer } from '../utils/objectFormat'
 
 export class MetadataBilling {
 
-  public tableName = 'metadata_billing';
-  public db: any;
-  constructor(){
-    this.db = db;
+  public tableName = 'metadata_billing'
+  public db: any
+  constructor () {
+    this.db = db
   }
 
-  async addMetadataBilling(metadataBilling: any) {
-    metadataBilling = metadataBilling.map((metadataBilling: any) => snakeCaseReplacer(metadataBilling));
-    return this.db(this.tableName).insert(metadataBilling).onConflict('uuid').merge();
+  async addMetadataBilling (metadataBilling: any) {
+    metadataBilling = metadataBilling.map((metadataBilling: any) => snakeCaseReplacer(metadataBilling))
+    return this.db(this.tableName).insert(metadataBilling).onConflict('uuid').merge()
   }
 
-  async getMetadataBillingById(id: number) {
-    return this.db(this.tableName).where('id', id).first();
+  async getMetadataBillingById (id: number) {
+    return this.db(this.tableName).where('id', id).first()
   }
 
-  getMetadataBillings() {
-    return this.db(this.tableName).orderBy('sat_certification_date', 'desc');
+  getMetadataBillings () {
+    return this.db(this.tableName).orderBy('sat_certification_date', 'desc')
   }
 
-  async updateMetadataBilling(id: number, metadataBilling: Partial<MetadataBillingType>) {
-    metadataBilling = snakeCaseReplacer(metadataBilling);
-    return this.db(this.tableName).where('id', id).update(metadataBilling);
+  async updateMetadataBilling (id: number, metadataBilling: Partial<MetadataBillingType>) {
+    metadataBilling = snakeCaseReplacer(metadataBilling)
+    return this.db(this.tableName).where('id', id).update(metadataBilling)
   }
 
   
