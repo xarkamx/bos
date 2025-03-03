@@ -3740,6 +3740,7 @@ __metadata:
     "@fastify/sensible": "npm:6.0.0"
     "@fastify/swagger": "npm:9.0.0"
     "@fastify/swagger-ui": "npm:5.0.1"
+    "@jest/globals": "npm:^29.7.0"
     "@sinclair/typebox": "npm:0.33.12"
     "@trivago/prettier-plugin-sort-imports": "npm:4.3.0"
     "@types/bcryptjs": "npm:^2.4.2"
@@ -3780,7 +3781,7 @@ __metadata:
     graphql: "npm:16.9.0"
     handlebars: "npm:^4.7.8"
     husky: "npm:9.1.6"
-    jest: "npm:29.7.0"
+    jest: "npm:^29.7.0"
     jsdom: "npm:^25.0.0"
     json-schema-to-typescript: "npm:15.0.2"
     jsonwebtoken: "npm:^9.0.0"
@@ -7498,7 +7499,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest@npm:29.7.0":
+"jest@npm:^29.7.0":
   version: 29.7.0
   resolution: "jest@npm:29.7.0"
   dependencies:

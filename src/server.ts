@@ -110,9 +110,9 @@ void app.listen({
 
 app.ready((err: any) => {
   if (err) {
+    console.log(err)
     process.exit(1)
   }
-  
 
 })
 

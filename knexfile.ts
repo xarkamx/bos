@@ -1,7 +1,7 @@
-import type { Knex } from 'knex';
-import * as dotenv from 'dotenv';
+import type { Knex } from 'knex'
+import * as dotenv from 'dotenv'
 // Update with your config settings.
-dotenv.config();
+dotenv.config()
 const config: Record<string, Knex.Config> = {
   development: {
     client: 'mysql',
@@ -9,24 +9,33 @@ const config: Record<string, Knex.Config> = {
       database: process.env.DB_DATABASE,
       user: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      host: process.env.DB_HOST,
-    },
+      host: process.env.DB_HOST
+    }
   },
-
+  test: {
+    client: 'mysql',
+    connection: {
+      database: 'bos',
+      user: 'root',
+      password: 'password',
+      host: 'localhost',
+      multipleStatements: true
+    }
+  },
   staging: {
     client: 'postgresql',
     connection: {
       database: 'my_db',
       user: 'username',
-      password: 'password',
+      password: 'password'
     },
     pool: {
       min: 2,
-      max: 10,
+      max: 10
     },
     migrations: {
-      tableName: 'knex_migrations',
-    },
+      tableName: 'knex_migrations'
+    }
   },
 
   production: {
@@ -35,9 +44,9 @@ const config: Record<string, Knex.Config> = {
       database: process.env.DB_DATABASE,
       user: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      host: process.env.DB_HOST,
-    },
-  },
-};
+      host: process.env.DB_HOST
+    }
+  }
+}
 
-module.exports = config;
+module.exports = config
