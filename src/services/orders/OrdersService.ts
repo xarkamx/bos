@@ -113,7 +113,7 @@ export class OrderService {
     const orderModel = new OrderModel()
     const paymentModel = new PaymentsModel()
     const order = await orderModel.getOrderById(id)
-      .join('clients', 'orders.client_id', 'clients.client_id')
+      .leftJoin('clients', 'orders.client_id', 'clients.client_id')
       .select({
         client_id: 'clients.client_id',
         total: 'orders.total',

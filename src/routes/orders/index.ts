@@ -53,7 +53,7 @@ const orders: FastifyPluginAsync = async (fastify): Promise<void> => {
     url: '/:id/payment',
     config: {
       auth: {
-        roles: ['cashier']
+        roles: ['cashier','storer']
       }
     },
     schema: {
