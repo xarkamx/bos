@@ -25,8 +25,10 @@ export class BillingService {
     if (type === 99) {
       paymentMethod = 'PPD'
     }
-
+    const folio = orderIds.length > 1 ? `10${orderIds.join('')}000` : orderIds[0]
     const invoice = {
+      series: 'ORD_',
+      folio_number: folio,
       customer: {
         legal_name: customer.name,
         tax_id: customer.rfc,
