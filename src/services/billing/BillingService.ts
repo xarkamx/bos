@@ -146,7 +146,10 @@ export class BillingService {
     const model = new BillingModel()
     if (!customer) throw new HttpError('Customer not found', 404)
 
+    const orderIds = Array.isArray(orderId) ? orderId : [orderId]
+    const folio = orderIds.length > 1 ? `C_bulk-${orderIds.join('-')}` : `C_ORD_${orderIds[0]}`
     const invoice = {
+      folio_number: folio,
       customer: {
         legal_name: customer.name,
         tax_id: customer.rfc,
@@ -160,17 +163,15 @@ export class BillingService {
       type: 'P'
     }
     const resp =  await this.billing.addInvoice(invoice)
-    if (typeof orderId === 'number') {
-      orderId = [orderId]
-    }
 
-    const promisedBill = orderId.map((id) => {
+    const promisedBill = orderIds.map((id) => {
       return model.addBilling({
         externalId: resp.id,
         ownerId: 0,
         status: 'Accepted',
         type: 'P',
-        orderId: id
+        orderId: id,
+        folio
       })
     })
     await Promise.all(promisedBill)
