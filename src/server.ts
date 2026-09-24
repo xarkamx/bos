@@ -76,6 +76,7 @@ function validate (request:any) {
 // Delay is the number of milliseconds for the graceful close to finish
 const closeListeners = closeWithGrace({ delay: 500 }, async (opts: any) => {
   if (opts.err) {
+    console.error(opts.err)
     process.exit(1)
   }
 

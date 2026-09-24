@@ -34,4 +34,6 @@ export type BillingType = {
   status: string;
   orderId: number;
   ownerId: number;
+  type?: string;
+  folio?: string;
 }

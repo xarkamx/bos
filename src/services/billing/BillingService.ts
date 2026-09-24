@@ -17,7 +17,7 @@ export class BillingService {
     if (paymentMethod === 'PPD') {
       paymentType = '99'
     }
-
+    const model = new BillingModel()
     const { orders, customer } = await loadOrders(orderIds)
     const type:number = parseInt(paymentType || orders[0].order.paymentType,10)
     const items = formatInvoice(orders)
@@ -25,9 +25,10 @@ export class BillingService {
     if (type === 99) {
       paymentMethod = 'PPD'
     }
-    const folio = orderIds.length > 1 ? `10${orderIds.join('')}000` : orderIds[0]
+    const folio = orderIds.length > 1 ? orderIds.join('') : orderIds[0]
+    const series = orderIds.length > 1 ? 'BULK_' : 'ORD_'
     const invoice = {
-      series: 'ORD_',
+      series: series,
       folio_number: folio,
       customer: {
         legal_name: customer.name,
@@ -46,6 +47,17 @@ export class BillingService {
     try {
       const resp = await this.billing.addInvoice(invoice)
       await storeBillId(orderIds, resp.id)
+      const promisedBill = orderIds.map((id) => {
+        return model.addBilling({
+          externalId: resp.id,
+          ownerId: 0,
+          status: 'Accepted',
+          type: 'I',
+          orderId: id,
+          folio: `${series}-${folio}`
+        })
+      })
+      await Promise.all(promisedBill)
       return resp
     } catch (e:any) {
       throw new HttpError(e.message, 400)
@@ -54,6 +66,11 @@ export class BillingService {
 
   async getBillById (billingId:string) {
     return this.billing.getBilling(billingId)
+  }
+
+  async getBillByOrderId (orderId:string) {
+    const model = new BillingModel()
+    return model.getBillings({ orderId: parseInt(orderId,10) })
   }
 
   async cancelInvoice (billingId:string,motive:string) {
@@ -123,10 +140,10 @@ export class BillingService {
     return this.billing.addInvoice(invoice)
   }
 
-  async paymentComplement (customerId:string,amount:number, complement:any) {
+  async paymentComplement (customerId:string,amount:number, complement:any, orderId:number|Array<number> = 0) {
     const service = new ClientService()
     const customer = await service.getClient(customerId)
-
+    const model = new BillingModel()
     if (!customer) throw new HttpError('Customer not found', 404)
 
     const invoice = {
@@ -142,7 +159,23 @@ export class BillingService {
       complements: [complement],
       type: 'P'
     }
-    return this.billing.addInvoice(invoice)
+    const resp =  await this.billing.addInvoice(invoice)
+    if (typeof orderId === 'number') {
+      orderId = [orderId]
+    }
+
+    const promisedBill = orderId.map((id) => {
+      return model.addBilling({
+        externalId: resp.id,
+        ownerId: 0,
+        status: 'Accepted',
+        type: 'P',
+        orderId: id
+      })
+    })
+    await Promise.all(promisedBill)
+    
+    return resp
   }
 
   async sendInvoice (billingId:string, email:string) {

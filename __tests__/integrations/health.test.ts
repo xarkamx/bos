@@ -1,25 +1,17 @@
-import supertest from 'supertest'
-import { app } from '../../src/server'
-import { describe, afterAll,beforeAll,it,expect } from '@jest/globals'
+import Fastify from 'fastify'
+import { describe, it, expect } from '@jest/globals'
+import root from '../../src/routes/root'
 
-describe('Health Check API', () => {
-  let request: any
-
-  beforeAll(async () => {
-    await app.ready()
-    request = supertest(app.server)
-  })
-
-  afterAll(async () => {
-    await app.close()
-  })
-
-  describe('GET /health', () => {
-    it('should return 200 OK status', async () => {
-      const response = await request.get('/health/check')
-        .set('Accept', 'application/json')
-        .set('Authorization', 'Bearer token')
-      expect(response.status).toBe(200)
-    })
+describe('Health endpoint', () => {
+  it('returns the health payload without opening a listening socket', async () => {
+    const app = Fastify()
+    try {
+      await app.register(root)
+      const response = await app.inject({ method: 'GET', url: '/health/check' })
+      expect(response.statusCode).toBe(200)
+      expect(response.json()).toEqual({ status: true })
+    } finally {
+      await app.close()
+    }
   })
 })

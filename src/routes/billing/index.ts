@@ -252,7 +252,7 @@ export default async function Billing (fastify:any) {
             }]
           }]
         }]
-      })
+      }, resp.map((o:any) => o.id))
     }
   })
   fastify.route({

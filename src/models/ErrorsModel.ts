@@ -19,12 +19,13 @@ export class ErrorModel {
         ip: request.ip
       })
 
-      sendNotificationError({
-        errorCode: error.code,
-        message: error.message,
-        errorDateTime: new Date().toLocaleString()
-      })
+      // sendNotificationError({
+      //   errorCode: error.code,
+      //   message: error.message,
+      //   errorDateTime: new Date().toLocaleString()
+      // })
     } catch (e) {
+      console.error('Error logging to database:', e)
       return e
     }
     

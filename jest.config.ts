@@ -20,7 +20,6 @@ const config: Config.InitialOptions = {
   ],
   coverageReporters: ['json', 'lcov', 'text', 'clover'],
   verbose: true,
-  forceExit: true,
   clearMocks: true,
   restoreMocks: true,
   testTimeout: 10000,
