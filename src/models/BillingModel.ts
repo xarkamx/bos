@@ -22,6 +22,15 @@ export class BillingModel {
     return this.db(this.tableName).where(query)
   }
 
+  getBillingsByOrderId (orderId: number) {
+    const linkedBillingIds = this.db('order_billings')
+      .select('billing_id')
+      .where({ order_id: orderId })
+    return this.db(this.tableName)
+      .where({ order_id: orderId })
+      .orWhereIn('id', linkedBillingIds)
+  }
+
   async updateBilling (id: number, billing: Partial<BillingType>) {
     billing = snakeCaseReplacer(billing)
     return this.db(this.tableName).where('id', id).update(billing)

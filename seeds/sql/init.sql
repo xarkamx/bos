@@ -145,10 +145,6 @@ VALUES (
     );
 
 INSERT INTO
-    `knex_migrations_lock` (`index`, `is_locked`)
-VALUES (1, 0);
-
-INSERT INTO
     `link` (
         `id`,
         `middleman_id`,

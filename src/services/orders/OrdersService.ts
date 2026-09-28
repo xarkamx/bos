@@ -139,7 +139,7 @@ export class OrderService {
       throw new HttpError(`Client is over paying debt is ${order.total - order.partialPayment} 
       and is paying ${payment}`, 400)
     }
-    const invoice = await this.sendInvoice( id, order, addedPayment, paymentMethod, payment)
+    const invoice = await this.sendInvoice( id, order, paymentMethod, payment)
     const status = total < 1  ? 'paid' : 'pending'
     const response = await orderModel.updateOrder(id, { partialPayment: addedPayment, status })
     await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId, paymentType: 'order',billingId: invoice?.id })
@@ -147,14 +147,14 @@ export class OrderService {
     return { message: 'Payment added', data: { ...response, status, total,paid: addedPayment,payment  } }
   }
 
-  private async sendInvoice ( id: number, order: any, addedPayment: any, paymentMethod: number, payment: number) {
+  private async sendInvoice ( id: number, order: any, paymentMethod: number, payment: number) {
     const paymentModel = new PaymentsModel()
     const billingService = new BillingService(new FacturaApiService())
 
     const payments = await paymentModel.getPaymentsByOrderId(id)
     if (order.uuid && order.paymentMethod === 99) {
       const { uuid } = await billingService.getBillById(order.uuid)
-      return await billingService.paymentComplement(order.client_id, addedPayment, {
+      return await billingService.paymentComplement(order.client_id, payment, {
         type: 'pago',
         data: [{
           payment_form: numberPadStart(2, paymentMethod),

@@ -1,10 +1,12 @@
 import { HttpError } from '../../errors/HttpError'
 import { BillingModel } from '../../models/BillingModel'
 import type { iClient } from '../../models/ClientModel'
+import { BillingComplement } from '../../types/billingTypes'
 import { numberPadStart } from '../../utils/helpers'
 import { sendInvoiceSubstitutionNotification } from '../../utils/mailSender'
 import { ClientService } from '../clients/ClientService'
 import { OrderService } from '../orders/OrdersService'
+import { OrderBillingService } from './OrderBillingService'
 
 export class BillingService {
   private readonly billing: any
@@ -47,17 +49,19 @@ export class BillingService {
     try {
       const resp = await this.billing.addInvoice(invoice)
       await storeBillId(orderIds, resp.id)
-      const promisedBill = orderIds.map((id) => {
-        return model.addBilling({
-          externalId: resp.id,
-          ownerId: 0,
-          status: 'Accepted',
-          type: 'I',
-          orderId: id,
-          folio: `${series}-${folio}`
-        })
+      const [billingId] = await model.addBilling({
+        externalId: resp.id,
+        ownerId: 0,
+        status: 'Accepted',
+        type: 'I',
+        orderId: orderIds[0],
+        folio: `${series}-${folio}`
       })
-      await Promise.all(promisedBill)
+      const orderBilling = new OrderBillingService()
+      await orderBilling.linkOrdersToBillId(orderIds.map((orderId) => ({
+        orderId,
+        amount: Number(resp.total)
+      })), billingId)
       return resp
     } catch (e:any) {
       throw new HttpError(e.message, 400)
@@ -70,7 +74,7 @@ export class BillingService {
 
   async getBillByOrderId (orderId:string) {
     const model = new BillingModel()
-    return model.getBillings({ orderId: parseInt(orderId,10) })
+    return model.getBillingsByOrderId(parseInt(orderId,10))
   }
 
   async cancelInvoice (billingId:string,motive:string) {
@@ -140,7 +144,7 @@ export class BillingService {
     return this.billing.addInvoice(invoice)
   }
 
-  async paymentComplement (customerId:string,amount:number, complement:any, orderId:number|Array<number> = 0) {
+  async paymentComplement (customerId:string,amount:number, complement:BillingComplement, orderId:number|Array<number> = 0) {
     const service = new ClientService()
     const customer = await service.getClient(customerId)
     const model = new BillingModel()
@@ -164,17 +168,19 @@ export class BillingService {
     }
     const resp =  await this.billing.addInvoice(invoice)
 
-    const promisedBill = orderIds.map((id) => {
-      return model.addBilling({
-        externalId: resp.id,
-        ownerId: 0,
-        status: 'Accepted',
-        type: 'P',
-        orderId: id,
-        folio
-      })
+    const [billingId] = await model.addBilling({
+      externalId: resp.id,
+      ownerId: 0,
+      status: 'Accepted',
+      type: 'P',
+      orderId: orderIds[0],
+      folio
     })
-    await Promise.all(promisedBill)
+    const orderBilling = new OrderBillingService()
+    await orderBilling.linkOrdersToBillId(orderIds.map((orderId) => ({
+      orderId,
+      amount
+    })), billingId)
     
     return resp
   }
@@ -273,34 +279,3 @@ function storeBillId (orderIds:number[], billId:string) {
   const orders = orderIds.map((id) => service.updateOrder(id, { billed: billId,billedAt: new Date() }))
   return Promise.all(orders)
 }
-
-
-export type BillingCustomer = {
-  legal_name: string;
-  tax_id: string;
-  tax_system: string;
-  email: string;
-  address: {
-    zip: string;
-  };
-}
-
-export type BillingProduct = {
-  description: string;
-  product_key: string;
-  price: number;
-  sku: string;
-  tax_include: boolean;
-  taxes: {
-    rate: number;
-    type: string;
-  };
-};
-
-export type BillingInvoice = {
-  customer: BillingCustomer;
-  items: BillingProduct[];
-  payment_form: string;
-  use: string
-  folio_number: string;
-};
