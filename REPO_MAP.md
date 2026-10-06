@@ -1,5 +1,16 @@
 # BOS repository map
 
+## Public order invoicing (2026-10-06)
+
+- `src/routes/public/orders/index.ts`: GET `/public/orders/:uuid/invoices.zip`, `config.auth.public`, UUID v4 parameter, no automatic HEAD handler, no-store/robots/referrer headers. No BAS session required: possession of the random UUID grants access and may trigger issuance.
+- `migrations/20261006000000_addPublicOrderUuid.ts`: nullable unique `orders.public_uuid` and nullable `public_billing_attempted_at`. **No backfill**. Apply before deploying the changed order queries; historical orders remain unavailable through this URL.
+- `OrdersService.addOrder` generates `crypto.randomUUID()` for new orders and returns `data.publicUuid`; `OrderModel` includes publicUuid in authenticated list/detail queries. New requested orders also receive a UUID, but cannot issue until paid. POS need not change to keep creating orders.
+- `PublicOrderInvoiceService.download`: resolve UUID, reject unknown/deleted orders, collect legacy and linked billing records plus `orders.billed`, deduplicate provider IDs. Existing invoices download regardless of current paid/RFC state. If none exist, require status `paid`, non-generic RFC with valid local structure/calendar date, name/email/postal code/tax system, and a defined payment form (not 99); call existing BillingService.addInvoice with PUE. Provider performs final fiscal validation. Local validation does not assert SAT registration; default generic RFCs are intentionally ineligible for public issuance.
+- `PublicOrderBillingModel.claim`: atomic conditional update of an unbilled, paid, nondeleted order with no previous attempt. Prevents concurrent public requests across workers from issuing twice. A provider/persistence failure retains the attempt marker: response 502, later attempts without recorded invoices get 409. Operator must reconcile provider issuance and local records before clearing a marker; never automatically reset it on timeout. Other authenticated invoice creation paths do not use this public claim.
+- ZIP assembly downloads PDF and XML through FacturaApiService, puts each pair under `factura-N/`, and uses `fflate`. Entire response is prepared before attachment headers; failed downloads return JSON 502, with no partial ZIP and no reissuance on retry. Aggregate source files capped at 50 MiB in memory.
+- Statuses: 400 malformed UUID; 404 missing/old/deleted order; 409 unpaid, concurrent, changed, or unresolved issuance; 422 invalid/incomplete fiscal data or payment form; 502 issuance/download failure. Example: `GET /public/orders/<data.publicUuid>/invoices.zip`.
+- Tests: `__tests__/services/public-order-invoices.test.ts` and `__tests__/integrations/public-order-invoices.test.ts` use mocks, real ZIP decoding and Fastify injection (29 passing); `__tests__/services/public-order-claim.test.ts` checks MySQL claim/lookup SQL without connecting to a DB. New source/test/migration lint passed. TypeScript fixes cover the serverless close hook, payment-complement date/fixture, unused import and bcrypt declarations. Local UUID migration was applied by the user. Shared architecture: `../projects_overview.md`.
+
 Inspected: 2026-09-23. This map describes the current working tree, including existing uncommitted billing/order changes. Architecture findings come from static source inspection. Subsequently, 40 Jest route contract tests were added/updated and passed; application startup, live integrations, and migrations were not executed. Secret values in `.env` and database contents were not inspected.
 
 ## Purpose and stack
@@ -27,7 +38,7 @@ BOS is a business operations API covering sales orders, payments, customers, pro
 | [src/common/config.ts](src/common/config.ts) | SMTP settings plus an additional database configuration definition. |
 | [src/schemas](src/schemas), [src/types](src/types) | JSON request schemas, corresponding declaration files, and integration types. Many routes also define schemas inline. |
 | [src/templates](src/templates), [src/utils](src/utils) | Email/WhatsApp templates, rendering/sending helpers, object key conversion, and general utilities. |
-| [migrations](migrations) | Timestamped Knex schema changes from 2023 through 2025, plus SQL examples. |
+| [migrations](migrations) | Timestamped Knex schema changes from 2023 through 2026, plus SQL examples. |
 | [seeds](seeds) | `init.ts` executes the bundled `sql/init.sql` through Knex. |
 | [__tests__](__tests__) | Jest route contract suites for core endpoints and health; see the [testing guide](__tests__/README.md). |
 | `db/`, `coverage/`, `node_modules/` | Local database storage, generated coverage, and installed dependencies; excluded from the source map. |
@@ -114,7 +125,7 @@ Only `PORT` appears in the environment plugin's schema; it does not validate the
 
 ## Development and deployment commands
 
-Commands below are declared in the repository; they were not executed for this map.
+Commands below are declared in the repository. Typecheck and the full Jest suite were verified on 2026-10-06; deployment migration execution was tested with mocks only.
 
 | Command | Actual behavior / prerequisite |
 | --- | --- |
@@ -122,7 +133,7 @@ Commands below are declared in the repository; they were not executed for this m
 | `yarn dev` | Runs `tsx watch src/server.ts`. Requires configured database/integrations for relevant routes. |
 | `yarn local` | Runs `dev.sh`: starts the Docker database, exports local DB settings, runs migrations, then starts development mode. Requires a POSIX shell. |
 | `yarn knex migrate:latest` | Migration invocation used in `dev.sh`; changes the selected database. |
-| `yarn typecheck` | Runs `tsc -b`; this is the configured TypeScript build/check command. |
+| `yarn typecheck` | Runs `tsc --noEmit --incremental false`, including deployment scripts. |
 | `yarn lint` | Runs ESLint with `--fix`, so it can modify source files. |
 | `yarn format` | Formats `src/**/*.ts` and `test/**/*.ts`; the latter differs from the actual `__tests__` directory. |
 | `yarn test` | Runs Jest using `jest.config.ts`, with coverage, mocked services, and no database reset. |
@@ -146,4 +157,10 @@ Commands below are declared in the repository; they were not executed for this m
 - **Schema changes:** add a timestamped Knex migration and update model/service types and mappings together.
 - **Startup/configuration issues:** compare both entry points, the autoload plugin, `knexfile.ts`, and deployment files before relying on README instructions.
 
-Validation includes source/configuration inspection, local Markdown link checks, and a passing `yarn test --runInBand` run (40 tests). No live runtime health, full-project build success, migration success, or external service availability is asserted.
+Validation (2026-10-06): `yarn typecheck` passed; all 15 Jest suites / 87 tests passed with `--runInBand --coverage=false`; deployment runner and its tests passed ESLint. No remote deployment, real migration run, live runtime health or external service availability was verified by the agent. The user reports the UUID migration applied locally.
+
+## Vercel migration workflow
+
+- `vercel.json` invokes `yarn vercel-build`: typecheck then `yarn migrate:deploy`. `scripts/migrate-deploy.ts` runs pending TypeScript migrations using the production Knex profile and closes the connection. Failures block deployment; no seeds run.
+- Configure DB_HOST, DB_DATABASE, DB_USERNAME and DB_PASSWORD for each Vercel environment. Preview must use an isolated database. Knex tracks applied migrations and locks concurrent runners. See `DEPLOYMENT.md` for permissions, failure recovery and schema compatibility requirements.
+- `__tests__/services/deployment-migrations.test.ts` tests configuration, no-op runs, cleanup and failure propagation with a mocked database.

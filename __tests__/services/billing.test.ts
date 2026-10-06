@@ -21,7 +21,14 @@ const customer = {
 }
 const complement = {
   type: 'pago',
-  data: [{ payment_form: '01', related_documents: [{ uuid: 'original-invoice', amount: 25 }] }]
+  data: [{
+    payment_form: '01',
+    date: '2026-10-06T12:00:00.000Z',
+    related_documents: [{
+      uuid: 'original-invoice', amount: 25, last_balance: 50, installment: 1,
+      taxes: [{ base: 21.55, type: 'IVA', rate: 0.16 }]
+    }]
+  }]
 }
 
 beforeEach(() => {

@@ -1,5 +1,5 @@
 import Facturapi from 'facturapi'
-import type {  BillingCustomer, BillingInvoice, BillingProduct } from './BillingService'
+import type { BillingCustomer, BillingInvoice, BillingProduct } from '../../types/billingTypes'
 import type { iClient } from '../../models/ClientModel'
 
 export class FacturaApiService {
@@ -33,6 +33,14 @@ export class FacturaApiService {
 
   downloadInvoice (id:string) {
     return this.api.invoices.downloadZip(id)
+  }
+
+  downloadPdf (id: string) {
+    return this.api.invoices.downloadPdf(id)
+  }
+
+  downloadXml (id: string) {
+    return this.api.invoices.downloadXml(id)
   }
 
   sendInvoice (id:string) {

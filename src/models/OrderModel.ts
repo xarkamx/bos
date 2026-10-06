@@ -49,6 +49,7 @@ export class OrderModel {
         'payment_type as paymentType',
         'status',
         'billed',
+        'public_uuid as publicUuid',
         'created_at as createdAt',
         'updated_at as updatedAt',
         'payment_type as paymentType'
@@ -75,6 +76,7 @@ export class OrderModel {
         'partial_payment as partialPayment',
         'status',
         'billed',
+        'public_uuid as publicUuid',
         'created_at as createdAt',
         'updated_at as updatedAt',
         'payment_type as paymentType'

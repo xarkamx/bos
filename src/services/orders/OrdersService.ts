@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto'
 import { HttpError } from '../../errors/HttpError'
 import { InventoryModel } from '../../models/InventoryModel'
 import { ItemsModel, type tItem } from '../../models/itemsModel'
@@ -25,7 +26,9 @@ export class OrderService {
         purchase.status = 'paid'
       }
 
+      const publicUuid = randomUUID()
       const order = {
+        publicUuid,
         clientId: purchase.clientId,
         total: subtotal - purchase.discount,
         discount: purchase.discount,
@@ -54,7 +57,7 @@ export class OrderService {
       const inventoryItems = items.map((item) => ({ external_id: item.id,  quantity: item.quantity * -1, type: 'product',description: 'purchase' }))
       await inventoryModel.addInBulkToInventory(inventoryItems)
 
-      return { message: 'Order created', data: { orderId, items: products } }
+      return { message: 'Order created', data: { orderId, publicUuid, items: products } }
     } catch (e:any) {
       return { message: e.message }
     }
@@ -158,6 +161,7 @@ export class OrderService {
         type: 'pago',
         data: [{
           payment_form: numberPadStart(2, paymentMethod),
+          date: new Date().toISOString(),
           related_documents: [{
             uuid,
             installment: payments.length + 1,

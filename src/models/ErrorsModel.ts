@@ -1,5 +1,4 @@
 import { db } from '../config/db'
-import { sendNotificationError } from '../utils/mailSender'
 
 export class ErrorModel {
   tableName: string

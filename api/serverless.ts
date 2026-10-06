@@ -84,9 +84,8 @@ app.addHook("onRoute", (routeOptions) => {
 
 
 
-app.addHook("onClose", async (_instance, done) => {
+app.addHook("onClose", async () => {
   closeListeners.uninstall();
-  done();
 });
 
 

@@ -18,6 +18,7 @@
     "migrations/*.ts",
     "knexfile.ts",
     "api/**/*.ts",
+    "scripts/**/*.ts",
     "features/**/*.ts",
   ]
 }

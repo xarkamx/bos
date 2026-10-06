@@ -2522,6 +2522,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/bcrypt@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@types/bcrypt@npm:5.0.2"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 10c0/dd7f05e183b9b1fc08ec499069febf197ab8e9c720766b5bbb5628395082e248f9a444c60882fe7788361fcadc302e21e055ab9c26a300f100e08791c353e6aa
+  languageName: node
+  linkType: hard
+
 "@types/bcryptjs@npm:^2.4.2":
   version: 2.4.6
   resolution: "@types/bcryptjs@npm:2.4.6"
@@ -3743,6 +3752,7 @@ __metadata:
     "@jest/globals": "npm:^29.7.0"
     "@sinclair/typebox": "npm:0.33.12"
     "@trivago/prettier-plugin-sort-imports": "npm:4.3.0"
+    "@types/bcrypt": "npm:^5.0.2"
     "@types/bcryptjs": "npm:^2.4.2"
     "@types/busboy": "npm:1.5.4"
     "@types/express": "npm:^4.17.13"
@@ -3777,6 +3787,7 @@ __metadata:
     fastify-cli: "npm:7.0.0"
     fastify-plugin: "npm:5.0.0"
     fastify-tsconfig: "npm:2.0.0"
+    fflate: "npm:0.8.2"
     globals: "npm:^16.0.0"
     graphql: "npm:16.9.0"
     handlebars: "npm:^4.7.8"
@@ -5879,6 +5890,13 @@ __metadata:
     picomatch:
       optional: true
   checksum: 10c0/be91cd6ab2edbc6df457a69b79672ee9345996986821918ef01908ce9619b8cbecd9c6c13d4ca5d0aeb548b162050d68c599f45bb3fbff194a91e16f25e646b5
+  languageName: node
+  linkType: hard
+
+"fflate@npm:0.8.2":
+  version: 0.8.2
+  resolution: "fflate@npm:0.8.2"
+  checksum: 10c0/03448d630c0a583abea594835a9fdb2aaf7d67787055a761515bf4ed862913cfd693b4c4ffd5c3f3b355a70cf1e19033e9ae5aedcca103188aaff91b8bd6e293
   languageName: node
   linkType: hard
 

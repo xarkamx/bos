@@ -1,4 +1,5 @@
 {
+  "buildCommand": "yarn vercel-build",
   "rewrites": [
     {
       "source": "/(.*)",

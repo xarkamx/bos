@@ -26,7 +26,8 @@
     "activityBarTop.inactiveForeground": "#15202b99",
     "commandCenter.foreground": "#15202b",
     "statusBar.debuggingBackground": "#757ef5",
-    "statusBar.debuggingForeground": "#15202b"
+    "statusBar.debuggingForeground": "#15202b",
+    "statusBar.inactiveBackground": "#757ef5"
   },
   "peacock.color": "#757ef5",
   "cSpell.words": [
