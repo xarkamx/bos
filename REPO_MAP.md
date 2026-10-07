@@ -177,3 +177,6 @@ Validation (2026-10-06): `yarn typecheck` passed; all 15 Jest suites / 87 tests 
 
 
 - Public details verification: TypeScript and ESLint passed; 37 public-order tests passed, including fiscal-field allowlist, no issuance on detail read, unauthenticated route and UUID validation. POS build and 10 tests passed. No real invoices issued.
+
+- Vercel static output: `vercel.json` sets `outputDirectory: public`; `public/.gitkeep` retains that directory. `vercel-build` emits no static build. API packaging and existing rewrite remain separate; deployment migrations are unchanged. Validated JSON and local directory existence; remote deployment not executed.
+

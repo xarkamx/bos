@@ -20,3 +20,8 @@ Commands:
 - `yarn vercel-build`: typecheck, then apply pending migrations. This is not a database-free local validation command.
 
 References: [Vercel buildCommand](https://vercel.com/docs/project-configuration/vercel-json), [environment variables](https://vercel.com/docs/environment-variables).
+
+## Static output directory
+
+`outputDirectory` is `public` (relative to the BOS project root); `public/.gitkeep` preserves it in Git. The API is packaged from `api/serverless.ts`; the typecheck/migration command does not emit a frontend build or Build Output API directory. Commit the placeholder with the configuration. Do not set the output directory to `/vercel/output` or the repository root. A failed packaging step may follow already-applied migrations; Knex skips completed migrations on redeployment. Source: https://vercel.com/docs/project-configuration/vercel-json#outputdirectory .
+
