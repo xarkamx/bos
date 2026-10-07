@@ -7,7 +7,7 @@ export class PublicOrderBillingModel {
 
   async claim (id: number, uuid: string): Promise<boolean> {
     const updated = await db('orders')
-      .where({ id, public_uuid: uuid, status: 'paid' })
+      .where({ id, public_uuid: uuid })
       .whereNull('deleted_at')
       .whereNull('billed')
       .whereNull('public_billing_attempted_at')
