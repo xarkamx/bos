@@ -1,6 +1,6 @@
 {
   "buildCommand": "yarn vercel-build",
-  "outputDirectory": ".",
+  "outputDirectory": "/vercel/output",
   "rewrites": [
     {
       "source": "/(.*)",
