@@ -12,6 +12,20 @@ export class PublicOrderInvoiceService {
   private readonly provider = new FacturaApiService()
   private readonly billing = new BillingService(this.provider)
 
+  async details (uuid: string) {
+    const order = await this.model.findByUuid(uuid)
+    if (!order || order.deleted_at) throw new HttpError('Orden no encontrada', 404)
+    const customer = await new ClientService().getClient(String(order.client_id))
+    return {
+      order: { id: order.id, status: order.status },
+      customer: {
+        name: customer?.name ?? null,
+        rfc: customer?.rfc ?? null,
+        postalCode: customer?.postal_code ?? null,
+        taxSystem: customer?.tax_system ?? null
+      }
+    }
+  }
   async download (uuid: string): Promise<Buffer> {
     const order = await this.model.findByUuid(uuid)
     if (!order || order.deleted_at) throw new HttpError('Orden no encontrada', 404)
@@ -105,3 +119,4 @@ export function isInvoiceRfc (value: unknown): boolean {
   const date = new Date(Date.UTC(year, month - 1, day))
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
+

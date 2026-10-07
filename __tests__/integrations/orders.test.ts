@@ -1,8 +1,8 @@
-import type { FastifyInstance } from 'fastify'
+import Fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals'
 import { createControllerApp, methods, resetServices, user } from '../helpers/controller'
 
-const mockOrders = methods('getAllOrders', 'getOrderById', 'addOrder', 'pay', 'cancelOrder', 'updateOrder', 'getPPDOrdersByBillId')
+const mockOrders = methods('getOrderUuid', 'getAllOrders', 'getOrderById', 'addOrder', 'pay', 'cancelOrder', 'updateOrder', 'getPPDOrdersByBillId')
 const mockClients = methods('getClients', 'getClient', 'createClient', 'updateClient', 'getClientByEmail')
 
 // Explicit factories keep database and external-service implementations unloaded.
@@ -66,10 +66,10 @@ describe('orders controller', () => {
   })
 
   it('GET /orders/42 returns service data', async () => {
-    mockOrders.getOrderById.mockResolvedValue([{ id: 42 }])
+    mockOrders.getOrderById.mockResolvedValue({ order: { id: 42, publicUuid: 'c40d5e7b-a1ab-40ae-8f00-703a4c7c8406' }, items: [] })
     const response = await app.inject({ method: 'GET', url: '/orders/42' })
     expect(response.statusCode).toBe(200)
-    expect(response.json()).toEqual([{ id: 42 }])
+    expect(response.json()).toEqual({ order: { id: 42, publicUuid: 'c40d5e7b-a1ab-40ae-8f00-703a4c7c8406' }, items: [] })
     expect(mockOrders.getOrderById).toHaveBeenCalledWith(...['42'])
   })
 
@@ -87,4 +87,37 @@ describe('orders controller', () => {
     expect(response.json()).toMatchObject({ error: 'Bad Request', statusCode: 400 })
     expect(mockOrders.pay).not.toHaveBeenCalled()
   })
+})
+
+it.each(['c40d5e7b-a1ab-40ae-8f00-703a4c7c8406', null])('returns the stored UUID, including legacy null: %s', async publicUuid => {
+  mockOrders.getOrderUuid.mockResolvedValue({ orderId: 42, publicUuid })
+  const response = await app.inject('/orders/42/uuid')
+  expect(response.statusCode).toBe(200)
+  expect(response.json()).toEqual({ orderId: 42, publicUuid })
+  expect(response.headers['cache-control']).toBe('no-store')
+  expect(mockOrders.getOrderUuid).toHaveBeenCalledWith(42)
+})
+it.each(['abc', '0', '-1', '1.5', '9007199254740992'])('rejects invalid order ID %s', async id => {
+  const response = await app.inject(`/orders/${id}/uuid`)
+  expect(response.statusCode).toBe(400)
+  expect(mockOrders.getOrderUuid).not.toHaveBeenCalled()
+})
+it('propagates missing-order 404', async () => {
+  mockOrders.getOrderUuid.mockRejectedValue(Object.assign(new Error('Order not found'), { statusCode: 404 }))
+  expect((await app.inject('/orders/42/uuid')).statusCode).toBe(404)
+})
+it('uses the same authorization metadata as POST /orders', async () => {
+  const registered: any[] = []
+  const instance = Fastify()
+  instance.addHook('onRoute', route => { registered.push(route) })
+  try {
+    await instance.register(controller, { prefix: '/orders' })
+    await instance.ready()
+    const lookup = registered.find(route => route.method === 'GET' && route.url === '/orders/:id/uuid')
+    const create = registered.find(route => route.method === 'POST' && route.url === '/orders/')
+    expect(lookup.config.auth).toEqual(create.config.auth)
+    expect(lookup.config.auth).toEqual({ roles: ['cashier', 'storer'] })
+  } finally {
+    await instance.close()
+  }
 })

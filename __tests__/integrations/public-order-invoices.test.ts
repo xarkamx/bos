@@ -2,9 +2,10 @@ import Fastify, { FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals'
 import { HttpError } from '../../src/errors/HttpError'
 
+const mockDetails = jest.fn<() => Promise<any>>()
 const mockDownload = jest.fn<(uuid: string) => Promise<Buffer>>()
 jest.mock('../../src/services/billing/PublicOrderInvoiceService', () => ({
-  PublicOrderInvoiceService: jest.fn(() => ({ download: mockDownload }))
+  PublicOrderInvoiceService: jest.fn(() => ({ download: mockDownload, details: mockDetails }))
 }))
 import route from '../../src/routes/public/orders'
 
@@ -12,6 +13,7 @@ const uuid = 'bd4e6519-6154-44b1-805d-b67539df0405'
 let app: FastifyInstance
 beforeEach(async () => {
   mockDownload.mockReset()
+  mockDetails.mockReset()
   app = Fastify()
   // Same public-route condition used by both production entry points; no fake user.
   app.addHook('onRequest', async request => {
@@ -53,4 +55,17 @@ describe('public order invoice route', () => {
     expect(response.statusCode).not.toBe(200)
     expect(mockDownload).not.toHaveBeenCalled()
   })
+})
+
+it('reads details without authentication or invoice issuance', async () => {
+  mockDetails.mockResolvedValue({ order: { id: 42 }, customer: { name: 'Cliente' } })
+  const response = await app.inject(`/public/orders/${uuid}`)
+  expect(response.statusCode).toBe(200)
+  expect(response.json().customer.name).toBe('Cliente')
+  expect(response.headers['cache-control']).toContain('no-store')
+  expect(mockDownload).not.toHaveBeenCalled()
+})
+it('rejects numeric IDs on the public details endpoint', async () => {
+  expect((await app.inject('/public/orders/42')).statusCode).toBe(400)
+  expect(mockDetails).not.toHaveBeenCalled()
 })

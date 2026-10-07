@@ -129,3 +129,18 @@ describe('RFC structure', () => {
     expect(isInvoiceRfc('EKU9002303C9')).toBe(false)
   })
 })
+
+it('public details expose only fiscal display fields and never issue or claim', async () => {
+  mockClients.getClient.mockResolvedValue({ name: 'Cliente', rfc: 'EKU9003173C9', postal_code: '44100', tax_system: '601', email: 'private@example.test', phones: 'private', bas_id: 9 })
+  expect(await new PublicOrderInvoiceService().details(uuid)).toEqual({
+    order: { id: 42, status: 'paid' },
+    customer: { name: 'Cliente', rfc: 'EKU9003173C9', postalCode: '44100', taxSystem: '601' }
+  })
+  expect(mockBilling.addInvoice).not.toHaveBeenCalled()
+  expect(mockModel.claim).not.toHaveBeenCalled()
+})
+it.each([undefined, { ...paid, deleted_at: new Date() }])('hides unavailable public details', async order => {
+  mockModel.findByUuid.mockResolvedValue(order)
+  await expect(new PublicOrderInvoiceService().details(uuid)).rejects.toMatchObject({ statusCode: 404 })
+  expect(mockClients.getClient).not.toHaveBeenCalled()
+})

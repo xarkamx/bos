@@ -4,6 +4,22 @@ import { sendNewOrderRequested, sendPaymentStatusChangeNotification } from '../.
 import { ClientService } from '../../services/clients/ClientService'
 
 const orders: FastifyPluginAsync = async (fastify): Promise<void> => {
+  fastify.route<{ Params: { id: number } }, { auth: { roles: string[] } }>({
+    method: 'GET',
+    url: '/:id/uuid',
+    config: { auth: { roles: ['cashier', 'storer'] } },
+    schema: {
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'integer', minimum: 1, maximum: Number.MAX_SAFE_INTEGER } }
+      }
+    },
+    async handler (request, reply) {
+      reply.header('Cache-Control', 'no-store')
+      return new OrderService().getOrderUuid(request.params.id)
+    }
+  })
   fastify.route({
     method: 'GET',
     url: '/',

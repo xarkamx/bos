@@ -66,6 +66,13 @@ export class OrderModel {
     return res
   }
 
+  getOrderUuid (id: number) {
+    return this.db(this.tableName)
+      .select('id', 'public_uuid as publicUuid')
+      .where({ id })
+      .whereNull('deleted_at')
+      .first()
+  }
   getOrderById (id: number) {
     const res =  this.db
       .select(
@@ -135,6 +142,7 @@ export type IOrder ={
 };
 
 export type IOrderResponse = IOrder & {
+  publicUuid: string | null;
   id: number;
   status: string;
   createdAt: string;

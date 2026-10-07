@@ -164,3 +164,16 @@ Validation (2026-10-06): `yarn typecheck` passed; all 15 Jest suites / 87 tests 
 - `vercel.json` invokes `yarn vercel-build`: typecheck then `yarn migrate:deploy`. `scripts/migrate-deploy.ts` runs pending TypeScript migrations using the production Knex profile and closes the connection. Failures block deployment; no seeds run.
 - Configure DB_HOST, DB_DATABASE, DB_USERNAME and DB_PASSWORD for each Vercel environment. Preview must use an isolated database. Knex tracks applied migrations and locks concurrent runners. See `DEPLOYMENT.md` for permissions, failure recovery and schema compatibility requirements.
 - `__tests__/services/deployment-migrations.test.ts` tests configuration, no-op runs, cleanup and failure propagation with a mocked database.
+
+## Authenticated order UUID lookup
+
+- GET `/orders/:id` already returns `order.publicUuid` from `OrderModel.getOrderById`; response type includes nullable publicUuid.
+- GET `/orders/:id/uuid` returns `{orderId, publicUuid}`, Cache-Control no-store. Positive safe integer ID; 400 invalid, 404 absent/deleted, 200 with null for historical orders. Read-only, no backfill or UUID generation.
+- `src/routes/orders/index.ts` uses the same roles as POST `/orders` (cashier/storer, global admin bypass). There is no POST /orders/:id in current source. Service `getOrderUuid` uses a minimal model query, without client joins or item queries.
+- Tests: `__tests__/integrations/orders.test.ts` covers response, null, validation, 404 and auth metadata parity; `__tests__/services/order-uuid-model.test.ts` verifies UUID SQL selection and deleted-order filter without DB access.
+- Verification: TypeScript check passed; 18 focused order/UUID tests passed (2 suites). No database writes or live calls.
+
+- Public POS detail contract: GET `/public/orders/:uuid` (UUID v4, public auth, no-store/referrer/robots headers) uses `PublicOrderInvoiceService.details`. Returns only `order:{id,status}` and `customer:{name,rfc,postalCode,taxSystem}`; missing fields null; missing/deleted order 404. No issuing/claiming/downloading on reads. Used by POS `/facturas/:uuid`. Customer email/phones/internal IDs are not returned.
+
+
+- Public details verification: TypeScript and ESLint passed; 37 public-order tests passed, including fiscal-field allowlist, no issuance on detail read, unauthenticated route and UUID validation. POS build and 10 tests passed. No real invoices issued.

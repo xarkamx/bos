@@ -98,6 +98,11 @@ export class OrderService {
   }
   
 
+  async getOrderUuid (id: number) {
+    const order = await new OrderModel().getOrderUuid(id)
+    if (!order) throw new HttpError('Order not found', 404)
+    return { orderId: order.id, publicUuid: order.publicUuid }
+  }
   async getOrderById (id: number) {
     const orderModel = new OrderModel()
     const itemModel = new ItemsModel()
