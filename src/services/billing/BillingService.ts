@@ -68,6 +68,9 @@ export class BillingService {
     }
   }
 
+  async getPaymentSummary (invoiceId: string, amount: number) {
+    return this.billing.paymentSummary(invoiceId, amount)
+  }
   async getBillById (billingId:string) {
     return this.billing.getBilling(billingId)
   }

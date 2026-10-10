@@ -44,11 +44,17 @@ export class PublicOrderInvoiceService {
       if (ids.size === 0) throw new HttpError('La factura requiere revisión antes de descargarse', 409)
     }
 
+    if (order.status !== 'paid' && Number(order.payment_type) !== 99) {
+      throw new HttpError('La orden debe estar pagada para descargar facturas que no sean PPD', 409)
+    }
     return this.archive([...ids])
   }
 
   private async issue (order: any) {
-    if (order.status !== 'paid') throw new HttpError('La orden no está marcada como pagada', 409)
+    const isPPD = Number(order.payment_type) === 99
+    if (order.status !== 'paid' && !(isPPD && order.status === 'pending')) {
+      throw new HttpError('La orden no está marcada como pagada', 409)
+    }
     if (order.public_billing_attempted_at) {
       throw new HttpError('La facturación está en proceso o requiere revisión', 409)
     }
@@ -58,16 +64,16 @@ export class PublicOrderInvoiceService {
       throw new HttpError('Los datos fiscales del cliente están incompletos', 422)
     }
     const paymentType = String(order.payment_type).padStart(2, '0')
-    if (!/^(01|02|03|04|05|06|08|12|13|14|15|17|23|24|25|26|27|28|29|30|31)$/.test(paymentType)) {
+    if (!isPPD && !/^(01|02|03|04|05|06|08|12|13|14|15|17|23|24|25|26|27|28|29|30|31)$/.test(paymentType)) {
       throw new HttpError('La orden pagada requiere una forma de pago definida', 422)
     }
     // Durable compare-and-set: independent workers cannot issue this order twice.
     // Never clear on provider failure: a timeout may occur after successful stamping.
-    if (!await this.model.claim(order.id, order.public_uuid)) {
+    if (!await this.model.claim(order.id, order.public_uuid, Number(paymentType))) {
       throw new HttpError('La orden cambió o su facturación ya está en proceso', 409)
     }
     try {
-      await this.billing.addInvoice([order.id], customer.tax_system, paymentType, 'PUE')
+      await this.billing.addInvoice([order.id], customer.tax_system, paymentType, isPPD ? 'PPD' : 'PUE')
     } catch {
       throw new HttpError('No se pudo confirmar la emisión; la orden requiere revisión antes de reintentar', 502)
     }
@@ -119,4 +125,3 @@ export function isInvoiceRfc (value: unknown): boolean {
   const date = new Date(Date.UTC(year, month - 1, day))
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
 }
-

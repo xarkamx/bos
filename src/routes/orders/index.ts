@@ -1,3 +1,4 @@
+import { HttpError } from '../../errors/HttpError'
 import type { FastifyPluginAsync } from 'fastify'
 import { OrderService } from '../../services/orders/OrdersService'
 import { sendNewOrderRequested, sendPaymentStatusChangeNotification } from '../../utils/mailSender'
@@ -87,14 +88,14 @@ const orders: FastifyPluginAsync = async (fastify): Promise<void> => {
       // Update partial payment of the order
       const { payment,paymentMethod,clientId } = _request.body
       const orderService = new OrderService()
-      const paymentReq = orderService.pay(_request.params.id,clientId, payment, paymentMethod)
+      const paymentReq = await orderService.pay(_request.params.id,clientId, payment, paymentMethod)
 
-      sendPaymentStatusChangeNotification(_request.headers.authorization,{
+      await sendPaymentStatusChangeNotification(_request.headers.authorization,{
         id: _request.params.id,
         clientId,
         payment,
         paymentMethod
-      })
+      }).catch(() => { fastify.log.error('Payment notification failed after successful payment') })
       return paymentReq
 
     }
@@ -126,7 +127,7 @@ const orders: FastifyPluginAsync = async (fastify): Promise<void> => {
       const order = await orderService.addOrder(purchase)
       const orderDetails = await orderService.getOrderById(order?.data?.orderId)
       const { user } = _request.user
-      sendNewOrderRequested(user,_request.headers.authorization,orderDetails)
+      await sendNewOrderRequested(user,_request.headers.authorization,orderDetails).catch(() => { fastify.log.error('Order notification failed after successful creation') })
       return order
     }
   })
@@ -166,7 +167,7 @@ const orders: FastifyPluginAsync = async (fastify): Promise<void> => {
       
       const orderDetails = await orderService.getOrderById(order?.data?.orderId)
       const { user } = _request.user
-      sendNewOrderRequested(user,_request.headers.authorization,orderDetails)
+      await sendNewOrderRequested(user,_request.headers.authorization,orderDetails).catch(() => { fastify.log.error('Order notification failed after successful creation') })
       return order
     }
   })
@@ -204,6 +205,9 @@ const orders: FastifyPluginAsync = async (fastify): Promise<void> => {
     },
     async handler (_request:any) {
       const orderService = new OrderService()
+      if (Object.prototype.hasOwnProperty.call(_request.body, 'clientId') && !_request.user?.roles?.includes('admin')) {
+        throw new HttpError('Solo un administrador puede cambiar el cliente de una orden', 403)
+      }
       return orderService.updateOrder(_request.params.id,_request.body)
     }
   })  

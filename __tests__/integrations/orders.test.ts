@@ -21,6 +21,8 @@ let app: FastifyInstance
 
 beforeEach(async () => {
   resetServices(mockOrders, mockClients)
+  jest.mocked(sendNewOrderRequested).mockResolvedValue([])
+  jest.mocked(sendPaymentStatusChangeNotification).mockResolvedValue([])
   app = await createControllerApp(controller, '/orders')
 })
 
@@ -120,4 +122,18 @@ it('uses the same authorization metadata as POST /orders', async () => {
   } finally {
     await instance.close()
   }
+})
+
+it('does not notify when order payment/complement fails', async () => {
+  mockOrders.pay.mockRejectedValue(Object.assign(new Error('Complement failed'), { statusCode: 502 }))
+  const response = await app.inject({ method: 'PUT', url: '/orders/42/payment', payload: { payment: 25, clientId: 7 } })
+  expect(response.statusCode).toBe(502)
+  expect(sendPaymentStatusChangeNotification).not.toHaveBeenCalled()
+})
+it('keeps successful payment response when email delivery fails', async () => {
+  mockOrders.pay.mockResolvedValue({ message: 'Payment added' })
+  jest.mocked(sendPaymentStatusChangeNotification).mockRejectedValue(new Error('SMTP failed'))
+  const response = await app.inject({ method: 'PUT', url: '/orders/42/payment', payload: { payment: 25, clientId: 7 } })
+  expect(response.statusCode).toBe(200)
+  expect(response.json()).toEqual({ message: 'Payment added' })
 })

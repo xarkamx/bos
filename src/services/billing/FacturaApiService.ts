@@ -1,11 +1,14 @@
+import axios from 'axios'
 import Facturapi from 'facturapi'
 import type { BillingCustomer, BillingInvoice, BillingProduct } from '../../types/billingTypes'
 import type { iClient } from '../../models/ClientModel'
 
 export class FacturaApiService {
   api: any
+  private readonly apiKey: string
   constructor (apiKey = '') {
-    this.api = new Facturapi(apiKey || process.env.FACTURAPI_KEY)
+    this.apiKey = apiKey || process.env.FACTURAPI_KEY || ''
+    this.api = new Facturapi(this.apiKey)
   }
 
   addCustomer (customer: BillingCustomer) {
@@ -68,6 +71,15 @@ export class FacturaApiService {
     return this.api.customers.update(id,client)
   }
 
+  async paymentSummary (id: string, amount: number) {
+    // The installed SDK predates this API endpoint.
+    const response = await axios.get(`https://www.facturapi.io/v2/invoices/${encodeURIComponent(id)}/payment-summary`, {
+      params: { amount },
+      headers: { Authorization: `Bearer ${this.apiKey}` },
+      timeout: 15000
+    })
+    return response.data
+  }
   getBilling (id:string) {
     return this.api.invoices.retrieve(id)
   }

@@ -141,48 +141,44 @@ export class OrderService {
     }
 
     
-    const addedPayment = order.partialPayment + payment
-    const total = order.total - addedPayment
+    if (!Number.isFinite(payment) || payment <= 0 || Math.abs(payment * 100 - Math.round(payment * 100)) > 0.000001) {
+      throw new HttpError('El pago debe ser positivo y tener hasta dos decimales', 400)
+    }
+    if (clientId && Number(clientId) !== Number(order.client_id)) throw new HttpError('El cliente no corresponde a la orden', 400)
+    const addedPayment = Math.round((Number(order.partialPayment) + payment) * 100) / 100
+    const total = Math.round((Number(order.total) - addedPayment) * 100) / 100
     if (total < 0) {
       throw new HttpError(`Client is over paying debt is ${order.total - order.partialPayment} 
       and is paying ${payment}`, 400)
     }
     const invoice = await this.sendInvoice( id, order, paymentMethod, payment)
-    const status = total < 1  ? 'paid' : 'pending'
+    const status = total === 0 ? 'paid' : 'pending'
     const response = await orderModel.updateOrder(id, { partialPayment: addedPayment, status })
-    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId, paymentType: 'order',billingId: invoice?.id })
+    await paymentModel.addPayment({ externalId: id, paymentMethod, amount: payment, clientId: order.client_id, paymentType: 'order',billingId: invoice?.id })
    
     return { message: 'Payment added', data: { ...response, status, total,paid: addedPayment,payment  } }
   }
 
   private async sendInvoice ( id: number, order: any, paymentMethod: number, payment: number) {
-    const paymentModel = new PaymentsModel()
+    if (!order.uuid) return
     const billingService = new BillingService(new FacturaApiService())
-
-    const payments = await paymentModel.getPaymentsByOrderId(id)
-    if (order.uuid && order.paymentMethod === 99) {
-      const { uuid } = await billingService.getBillById(order.uuid)
-      return await billingService.paymentComplement(order.client_id, payment, {
-        type: 'pago',
-        data: [{
-          payment_form: numberPadStart(2, paymentMethod),
-          date: new Date().toISOString(),
-          related_documents: [{
-            uuid,
-            installment: payments.length + 1,
-            last_balance: order.total - order.partialPayment,
-            amount: payment,
-            taxes: [{
-              base: payment / 0.16,
-              type: 'IVA',
-              rate: 0.16
-            }]
-          }]
-        }]
-      }, id)
+    const invoice = await billingService.getBillById(order.uuid)
+    if (invoice.payment_method !== 'PPD') return
+    const paymentForm = numberPadStart(2, paymentMethod)
+    if (!/^(01|02|03|04|05|06|08|12|13|14|15|17|23|24|25|26|27|28|29|30|31)$/.test(paymentForm)) {
+      throw new HttpError('El complemento requiere una forma de pago definida', 400)
     }
+    // Provider history accounts for manual complements and invoices shared by orders.
+    const summary = await billingService.getPaymentSummary(order.uuid, payment)
+    return billingService.paymentComplement(order.client_id, payment, {
+      type: 'pago',
+      data: [{
+        payment_form: paymentForm,
+        date: new Date().toISOString(),
+        related_documents: [summary]
+      }]
+    }, id)
   }
-
   async cancelOrder (id: number) {
     
     const om = new OrderModel()

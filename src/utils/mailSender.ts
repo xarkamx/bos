@@ -1,3 +1,4 @@
+import { invoiceDownloadLink } from './invoiceDownloadLink'
 import { EmailTemplate } from '../services/mail/senders/EmailTemplate'
 import { StatsService } from '../services/stats/StatsService'
 import { BasService } from '../services/users/basService'
@@ -45,6 +46,7 @@ export async function sendNewOrderRequested (user:any,jwt:string,details:any) {
   const resp = await Promise.all([admins,cashiers])
   const users = resp.flat()
   users.push(user)
+  if (order.email && !users.some((recipient:any) => recipient.email?.toLowerCase() === order.email.toLowerCase())) users.push({ name: order.clientName, email: order.email })
   const statusSubject = order.status === 'pending' ? 'Nuevo pedido solicitado' : 'Compra completada'
   const subject = `${statusSubject} - Orden #${order.id}`
   
@@ -58,7 +60,8 @@ export async function sendNewOrderRequested (user:any,jwt:string,details:any) {
         clientEmail: order.email,
         orderTotal: `$ ${order.total.toFixed(2)}`,
         status: order.status,
-        paymentMethod: order.paymentType
+        paymentMethod: order.paymentType,
+        invoiceLink: invoiceDownloadLink(order.publicUuid)
       }).sendMail(user.email,subject)
   })
 
@@ -161,6 +164,7 @@ export async function sendPaymentStatusChangeNotification (jwt:string,paymentDet
   const users = await getClientsByRole(jwt,['admin','cashier'])
   const orderService = new OrderService()
   const { order }:any = await orderService.getOrderById(paymentDetails.id)
+  if (order.email && !users.some((recipient:any) => recipient.email?.toLowerCase() === order.email.toLowerCase())) users.push({ name: order.clientName, email: order.email })
   const debt = order.total - order.partialPayment
   const mails = users.map((user:any) => {
     return mailService.setHandlebarsFields({
@@ -173,7 +177,8 @@ export async function sendPaymentStatusChangeNotification (jwt:string,paymentDet
       paymentAmount: paymentDetails.payment.toFixed(2),
       paymentDate: new Date().toLocaleString(),
       paymentStatus: order.status,
-      paymentMethod: paymentDetails.paymentMethod
+      paymentMethod: paymentDetails.paymentMethod,
+      invoiceLink: invoiceDownloadLink(order.publicUuid)
     }).sendMail(user.email,`Estado de pago actualizado – Orden #${order.id}`)
   })
   return Promise.all(mails)

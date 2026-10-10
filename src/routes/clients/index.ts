@@ -69,7 +69,7 @@ const clients:FastifyPluginAsync = async (fastify:any): Promise<void> => {
     url: '/:id',
     config: {
       auth: {
-        roles: ['cashier']
+        roles: ['admin']
       }
     },
     schema: updateClientSchema,

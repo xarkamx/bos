@@ -5,7 +5,7 @@ import { methods, resetServices } from '../helpers/controller'
 
 const mockModel = methods('findByUuid', 'claim')
 const mockClients = methods('getClient')
-const mockBilling = methods('getBillByOrderId', 'addInvoice')
+const mockBilling = methods('getBillByOrderId', 'addInvoice', 'getBillById')
 const mockProvider = methods('downloadPdf', 'downloadXml')
 jest.mock('../../src/models/PublicOrderBillingModel', () => ({ PublicOrderBillingModel: jest.fn(() => mockModel) }))
 jest.mock('../../src/services/clients/ClientService', () => ({ ClientService: jest.fn(() => mockClients) }))
@@ -36,12 +36,12 @@ describe('public invoice workflow', () => {
     expect(strFromU8(files['factura-1/factura.pdf'])).toBe('PDF inv-1')
     expect(strFromU8(files['factura-1/factura.xml'])).toBe('XML inv-1')
     expect(mockBilling.addInvoice).toHaveBeenCalledWith([42], '601', '01', 'PUE')
-    expect(mockModel.claim).toHaveBeenCalledWith(42, uuid)
+    expect(mockModel.claim).toHaveBeenCalledWith(42, uuid, 1)
     expect(mockModel.claim.mock.invocationCallOrder[0]).toBeLessThan(mockBilling.addInvoice.mock.invocationCallOrder[0])
   })
 
   it('downloads all related invoices, deduplicates and never issues again', async () => {
-    mockModel.findByUuid.mockResolvedValue({ ...paid, status: 'pending', billed: 'inv-1' })
+    mockModel.findByUuid.mockResolvedValue({ ...paid, billed: 'inv-1' })
     mockBilling.getBillByOrderId.mockResolvedValue([{ external_id: 'inv-1' }, { external_id: 'complement-1' }, { external_id: 'inv-1' }])
     const files = unzipSync(await new PublicOrderInvoiceService().download(uuid))
     expect(Object.keys(files)).toHaveLength(4)
@@ -83,12 +83,25 @@ describe('public invoice workflow', () => {
     expect(mockModel.claim).not.toHaveBeenCalled()
   })
 
-  it('does not invent a payment form for a paid order with form 99', async () => {
-    mockModel.findByUuid.mockResolvedValue({ ...paid, payment_type: 99 })
-    await expect(new PublicOrderInvoiceService().download(uuid)).rejects.toMatchObject({ statusCode: 422 })
-    expect(mockBilling.addInvoice).not.toHaveBeenCalled()
+  it.each([99, '99'])('issues a pending PPD order with payment_type %s and downloads it', async payment_type => {
+    mockModel.findByUuid.mockResolvedValue({ ...paid, status: 'pending', payment_type })
+    mockBilling.getBillByOrderId.mockResolvedValueOnce([]).mockResolvedValueOnce([{ external_id: 'ppd' }])
+    const files = unzipSync(await new PublicOrderInvoiceService().download(uuid))
+    expect(strFromU8(files['factura-1/factura.xml'])).toBe('XML ppd')
+    expect(mockBilling.addInvoice).toHaveBeenCalledWith([42], '601', '99', 'PPD')
+    expect(mockModel.claim).toHaveBeenCalledWith(42, uuid, 99)
   })
-
+  it('issues paid orders with form 99 as PPD', async () => {
+    mockModel.findByUuid.mockResolvedValue({ ...paid, payment_type: 99 })
+    mockBilling.getBillByOrderId.mockResolvedValueOnce([]).mockResolvedValueOnce([{ external_id: 'ppd' }])
+    await new PublicOrderInvoiceService().download(uuid)
+    expect(mockBilling.addInvoice).toHaveBeenCalledWith([42], '601', '99', 'PPD')
+  })
+  it('does not issue a cancelled PPD order', async () => {
+    mockModel.findByUuid.mockResolvedValue({ ...paid, payment_type: 99, status: 'cancelled' })
+    await expect(new PublicOrderInvoiceService().download(uuid)).rejects.toMatchObject({ statusCode: 409 })
+    expect(mockModel.claim).not.toHaveBeenCalled()
+  })
   it('allows only one simultaneous request to issue', async () => {
     mockModel.claim.mockResolvedValueOnce(true).mockResolvedValueOnce(false)
     mockBilling.addInvoice.mockImplementation(async () => {
@@ -143,4 +156,22 @@ it.each([undefined, { ...paid, deleted_at: new Date() }])('hides unavailable pub
   mockModel.findByUuid.mockResolvedValue(order)
   await expect(new PublicOrderInvoiceService().details(uuid)).rejects.toMatchObject({ statusCode: 404 })
   expect(mockClients.getClient).not.toHaveBeenCalled()
+})
+
+it.each([99, '99'])('downloads unpaid type %s invoices without metadata lookup or reissuing', async payment_type => {
+  mockModel.findByUuid.mockResolvedValue({ ...paid, status: 'pending', payment_type, billed: 'ppd' })
+  mockBilling.getBillByOrderId.mockResolvedValue([{ external_id: 'ppd' }, { external_id: 'complement' }])
+  mockBilling.getBillById.mockRejectedValue(new Error('Metadata unavailable'))
+  const files = unzipSync(await new PublicOrderInvoiceService().download(uuid))
+  expect(Object.keys(files)).toHaveLength(4)
+  expect(strFromU8(files['factura-1/factura.pdf'])).toBe('PDF ppd')
+  expect(mockBilling.getBillById).not.toHaveBeenCalled()
+  expect(mockBilling.addInvoice).not.toHaveBeenCalled()
+  expect(mockModel.claim).not.toHaveBeenCalled()
+})
+it.each([1, '01', 3, null])('blocks unpaid non-99 order: %s', async payment_type => {
+  mockModel.findByUuid.mockResolvedValue({ ...paid, status: 'pending', payment_type, billed: 'existing' })
+  await expect(new PublicOrderInvoiceService().download(uuid)).rejects.toMatchObject({ statusCode: 409 })
+  expect(mockProvider.downloadPdf).not.toHaveBeenCalled()
+  expect(mockBilling.addInvoice).not.toHaveBeenCalled()
 })
